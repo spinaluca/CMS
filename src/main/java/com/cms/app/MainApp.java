@@ -10,7 +10,7 @@ public class MainApp extends Application {
     public void start(Stage primaryStage) {
         BoundaryDBMS db = new BoundaryDBMS();
         ControlAccount ctrlAccount = new ControlAccount(primaryStage, db);
-        ctrlAccount.apriLogin();  // Mostra schermata login all'avvio
+        ctrlAccount.apriLogin();
     }
 
     public static void main(String[] args) {
