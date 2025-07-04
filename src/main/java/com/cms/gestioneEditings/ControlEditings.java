@@ -91,4 +91,8 @@ public class ControlEditings {
     public List<EntityArticolo> getCameraReadyArticoli(String confId) {
         return db.getCameraReadyArticoli(confId);
     }
+
+    public java.util.Optional<String> getLabelUtente(String email) {
+        return db.queryGetUtente(email).map(u -> u.getNome() + " " + u.getCognome());
+    }
 } 

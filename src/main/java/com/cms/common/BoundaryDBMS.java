@@ -823,14 +823,13 @@ public class BoundaryDBMS {
     }
 
     public void inviaFeedback(String emailEditor, File file, String idArticolo) {
-        String sql = "INSERT INTO feedback_editor(id, articolo_id, email_editor, file_url, data_invio) VALUES(?,?,?,?,?)";
+        String sql = "INSERT INTO feedback_editor(articolo_id, editor_id, file_url, data_invio) VALUES(?,?,?,?)";
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, UUID.randomUUID().toString());
-            ps.setString(2, idArticolo);
-            ps.setString(3, emailEditor);
-            ps.setString(4, file.getAbsolutePath());
-            ps.setString(5, LocalDate.now().toString());
+            ps.setString(1, idArticolo);
+            ps.setString(2, emailEditor);
+            ps.setString(3, file.getAbsolutePath());
+            ps.setString(4, LocalDate.now().toString());
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Errore inviaFeedback", e);

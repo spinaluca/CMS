@@ -41,6 +41,7 @@ public class InfoConferenzaEditor {
         VBox left = new VBox(6,
                 new Label("Luogo: " + conf.getLuogo()),
                 new Label("Distribuzione: " + conf.getModalitaDistribuzione()),
+                new Label("Scadenza Invio Camera-ready: " + conf.getScadenzaCameraReady()),
                 new Label("Scadenza Feedback Editore: " + conf.getScadenzaFeedbackEditore())
         );
         left.setPrefWidth(300);
@@ -68,7 +69,11 @@ public class InfoConferenzaEditor {
         colTitolo.setMinWidth(200);
 
         TableColumn<EntityArticolo, String> colAut = new TableColumn<>("Autore");
-        colAut.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getAutoreId()));
+        colAut.setCellValueFactory(data -> {
+            String email = data.getValue().getAutoreId();
+            String label = ctrl.getLabelUtente(email).map(n -> email + " | " + n).orElse(email);
+            return new ReadOnlyStringWrapper(label);
+        });
 
         TableColumn<EntityArticolo, String> colFeed = new TableColumn<>("Feedback");
         colFeed.setCellValueFactory(data -> new ReadOnlyStringWrapper(ctrl.hasFeedback(data.getValue().getId()) ? "✔️" : "❌"));
@@ -81,7 +86,7 @@ public class InfoConferenzaEditor {
                 .collect(Collectors.toList());
         table.getItems().addAll(articoli);
 
-        Button btnVisualizza = new Button("Visualizza");
+        Button btnVisualizza = new Button("Visualizza Versione Camera-ready");
         btnVisualizza.setOnAction(e -> {
             EntityArticolo sel = table.getSelectionModel().getSelectedItem();
             if (sel != null) {
@@ -109,7 +114,7 @@ public class InfoConferenzaEditor {
         Button btnBack = new Button("Indietro");
         btnBack.setOnAction(e -> new HomepageEditor(stage, ctrl, ctrlAccount).show());
 
-        VBox layout = new VBox(10, lbl, infoSection, tableBox, btnBack);
+        VBox layout = new VBox(10, lbl, infoSection, tableBox);
         layout.setPadding(new Insets(10));
 
         HeaderBar header = new HeaderBar(ctrlAccount, this::show);
@@ -117,7 +122,7 @@ public class InfoConferenzaEditor {
 
         VBox root = new VBox(header, layout);
 
-        stage.setScene(new Scene(root, 900, 650));
+        stage.setScene(new Scene(root, 630, 650));
         stage.setTitle("Dettagli Conferenza - Editor");
         stage.show();
     }
