@@ -77,7 +77,7 @@ public class ControlConferenze {
         return db.queryGetRevisoriConStato(confId); // email → stato
     }
 
-    public Optional<String> getNomeCompleto(String email) {
-        return db.queryGetNomeCompleto(email);
+    public Optional<String> getLabelUtente(String email) {
+        return db.queryGetUtente(email).map(u -> u.getNome() + " " + u.getCognome());
     }
 }

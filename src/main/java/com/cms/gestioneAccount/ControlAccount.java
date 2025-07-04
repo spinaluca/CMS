@@ -191,4 +191,10 @@ public class ControlAccount {
         utenteCorrente = null;
         apriLogin();
     }
+
+    public void apriHomepageEditor() {
+        BoundaryDBMS db = new BoundaryDBMS();
+        com.cms.gestioneEditings.ControlEditings ctrlEd = new com.cms.gestioneEditings.ControlEditings(db, getUtenteCorrente(), this, stage);
+        new com.cms.gestioneEditings.HomepageEditor(stage, ctrlEd, this).show();
+    }
 }

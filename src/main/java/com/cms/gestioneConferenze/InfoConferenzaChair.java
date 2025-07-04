@@ -50,7 +50,7 @@ public class InfoConferenzaChair {
                         " | Massima: " + conf.getValutazioneMassima()),
                 new Label("Numero Vincitori: " + conf.getNumeroVincitori()),
                 new Label("Editor: " + conf.getEditor()
-                        .map(email -> email + ctrl.getNomeCompleto(email).map(n -> " | " + n).orElse(""))
+                        .map(email -> email + ctrl2.getDatiUtente(email).map(u -> " | " + u.getNome() + " " + u.getCognome()).orElse(""))
                         .orElse("<nessuno>"))
         );
         left.setPrefWidth(400);
@@ -90,7 +90,11 @@ public class InfoConferenzaChair {
         colTit.setMinWidth(200);
 
         TableColumn<EntityArticolo, String> colAut = new TableColumn<>("Autore");
-        colAut.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getAutoreId()));
+        colAut.setCellValueFactory(data -> {
+            String email = data.getValue().getAutoreId();
+            String label = ctrl2.getDatiUtente(email).map(u -> email + " | " + u.getNome() + " " + u.getCognome()).orElse(email);
+            return new ReadOnlyStringWrapper(label);
+        });
 
         TableColumn<EntityArticolo, Integer> colRev = new TableColumn<>("Revisioni");
         colRev.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getNumRevisioni()));
@@ -113,7 +117,7 @@ public class InfoConferenzaChair {
         Label revisoriLbl = new Label("Revisori:");
         ListView<String> lvRev = new ListView<>();
         ctrl.getRevisoriConStato(confId).forEach((email, stato) -> {
-            String nome = ctrl.getNomeCompleto(email).orElse("");
+            String nome = ctrl2.getDatiUtente(email).map(u -> u.getNome() + " " + u.getCognome()).orElse("");
             lvRev.getItems().add(email + (nome.isEmpty() ? "" : " | " + nome) + " [" + stato + "]");
         });
 

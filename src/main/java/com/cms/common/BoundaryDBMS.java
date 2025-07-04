@@ -308,15 +308,35 @@ public class BoundaryDBMS {
     }
 
     private EntityUtente mapUtente(ResultSet rs) throws SQLException {
+        String email = rs.getString("email");
+        String nome = rs.getString("nome");
+        String cognome = rs.getString("cognome");
+        String ruolo = rs.getString("ruolo");
+        String areeCompetenza = rs.getString("aree_competenza");
+        String password = rs.getString("password");
+        String passwordTemporanea = rs.getString("password_temporanea");
+        
+        // Controllo se tutti i campi obbligatori sono null
+        if (email == null && nome == null && cognome == null && 
+            ruolo == null && password == null) {
+            throw new SQLException("Tutti i campi obbligatori dell'utente sono null");
+        }
+        
+        String dataNascitaStr = rs.getString("data_nascita");
+        LocalDate dataNascita = null;
+        if (dataNascitaStr != null && !dataNascitaStr.trim().isEmpty()) {
+            dataNascita = LocalDate.parse(dataNascitaStr);
+        }
+        
         return new EntityUtente(
-                rs.getString("email"),
-                rs.getString("nome"),
-                rs.getString("cognome"),
-                rs.getString("ruolo"),
-                rs.getString("aree_competenza"),
-                LocalDate.parse(rs.getString("data_nascita")),
-                rs.getString("password"),
-                rs.getString("password_temporanea").equalsIgnoreCase("true")
+                email,
+                nome,
+                cognome,
+                ruolo,
+                areeCompetenza,
+                dataNascita,
+                password,
+                passwordTemporanea != null && passwordTemporanea.equalsIgnoreCase("true")
         );
     }
 
@@ -375,15 +395,35 @@ public class BoundaryDBMS {
             ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
+                String emailUtente = rs.getString("email");
+                String nome = rs.getString("nome");
+                String cognome = rs.getString("cognome");
+                String ruolo = rs.getString("ruolo");
+                String areeCompetenza = rs.getString("aree_competenza");
+                String password = rs.getString("password");
+                String passwordTemporanea = rs.getString("password_temporanea");
+                
+                // Controllo se tutti i campi obbligatori sono null
+                if (emailUtente == null && nome == null && cognome == null && 
+                    ruolo == null && password == null) {
+                    return Optional.empty();
+                }
+                
+                String dataNascitaStr = rs.getString("data_nascita");
+                LocalDate dataNascita = null;
+                if (dataNascitaStr != null && !dataNascitaStr.trim().isEmpty()) {
+                    dataNascita = LocalDate.parse(dataNascitaStr);
+                }
+                
                 return Optional.of(new EntityUtente(
-                        rs.getString("email"),
-                        rs.getString("nome"),
-                        rs.getString("cognome"),
-                        rs.getString("ruolo"),
-                        rs.getString("aree_competenza"),
-                        LocalDate.parse(rs.getString("data_nascita")),
-                        rs.getString("password"),
-                        rs.getString("password_temporanea").equalsIgnoreCase("true")
+                        emailUtente,
+                        nome,
+                        cognome,
+                        ruolo,
+                        areeCompetenza,
+                        dataNascita,
+                        password,
+                        passwordTemporanea != null && passwordTemporanea.equalsIgnoreCase("true")
                 ));
             }
         } catch (SQLException e) {
@@ -756,5 +796,129 @@ public class BoundaryDBMS {
         } catch (SQLException e) {
             throw new RuntimeException("Errore inviaDettagliArticolo", e);
         }
+    }
+
+    // ======================  FUNZIONI EDITOR  =============================
+
+    public List<EntityConferenza> getConferenzeEditor(String emailEditor) {
+        String sql = "SELECT * FROM conferenze WHERE editor_id = ?";
+        List<EntityConferenza> list = new ArrayList<>();
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, emailEditor);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapConf(rs));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore durante getConferenzeEditor", e);
+        }
+        return list;
+    }
+
+    public Optional<EntityConferenza> getConferenzaEditor(String idConferenza, String emailEditor) {
+        String sql = "SELECT * FROM conferenze WHERE id = ? AND editor_id = ?";
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, idConferenza);
+            ps.setString(2, emailEditor);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return Optional.of(mapConf(rs));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore durante getConferenzaEditor", e);
+        }
+        return Optional.empty();
+    }
+
+    public Optional<File> getVersioneCameraready(String idArticolo) {
+        return recuperaUltimaVersione(idArticolo, "camera_ready");
+    }
+
+    public LocalDate getDataScadenzaFeedbackEditore(String idConferenza) {
+        String sql = "SELECT scad_feedback_editore FROM conferenze WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, idConferenza);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return LocalDate.parse(rs.getString("scad_feedback_editore"));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore getDataScadenzaFeedback", e);
+        }
+        throw new RuntimeException("Conferenza non trovata " + idConferenza);
+    }
+
+    public boolean getPresenzaFeedback(String idArticolo) {
+        String sql = "SELECT 1 FROM feedback_editor WHERE articolo_id = ?";
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, idArticolo);
+            return ps.executeQuery().next();
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore getPresenzaFeedback", e);
+        }
+    }
+
+    public void inviaFeedback(String emailEditor, File file, String idArticolo) {
+        String sql = "INSERT INTO feedback_editor(articolo_id, editor_id, file_url, data_invio) VALUES(?,?,?,?)";
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, idArticolo);
+            ps.setString(2, emailEditor);
+            ps.setString(3, file.getAbsolutePath());
+            ps.setString(4, LocalDate.now().toString());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore inviaFeedback", e);
+        }
+    }
+
+    public void notificaAutore(String idArticolo) {
+        String sql = "SELECT a.autore_id, c.titolo FROM articoli a JOIN conferenze c ON a.conferenza_id = c.id WHERE a.id = ?";
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, idArticolo);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                String emailAutore = rs.getString("autore_id");
+                String titConf = rs.getString("titolo");
+                String subject = "Nuovo Feedback Editor";
+                String msg = "È disponibile un nuovo feedback per il tuo articolo nella conferenza " + titConf;
+                com.cms.utils.MailUtil.inviaMail(msg, emailAutore, subject);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore notificaAutore", e);
+        }
+    }
+
+    public List<EntityArticolo> getCameraReadyArticoli(String confId) {
+        String sql = "SELECT a.* FROM articoli a " +
+                     "JOIN (SELECT articolo_id, MAX(id) AS max_id FROM versioni WHERE tipo = 'camera_ready' GROUP BY articolo_id) v " +
+                     "ON v.articolo_id = a.id WHERE a.conferenza_id = ?";
+        List<EntityArticolo> list = new ArrayList<>();
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, confId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(new EntityArticolo(
+                        rs.getString("id"),
+                        rs.getString("conferenza_id"),
+                        rs.getString("titolo"),
+                        rs.getString("parole_chiave"),
+                        rs.getString("stato"),
+                        rs.getString("autore_id"),
+                        rs.getObject("posizione") != null ? rs.getInt("posizione") : null,
+                        rs.getObject("num_revisioni") != null ? rs.getInt("num_revisioni") : null,
+                        rs.getObject("punteggio") != null ? rs.getDouble("punteggio") : null
+                ));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore getCameraReadyArticoli", e);
+        }
+        return list;
     }
 }
