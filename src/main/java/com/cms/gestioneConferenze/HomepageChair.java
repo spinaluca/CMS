@@ -31,7 +31,7 @@ public class HomepageChair {
 
         TableColumn<EntityConferenza, String> colA = new TableColumn<>("Acronimo");
         colA.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getAcronimo()));
-        colA.setPrefWidth(100);
+        colA.setPrefWidth(200);
 
         TableColumn<EntityConferenza, String> colT = new TableColumn<>("Titolo");
         colT.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getTitolo()));

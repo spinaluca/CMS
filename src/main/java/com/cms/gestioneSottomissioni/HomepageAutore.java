@@ -4,16 +4,18 @@ import com.cms.common.HeaderBar;
 import com.cms.entity.EntityConferenza;
 import com.cms.entity.EntityUtente;
 import com.cms.gestioneAccount.ControlAccount;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.collections.FXCollections;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+
 
 public class HomepageAutore {
     private final Stage stage;
@@ -48,16 +50,13 @@ public class HomepageAutore {
         // Welcome section
         VBox welcomeSection = createWelcomeSection();
 
-        // Statistics cards
-        HBox statsSection = createStatsSection(conferenzeIscritto.size(), conferenzeNonIscritto.size());
-
         // Enrolled conferences section
         VBox enrolledSection = createEnrolledConferencesSection(conferenzeIscritto);
 
         // Available conferences section
         VBox availableSection = createAvailableConferencesSection(conferenzeNonIscritto);
 
-        mainLayout.getChildren().addAll(welcomeSection, statsSection, enrolledSection, availableSection);
+        mainLayout.getChildren().addAll(welcomeSection, enrolledSection, availableSection);
 
         // Wrap in scroll pane for better responsiveness
         ScrollPane scrollPane = new ScrollPane(mainLayout);
@@ -68,7 +67,12 @@ public class HomepageAutore {
         header.getBtnBack().setOnAction(e -> ctrlAccount.apriHomepageGenerale());
         VBox root = new VBox(header, scrollPane);
 
-        stage.setScene(new Scene(root, 1100, 750));
+        Scene scene = new Scene(root, 1100, 750);
+        // Load the CSS file
+        String cssFile = getClass().getResource("/styles.css").toExternalForm();
+        scene.getStylesheets().add(cssFile);
+        
+        stage.setScene(scene);
         stage.setTitle("Dashboard Autore - " + autore.getNome() + " " + autore.getCognome());
         stage.show();
     }
@@ -81,76 +85,147 @@ public class HomepageAutore {
         Text welcomeTitle = new Text("Benvenuto, " + autore.getNome() + "!");
         welcomeTitle.getStyleClass().add("welcome-title");
 
-        Text welcomeSubtitle = new Text("Gestisci le tue conferenze e sottomissioni da questo pannello");
-        welcomeSubtitle.getStyleClass().add("welcome-subtitle");
-
-        welcomeSection.getChildren().addAll(welcomeTitle, welcomeSubtitle);
+        welcomeSection.getChildren().add(welcomeTitle);
         return welcomeSection;
     }
 
-    private HBox createStatsSection(int enrolledCount, int availableCount) {
-        HBox statsSection = new HBox(20);
-        statsSection.setAlignment(Pos.CENTER);
-        statsSection.getStyleClass().add("stats-section");
 
-        // Enrolled conferences card
-        VBox enrolledCard = createStatCard("📚", String.valueOf(enrolledCount), "Conferenze Iscritto", "primary");
-        
-        // Available conferences card
-        VBox availableCard = createStatCard("🔍", String.valueOf(availableCount), "Conferenze Disponibili", "secondary");
 
-        // Total conferences card
-        VBox totalCard = createStatCard("📊", String.valueOf(enrolledCount + availableCount), "Totale Conferenze", "accent");
-
-        statsSection.getChildren().addAll(enrolledCard, availableCard, totalCard);
-        return statsSection;
-    }
-
-    private VBox createStatCard(String icon, String number, String label, String style) {
-        VBox card = new VBox(10);
-        card.getStyleClass().addAll("stat-card", style + "-stat-card");
-        card.setAlignment(Pos.CENTER);
-        card.setPrefWidth(200);
-
-        Text iconText = new Text(icon);
-        iconText.getStyleClass().add("stat-icon");
-
-        Text numberText = new Text(number);
-        numberText.getStyleClass().add("stat-number");
-
-        Text labelText = new Text(label);
-        labelText.getStyleClass().add("stat-label");
-
-        card.getChildren().addAll(iconText, numberText, labelText);
-        return card;
-    }
-
+    @SuppressWarnings("unchecked")
     private VBox createEnrolledConferencesSection(ObservableList<EntityConferenza> conferenzeIscritto) {
         VBox section = new VBox(15);
-        section.getStyleClass().add("table-section");
+        section.getStyleClass().add("conference-section");
 
-        // Section header
-        HBox headerBox = new HBox(15);
-        headerBox.setAlignment(Pos.CENTER_LEFT);
-        headerBox.getStyleClass().add("section-header");
-
-        Text sectionTitle = new Text("📚 Le Tue Conferenze");
+        Label sectionTitle = new Label("Le tue conferenze");
         sectionTitle.getStyleClass().add("section-title");
 
-        Label countBadge = new Label(String.valueOf(conferenzeIscritto.size()));
-        countBadge.getStyleClass().add("count-badge");
+        if (conferenzeIscritto.isEmpty()) {
+            Label emptyLabel = new Label("Non sei iscritto a nessuna conferenza al momento.");
+            emptyLabel.getStyleClass().add("empty-message");
+            section.getChildren().addAll(sectionTitle, emptyLabel);
+            return section;
+        }
 
-        headerBox.getChildren().addAll(sectionTitle, countBadge);
+        // Create table with the same structure as HomepageChair
+        TableView<EntityConferenza> table = new TableView<>();
+        table.setItems(conferenzeIscritto);
 
-        // Create table with modern styling
-        TableView<EntityConferenza> tableIscritto = creaTabella(conferenzeIscritto);
-        tableIscritto.getStyleClass().add("modern-table-view");
-        tableIscritto.setPrefHeight(300);
+        // Acronimo column
+        TableColumn<EntityConferenza, String> colA = new TableColumn<>("Acronimo");
+        colA.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getAcronimo()));
+        colA.setPrefWidth(150);
+        colA.setStyle("-fx-font-weight: 600; -fx-font-size: 13px; -fx-alignment: CENTER_LEFT;");
 
-        // Action buttons
-        HBox actionButtons = createActionButtons(tableIscritto, true);
+        // Titolo column
+        TableColumn<EntityConferenza, String> colT = new TableColumn<>("Titolo");
+        colT.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getTitolo()));
+        colT.setPrefWidth(300);
+        colT.setStyle("-fx-font-weight: 600; -fx-font-size: 13px;");
 
-        section.getChildren().addAll(headerBox, tableIscritto, actionButtons);
+        // Luogo column
+        TableColumn<EntityConferenza, String> colL = new TableColumn<>("Luogo");
+        colL.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getLuogo()));
+        colL.setPrefWidth(150);
+        colL.setStyle("-fx-font-size: 13px; -fx-alignment: CENTER_LEFT;");
+
+        // Descrizione column with text wrapping
+        TableColumn<EntityConferenza, String> colD = new TableColumn<>("Descrizione");
+        colD.setCellValueFactory(c -> {
+            String descrizione = c.getValue().getDescrizione();
+            if (descrizione != null && descrizione.length() > 200) {
+                descrizione = descrizione.substring(0, 200) + "...";
+            }
+            return new SimpleStringProperty(descrizione);
+        });
+        
+        colD.setCellFactory(tc -> new TableCell<EntityConferenza, String>() {
+            private final Text text = new Text();
+            private static final int TEXT_PADDING = 24;
+
+            {
+                text.setStyle("-fx-font-size: 13px; -fx-fill: #4b5563;");
+                text.wrappingWidthProperty().bind(tc.widthProperty().subtract(TEXT_PADDING));
+                setPrefHeight(Region.USE_COMPUTED_SIZE);
+                setWrapText(true);
+            }
+
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setGraphic(null);
+                } else {
+                    text.setText(item);
+                    setGraphic(text);
+                }
+            }
+        });
+
+        // Bind column widths
+        colD.prefWidthProperty().bind(
+            table.widthProperty()
+                .subtract(colA.widthProperty())
+                .subtract(colT.widthProperty())
+                .subtract(colL.widthProperty())
+                .subtract(2) // Account for borders
+        );
+
+        table.getColumns().addAll(colA, colT, colL, colD);
+        table.setFixedCellSize(50);
+        table.setStyle(
+            "-fx-background-color: #ffffff;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0, 0, 2);" +
+            "-fx-background-radius: 8;"
+        );
+        
+        // Add hover and click effects
+        table.setRowFactory(tv -> {
+            TableRow<EntityConferenza> row = new TableRow<>();
+            
+            // Hover effect that doesn't override selection
+            row.hoverProperty().addListener((obs, wasHovered, isNowHovered) -> {
+                if (row.isSelected()) return; // Skip hover effect if row is selected
+                if (isNowHovered) {
+                    row.setStyle("-fx-background-color: #f1f5f9; -fx-cursor: hand;");
+                } else {
+                    row.setStyle(
+                        row.getIndex() % 2 == 0 ? 
+                        "-fx-background-color: #ffffff;" : 
+                        "-fx-background-color: #f8fafc;"
+                    );
+                }
+            });
+            
+            // Alternating row colors with selection support
+            row.styleProperty().bind(
+                Bindings.when(row.selectedProperty())
+                    .then("-fx-background-color: #e2e8f0; -fx-cursor: default;")
+                    .otherwise(
+                        Bindings.when(
+                            Bindings.createBooleanBinding(
+                                () -> row.getIndex() % 2 == 0,
+                                row.indexProperty()
+                            )
+                        )
+                        .then("-fx-background-color: #ffffff;")
+                        .otherwise("-fx-background-color: #f8fafc;")
+                    )
+            );
+            
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !row.isEmpty()) {
+                    EntityConferenza selected = row.getItem();
+                    new InfoConferenzaAutore(stage, ctrl, selected.getId(), false).show();
+                }
+            });
+            return row;
+        });
+
+        // Add action buttons
+        HBox actionButtons = createActionButtons(table, true);
+        
+        VBox.setVgrow(table, Priority.ALWAYS);
+        section.getChildren().addAll(sectionTitle, table, actionButtons);
         return section;
     }
 
@@ -184,67 +259,154 @@ public class HomepageAutore {
     }
 
     private HBox createActionButtons(TableView<EntityConferenza> table, boolean isEnrolled) {
-        HBox buttonBox = new HBox(10);
+        HBox buttonBox = new HBox(12);
         buttonBox.setAlignment(Pos.CENTER_RIGHT);
-        buttonBox.getStyleClass().add("action-buttons-section");
+        buttonBox.setPadding(new Insets(16, 0, 8, 0));
 
+        // Create Details button with modern styling
+        Button btnDetails = new Button("Dettagli");
+        btnDetails.setStyle(
+            "-fx-background-color: #2563eb; " +
+            "-fx-text-fill: white; " +
+            "-fx-border-color: transparent; " +
+            "-fx-padding: 12px 24px; " +
+            "-fx-background-radius: 8; " +
+            "-fx-font-weight: 600; " +
+            "-fx-font-size: 14px; " +
+            "-fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.3), 4, 0, 0, 2);"
+        );
+        
+        // Add hover effect for details button
+        btnDetails.setOnMouseEntered(e -> 
+            btnDetails.setStyle(
+                "-fx-background-color: #1d4ed8; " +
+                "-fx-text-fill: white; " +
+                "-fx-border-color: transparent; " +
+                "-fx-padding: 12px 24px; " +
+                "-fx-background-radius: 8; " +
+                "-fx-font-weight: 600; " +
+                "-fx-font-size: 14px; " +
+                "-fx-effect: dropshadow(gaussian, rgba(29, 78, 216, 0.4), 6, 0, 0, 2);"
+            )
+        );
+        btnDetails.setOnMouseExited(e -> 
+            btnDetails.setStyle(
+                "-fx-background-color: #2563eb; " +
+                "-fx-text-fill: white; " +
+                "-fx-border-color: transparent; " +
+                "-fx-padding: 12px 24px; " +
+                "-fx-background-radius: 8; " +
+                "-fx-font-weight: 600; " +
+                "-fx-font-size: 14px; " +
+                "-fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.3), 4, 0, 0, 2);"
+            )
+        );
+        
+        // Create Action button (Subscribe/Unsubscribe) with modern styling
+        String actionButtonText = isEnrolled ? "Disiscriviti" : "Iscriviti";
+        String actionButtonColor = isEnrolled ? "#ef4444" : "#10b981";
+        String actionButtonHover = isEnrolled ? "#dc2626" : "#059669";
+        String actionButtonShadow = isEnrolled ? "rgba(239, 68, 68, 0.3)" : "rgba(16, 185, 129, 0.3)";
+        String actionButtonHoverShadow = isEnrolled ? "rgba(220, 38, 38, 0.4)" : "rgba(5, 150, 105, 0.4)";
+        
+        Button btnAction = new Button(actionButtonText);
+        btnAction.setStyle(
+            "-fx-background-color: " + actionButtonColor + "; " +
+            "-fx-text-fill: white; " +
+            "-fx-border-color: transparent; " +
+            "-fx-padding: 12px 24px; " +
+            "-fx-background-radius: 8; " +
+            "-fx-font-weight: 600; " +
+            "-fx-font-size: 14px; " +
+            "-fx-effect: dropshadow(gaussian, " + actionButtonShadow + ", 4, 0, 0, 2);"
+        );
+        
+        // Add hover effect for action button
+        btnAction.setOnMouseEntered(e -> 
+            btnAction.setStyle(
+                "-fx-background-color: " + actionButtonHover + "; " +
+                "-fx-text-fill: white; " +
+                "-fx-border-color: transparent; " +
+                "-fx-padding: 12px 24px; " +
+                "-fx-background-radius: 8; " +
+                "-fx-font-weight: 600; " +
+                "-fx-font-size: 14px; " +
+                "-fx-effect: dropshadow(gaussian, " + actionButtonHoverShadow + ", 6, 0, 0, 2);"
+            )
+        );
+        btnAction.setOnMouseExited(e -> 
+            btnAction.setStyle(
+                "-fx-background-color: " + actionButtonColor + "; " +
+                "-fx-text-fill: white; " +
+                "-fx-border-color: transparent; " +
+                "-fx-padding: 12px 24px; " +
+                "-fx-background-radius: 8; " +
+                "-fx-font-weight: 600; " +
+                "-fx-font-size: 14px; " +
+                "-fx-effect: dropshadow(gaussian, " + actionButtonShadow + ", 4, 0, 0, 2);"
+            )
+        );
+        // Set button actions based on enrollment status
         if (isEnrolled) {
-            Button btnDettagli = new Button("📄 Dettagli Conferenza");
-            btnDettagli.getStyleClass().addAll("action-button", "primary-button");
-            btnDettagli.setOnAction(e -> {
-                EntityConferenza sel = table.getSelectionModel().getSelectedItem();
-                if (sel != null) {
-                    new InfoConferenzaAutore(stage, ctrl, sel.getId(), true).show();
+            // For enrolled conferences
+            btnDetails.setOnAction(e -> {
+                EntityConferenza selected = table.getSelectionModel().getSelectedItem();
+                if (selected != null) {
+                    new InfoConferenzaAutore(stage, ctrl, selected.getId(), false).show();
                 } else {
                     showSelectionAlert("Seleziona una conferenza per visualizzare i dettagli");
                 }
             });
-
-            Button btnSottometti = new Button("📝 Gestisci Sottomissioni");
-            btnSottometti.getStyleClass().addAll("action-button", "success-button");
-            btnSottometti.setOnAction(e -> {
-                EntityConferenza sel = table.getSelectionModel().getSelectedItem();
-                if (sel != null) {
-                    new InfoConferenzaAutore(stage, ctrl, sel.getId(), true).show();
-                } else {
-                    showSelectionAlert("Seleziona una conferenza per gestire le sottomissioni");
-                }
-            });
-
-            buttonBox.getChildren().addAll(btnDettagli, btnSottometti);
-        } else {
-            Button btnDettagli = new Button("📄 Dettagli");
-            btnDettagli.getStyleClass().addAll("action-button", "secondary-button");
-            btnDettagli.setOnAction(e -> {
-                EntityConferenza sel = table.getSelectionModel().getSelectedItem();
-                if (sel != null) {
-                    new InfoConferenzaAutore(stage, ctrl, sel.getId(), false).show();
-                } else {
-                    showSelectionAlert("Seleziona una conferenza per visualizzare i dettagli");
-                }
-            });
-
-            Button btnIscriviti = new Button("✅ Iscriviti");
-            btnIscriviti.getStyleClass().addAll("action-button", "success-button");
-            btnIscriviti.setOnAction(e -> {
-                EntityConferenza sel = table.getSelectionModel().getSelectedItem();
-                if (sel != null) {
-                    showConfirmationDialog(
-                        "Conferma Iscrizione",
-                        "Vuoi iscriverti alla conferenza \"" + sel.getTitolo() + "\"?",
+            
+            btnAction.setOnAction(e -> {
+                EntityConferenza selected = table.getSelectionModel().getSelectedItem();
+                if (selected != null) {
+                    showConfirmationDialog("Conferma operazione", 
+                        "Sei sicuro di voler annullare l'iscrizione a questa conferenza?", 
                         () -> {
-                            ctrl.iscrivitiConferenza(sel.getId());
+                            // Note: There's no direct method to remove subscription in ControlSottomissioni
+                            // This will need to be implemented in the DB layer if needed
+                            showSelectionAlert("Funzionalità non ancora implementata");
+                            // ctrl.rimuoviIscrizione(selected.getId()); // This method doesn't exist yet
+                            // show(); // Refresh the view
+                        }
+                    );
+                } else {
+                    showSelectionAlert("Seleziona una conferenza per procedere");
+                }
+            });
+        } else {
+            // For available conferences
+            btnDetails.setOnAction(e -> {
+                EntityConferenza selected = table.getSelectionModel().getSelectedItem();
+                if (selected != null) {
+                    new InfoConferenzaAutore(stage, ctrl, selected.getId(), false).show();
+                } else {
+                    showSelectionAlert("Seleziona una conferenza per visualizzare i dettagli");
+                }
+            });
+            
+            btnAction.setOnAction(e -> {
+                EntityConferenza selected = table.getSelectionModel().getSelectedItem();
+                if (selected != null) {
+                    showConfirmationDialog("Conferma iscrizione", 
+                        "Sei sicuro di voler confermare l'iscrizione a questa conferenza?", 
+                        () -> {
+                            ctrl.iscrivitiConferenza(selected.getId());
                             show(); // Refresh the view
                         }
                     );
                 } else {
-                    showSelectionAlert("Seleziona una conferenza per iscriverti");
+                    showSelectionAlert("Seleziona una conferenza per procedere");
                 }
             });
-
-            buttonBox.getChildren().addAll(btnDettagli, btnIscriviti);
         }
 
+        // Add tooltips for better UX
+        Tooltip.install(btnDetails, new Tooltip("Visualizza i dettagli della conferenza selezionata"));
+        Tooltip.install(btnAction, new Tooltip(isEnrolled ? "Annulla l'iscrizione alla conferenza" : "Conferma l'iscrizione alla conferenza"));
+
+        buttonBox.getChildren().addAll(btnDetails, btnAction);
         return buttonBox;
     }
 
@@ -271,77 +433,48 @@ public class HomepageAutore {
         });
     }
 
+    @SuppressWarnings("unchecked")
     private TableView<EntityConferenza> creaTabella(ObservableList<EntityConferenza> data) {
         TableView<EntityConferenza> table = new TableView<>();
-        table.getStyleClass().add("modern-table-view");
-
-        // Acronimo column with icon
-        TableColumn<EntityConferenza, String> colA = new TableColumn<>("📌 Acronimo");
+        table.setItems(data);
+        
+        // Acronimo column
+        TableColumn<EntityConferenza, String> colA = new TableColumn<>("Acronimo");
         colA.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getAcronimo()));
-        colA.setPrefWidth(120);
-        colA.getStyleClass().add("table-column-center");
+        colA.setPrefWidth(150);
+        colA.setStyle("-fx-font-weight: 600; -fx-font-size: 13px; -fx-alignment: CENTER_LEFT;");
 
         // Titolo column
-        TableColumn<EntityConferenza, String> colT = new TableColumn<>("📋 Titolo");
+        TableColumn<EntityConferenza, String> colT = new TableColumn<>("Titolo");
         colT.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getTitolo()));
-        colT.setPrefWidth(250);
+        colT.setPrefWidth(300);
+        colT.setStyle("-fx-font-weight: 600; -fx-font-size: 13px;");
 
-        // Luogo column with icon
-        TableColumn<EntityConferenza, String> colL = new TableColumn<>("📍 Luogo");
+        // Luogo column
+        TableColumn<EntityConferenza, String> colL = new TableColumn<>("Luogo");
         colL.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getLuogo()));
         colL.setPrefWidth(150);
+        colL.setStyle("-fx-font-size: 13px; -fx-alignment: CENTER_LEFT;");
 
-        // Status column (new)
-        TableColumn<EntityConferenza, String> colS = new TableColumn<>("📊 Stato");
-        colS.setCellValueFactory(c -> {
-            // You can add logic here to determine conference status
-            return new SimpleStringProperty("Attiva");
-        });
-        colS.setPrefWidth(100);
-        colS.setCellFactory(tc -> new TableCell<EntityConferenza, String>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                    setGraphic(null);
-                } else {
-                    setText(item);
-                    Label statusLabel = new Label(item);
-                    statusLabel.getStyleClass().addAll("status-badge", "active-status");
-                    setGraphic(statusLabel);
-                    setText(null);
-                }
-            }
-        });
-
-        // Descrizione column with improved text wrapping
-        TableColumn<EntityConferenza, String> colD = new TableColumn<>("📝 Descrizione");
-        table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
-        colD.prefWidthProperty().bind(
-                table.widthProperty()
-                        .subtract(table.snappedLeftInset() + table.snappedRightInset())
-                        .subtract(colA.widthProperty())
-                        .subtract(colT.widthProperty())
-                        .subtract(colL.widthProperty())
-                        .subtract(colS.widthProperty())
-                        .subtract(20) // Account for column separators and scrollbar
-        );
-
+        // Descrizione column with text wrapping
+        TableColumn<EntityConferenza, String> colD = new TableColumn<>("Descrizione");
         colD.setCellValueFactory(c -> {
             String descrizione = c.getValue().getDescrizione();
-            if (descrizione.length() > 150) {
-                descrizione = descrizione.substring(0, 150) + "...";
+            if (descrizione != null && descrizione.length() > 200) {
+                descrizione = descrizione.substring(0, 200) + "...";
             }
             return new SimpleStringProperty(descrizione);
         });
-
+        
         colD.setCellFactory(tc -> new TableCell<EntityConferenza, String>() {
             private final Text text = new Text();
+            private static final int TEXT_PADDING = 24;
 
             {
-                text.wrappingWidthProperty().bind(tc.widthProperty().subtract(20));
-                text.getStyleClass().add("table-description-text");
+                text.setStyle("-fx-font-size: 13px; -fx-fill: #4b5563;");
+                text.wrappingWidthProperty().bind(tc.widthProperty().subtract(TEXT_PADDING));
+                setPrefHeight(Region.USE_COMPUTED_SIZE);
+                setWrapText(true);
             }
 
             @Override
@@ -356,10 +489,66 @@ public class HomepageAutore {
             }
         });
 
-        table.getColumns().addAll(colA, colT, colL, colS, colD);
-        table.setItems(data);
+        // Bind column widths
+        colD.prefWidthProperty().bind(
+            table.widthProperty()
+                .subtract(colA.widthProperty())
+                .subtract(colT.widthProperty())
+                .subtract(colL.widthProperty())
+                .subtract(2) // Account for borders
+        );
+
+        table.getColumns().addAll(colA, colT, colL, colD);
+        table.setFixedCellSize(50);
+        table.setStyle(
+            "-fx-background-color: #ffffff;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0, 0, 2);" +
+            "-fx-background-radius: 8;"
+        );
+
+        // Set up row factory with alternating colors, hover effects, and click handling
         table.setRowFactory(tv -> {
             TableRow<EntityConferenza> row = new TableRow<>();
+            
+            // Hover effect that doesn't override selection
+            row.hoverProperty().addListener((obs, wasHovered, isNowHovered) -> {
+                if (row.isSelected()) return; // Skip hover effect if row is selected
+                if (isNowHovered) {
+                    row.setStyle("-fx-background-color: #f1f5f9; -fx-cursor: hand;");
+                } else {
+                    row.setStyle(
+                        row.getIndex() % 2 == 0 ? 
+                        "-fx-background-color: #ffffff;" : 
+                        "-fx-background-color: #f8fafc;"
+                    );
+                }
+            });
+            
+            // Alternating row colors
+            row.styleProperty().bind(
+                Bindings.when(row.selectedProperty())
+                    .then("-fx-background-color: #e2e8f0; -fx-cursor: default;")
+                    .otherwise(
+                        Bindings.when(
+                            Bindings.createBooleanBinding(
+                                () -> row.getIndex() % 2 == 1,
+                                row.indexProperty()
+                            )
+                        ).then("-fx-background-color: #f8fafc;")
+                         .otherwise("-fx-background-color: #ffffff;")
+                    )
+            );
+            
+            // Handle selection style
+            row.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
+                if (isNowSelected) {
+                    row.setStyle("-fx-background-color: #e2e8f0; -fx-cursor: hand;");
+                } else {
+                    row.setStyle("");
+                }
+            });
+            
+            // Double-click handler
             row.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2 && !row.isEmpty()) {
                     EntityConferenza selectedConf = row.getItem();
@@ -367,30 +556,10 @@ public class HomepageAutore {
                     new InfoConferenzaAutore(stage, ctrl, selectedConf.getId(), isEnrolled).show();
                 }
             });
+            
             return row;
         });
-
-        // Set empty state
-        table.setPlaceholder(createEmptyStateNode());
-
+        
         return table;
-    }
-
-    private VBox createEmptyStateNode() {
-        VBox emptyState = new VBox(15);
-        emptyState.getStyleClass().add("table-empty-state");
-        emptyState.setAlignment(Pos.CENTER);
-
-        Text emptyIcon = new Text("📋");
-        emptyIcon.getStyleClass().add("empty-state-icon");
-
-        Text emptyTitle = new Text("Nessuna conferenza trovata");
-        emptyTitle.getStyleClass().add("empty-state-title");
-
-        Text emptyMessage = new Text("Non ci sono conferenze disponibili al momento");
-        emptyMessage.getStyleClass().add("empty-state-message");
-
-        emptyState.getChildren().addAll(emptyIcon, emptyTitle, emptyMessage);
-        return emptyState;
     }
 }

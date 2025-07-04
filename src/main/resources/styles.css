@@ -137,19 +137,19 @@
 .table-view {
     -fx-background-color: #ffffff;
     background-color: #ffffff;
-    -fx-border-color: transparent;
-    border-color: transparent;
-    -fx-border-width: 0;
-    border-width: 0;
-    -fx-border-radius: 16;
-    border-radius: 16px;
-    -fx-background-radius: 16;
+    -fx-border-color: #e2e8f0;
+    border-color: #e2e8f0;
+    -fx-border-width: 1;
+    border-width: 1px;
+    -fx-border-radius: 8;
+    border-radius: 8px;
+    -fx-background-radius: 8;
     -fx-control-inner-background: #ffffff;
-    -fx-table-header-border-color: transparent;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.08), 10, 0, 0, 4);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-    -fx-padding: 8;
-    padding: 8px;
+    -fx-table-header-border-color: #e2e8f0;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 5, 0, 0, 3);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+    -fx-padding: 0;
+    padding: 0;
 }
 
 .table-view .column-header-background {
@@ -167,18 +167,22 @@
 
 .table-view .column-header,
 .table-view .column-header .label {
-    -fx-background-color: transparent;
-    background-color: transparent;
+    -fx-background-color: #f8fafc;
+    background-color: #f8fafc;
     -fx-text-fill: #2563eb;
     color: #2563eb;
     -fx-font-weight: 600;
     font-weight: 600;
     -fx-font-size: 13px;
     font-size: 13px;
-    -fx-padding: 16 16 16 16;
-    padding: 16px 16px 16px 16px;
+    -fx-padding: 12px 16px;
+    padding: 12px 16px;
     -fx-alignment: CENTER_LEFT;
     text-align: left;
+    -fx-border-color: transparent;
+    border-color: transparent;
+    -fx-border-width: 0 0 1 0;
+    border-width: 0 0 1 0;
 }
 
 .table-view .cell {
@@ -188,20 +192,21 @@
     border-color: transparent;
     -fx-border-width: 0;
     border-width: 0;
-    -fx-padding: 14 16 14 16;
-    padding: 14px 16px 14px 16px;
+    -fx-padding: 12px 16px;
+    padding: 12px 16px;
     -fx-font-size: 14px;
     font-size: 14px;
     -fx-background-insets: 0;
+    -fx-wrap-text: true;
+    -fx-alignment: CENTER_LEFT;
+    text-align: left;
+    white-space: normal;
+    word-wrap: break-word;
 }
 
 .table-view .table-row-cell:selected {
     -fx-background-color: #eff6ff;
     background-color: #eff6ff;
-    -fx-border-color: transparent;
-    border-color: transparent;
-    -fx-text-fill: #2563eb;
-    color: #2563eb;
 }
 
 .table-view:focused .table-row-cell:selected {
