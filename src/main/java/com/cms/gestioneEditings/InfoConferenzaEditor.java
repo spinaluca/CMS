@@ -71,7 +71,7 @@ public class InfoConferenzaEditor {
         TableColumn<EntityArticolo, String> colAut = new TableColumn<>("Autore");
         colAut.setCellValueFactory(data -> {
             String email = data.getValue().getAutoreId();
-            String label = ctrl.getLabelUtente(email).map(n -> email + " | " + n).orElse(email);
+            String label = ctrlAccount.getDatiUtente(email).map(u -> email + " | " + u.getNome() + " " + u.getCognome()).orElse(email);
             return new ReadOnlyStringWrapper(label);
         });
 

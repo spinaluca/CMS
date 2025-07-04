@@ -308,15 +308,35 @@ public class BoundaryDBMS {
     }
 
     private EntityUtente mapUtente(ResultSet rs) throws SQLException {
+        String email = rs.getString("email");
+        String nome = rs.getString("nome");
+        String cognome = rs.getString("cognome");
+        String ruolo = rs.getString("ruolo");
+        String areeCompetenza = rs.getString("aree_competenza");
+        String password = rs.getString("password");
+        String passwordTemporanea = rs.getString("password_temporanea");
+        
+        // Controllo se tutti i campi obbligatori sono null
+        if (email == null && nome == null && cognome == null && 
+            ruolo == null && password == null) {
+            throw new SQLException("Tutti i campi obbligatori dell'utente sono null");
+        }
+        
+        String dataNascitaStr = rs.getString("data_nascita");
+        LocalDate dataNascita = null;
+        if (dataNascitaStr != null && !dataNascitaStr.trim().isEmpty()) {
+            dataNascita = LocalDate.parse(dataNascitaStr);
+        }
+        
         return new EntityUtente(
-                rs.getString("email"),
-                rs.getString("nome"),
-                rs.getString("cognome"),
-                rs.getString("ruolo"),
-                rs.getString("aree_competenza"),
-                LocalDate.parse(rs.getString("data_nascita")),
-                rs.getString("password"),
-                rs.getString("password_temporanea").equalsIgnoreCase("true")
+                email,
+                nome,
+                cognome,
+                ruolo,
+                areeCompetenza,
+                dataNascita,
+                password,
+                passwordTemporanea != null && passwordTemporanea.equalsIgnoreCase("true")
         );
     }
 
@@ -375,15 +395,35 @@ public class BoundaryDBMS {
             ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
+                String emailUtente = rs.getString("email");
+                String nome = rs.getString("nome");
+                String cognome = rs.getString("cognome");
+                String ruolo = rs.getString("ruolo");
+                String areeCompetenza = rs.getString("aree_competenza");
+                String password = rs.getString("password");
+                String passwordTemporanea = rs.getString("password_temporanea");
+                
+                // Controllo se tutti i campi obbligatori sono null
+                if (emailUtente == null && nome == null && cognome == null && 
+                    ruolo == null && password == null) {
+                    return Optional.empty();
+                }
+                
+                String dataNascitaStr = rs.getString("data_nascita");
+                LocalDate dataNascita = null;
+                if (dataNascitaStr != null && !dataNascitaStr.trim().isEmpty()) {
+                    dataNascita = LocalDate.parse(dataNascitaStr);
+                }
+                
                 return Optional.of(new EntityUtente(
-                        rs.getString("email"),
-                        rs.getString("nome"),
-                        rs.getString("cognome"),
-                        rs.getString("ruolo"),
-                        rs.getString("aree_competenza"),
-                        LocalDate.parse(rs.getString("data_nascita")),
-                        rs.getString("password"),
-                        rs.getString("password_temporanea").equalsIgnoreCase("true")
+                        emailUtente,
+                        nome,
+                        cognome,
+                        ruolo,
+                        areeCompetenza,
+                        dataNascita,
+                        password,
+                        passwordTemporanea != null && passwordTemporanea.equalsIgnoreCase("true")
                 ));
             }
         } catch (SQLException e) {
