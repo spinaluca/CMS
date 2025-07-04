@@ -77,8 +77,7 @@ public class Homepage {
         if (ruolo.charAt(3) == 'E') {
             VBox editoreCard = createRoleCard("Editore", "✏️", "Gestisci pubblicazioni", "#8b5cf6", 
                 e -> {
-                    // editorBtn.setOnAction(e -> ctrl.apriHomepageEditor());
-                    showAlert("Funzionalità in fase di sviluppo", Alert.AlertType.INFORMATION);
+                    ctrl.apriHomepageEditor();
                 });
             roleContainer.getChildren().add(editoreCard);
             haRuoli = true;
