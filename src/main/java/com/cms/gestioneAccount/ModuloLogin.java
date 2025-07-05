@@ -21,8 +21,10 @@ public class ModuloLogin {
     public void show() {
         Label emailLabel = new Label("Email:");
         TextField emailField = new TextField("a@a.a");
+        emailField.setPromptText("Inserisci il tuo indirizzo email");
         Label passwordLabel = new Label("Password:");
         PasswordField passwordField = new PasswordField();
+        passwordField.setPromptText("Inserisci la tua password");
 
         Label errorLabel = new Label();
         errorLabel.setStyle("-fx-text-fill: red");
@@ -64,7 +66,7 @@ public class ModuloLogin {
         recoverButton.setOnAction(e -> ctrl.richiestaRecuperoPassword());
 
         // Create modern form layout
-        Label titleLabel = new Label("Accedi CMS");
+        Label titleLabel = new Label("Accedi al CMS");
         titleLabel.setStyle("-fx-font-size: 28px; -fx-font-weight: 800; -fx-text-fill: #1e293b;");
         
         Label subtitleLabel = new Label("Inserisci le tue credenziali per continuare");

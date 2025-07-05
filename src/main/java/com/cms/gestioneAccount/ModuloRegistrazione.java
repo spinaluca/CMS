@@ -38,7 +38,7 @@ public class ModuloRegistrazione {
         
         Label passwordLabel = new Label("Password:");
         PasswordField passwordField = new PasswordField();
-        passwordField.setPromptText("Crea una password sicura");
+        passwordField.setPromptText("Inserisci una password sicura");
         
         Label errorLabel = new Label();
         errorLabel.setStyle("-fx-text-fill: red");
