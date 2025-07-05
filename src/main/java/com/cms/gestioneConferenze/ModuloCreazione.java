@@ -1,17 +1,11 @@
 package com.cms.gestioneConferenze;
 
 import com.cms.gestioneAccount.ControlAccount;
-import com.cms.gestioneConferenze.ControlConferenze;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.time.LocalDate;
@@ -23,424 +17,249 @@ public class ModuloCreazione {
     private final ControlConferenze ctrl;
     private final ControlAccount ctrlAccount;
 
-    // Form fields as instance variables for easier access
-    private TextField acronimoField;
-    private TextField titoloField;
-    private TextArea descrizioneArea;
-    private TextField luogoField;
-    private DatePicker scadenzaSottomissione;
-    private DatePicker scadenzaRevisioni;
-    private DatePicker dataGraduatoria;
-    private DatePicker scadenzaCameraReady;
-    private DatePicker scadenzaFeedbackEditore;
-    private DatePicker scadenzaVersioneFinale;
-    private Spinner<Integer> numeroMinimoRevisori;
-    private Spinner<Integer> valutazioneMinima;
-    private Spinner<Integer> valutazioneMassima;
-    private Spinner<Integer> numeroVincitori;
-    private ChoiceBox<String> modalitaDistribuzione;
-
     public ModuloCreazione(ControlConferenze ctrl, ControlAccount ctrlAccount) {
         this.ctrl = ctrl;
         this.ctrlAccount = ctrlAccount;
     }
 
     public void show() {
-        Dialog<Void> dialog = new Dialog<>();
-        dialog.setTitle("Crea Nuova Conferenza");
-        dialog.getDialogPane().getStyleClass().add("modern-dialog");
+        Stage stage = new Stage();
+        stage.setTitle("Crea Nuova Conferenza");
 
-        ButtonType createBtnType = new ButtonType("Crea Conferenza", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(createBtnType, ButtonType.CANCEL);
+        // Titolo e sottotitolo
+        Label titleLabel = new Label("Crea Conferenza");
+        titleLabel.setStyle("-fx-font-size: 28px; -fx-font-weight: 800; -fx-text-fill: #1e293b;");
 
-        // Main container
-        VBox mainContainer = new VBox(25);
-        mainContainer.setPadding(new Insets(30));
-        mainContainer.getStyleClass().add("creation-form-container");
+        Label subtitleLabel = new Label("Inserisci i dati per creare la conferenza");
+        subtitleLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #64748b; -fx-padding: 0 0 24 0;");
 
-        // Header section
-        VBox headerSection = createHeaderSection();
-
-        // Create tabs for better organization
-        TabPane tabPane = new TabPane();
-        tabPane.getStyleClass().add("modern-tab-pane");
-        tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-
-        // Basic Information Tab
-        Tab basicInfoTab = new Tab("📝 Informazioni Base");
-        VBox basicInfoContent = createBasicInfoSection();
-        ScrollPane basicScrollPane = new ScrollPane(basicInfoContent);
-        basicScrollPane.setFitToWidth(true);
-        basicScrollPane.getStyleClass().add("form-scroll-pane");
-        basicInfoTab.setContent(basicScrollPane);
-
-        // Dates Tab
-        Tab datesTab = new Tab("📅 Scadenze");
-        VBox datesContent = createDatesSection();
-        ScrollPane datesScrollPane = new ScrollPane(datesContent);
-        datesScrollPane.setFitToWidth(true);
-        datesScrollPane.getStyleClass().add("form-scroll-pane");
-        datesTab.setContent(datesScrollPane);
-
-        // Configuration Tab
-        Tab configTab = new Tab("⚙️ Configurazione");
-        VBox configContent = createConfigurationSection();
-        ScrollPane configScrollPane = new ScrollPane(configContent);
-        configScrollPane.setFitToWidth(true);
-        configScrollPane.getStyleClass().add("form-scroll-pane");
-        configTab.setContent(configScrollPane);
-
-        tabPane.getTabs().addAll(basicInfoTab, datesTab, configTab);
-
-        // Validation message
-        Text validationMessage = new Text();
-        validationMessage.getStyleClass().add("validation-message");
-        VBox validationBox = new VBox(validationMessage);
-        validationBox.getStyleClass().add("validation-container");
-        validationBox.setAlignment(Pos.CENTER);
-
-        mainContainer.getChildren().addAll(headerSection, tabPane, validationBox);
-        dialog.getDialogPane().setContent(mainContainer);
-
-        // Style buttons
-        Node createBtn = dialog.getDialogPane().lookupButton(createBtnType);
-        createBtn.getStyleClass().add("primary-button");
-        createBtn.setDisable(true);
-
-        Node cancelBtn = dialog.getDialogPane().lookupButton(ButtonType.CANCEL);
-        cancelBtn.getStyleClass().add("secondary-button");
-
-        // Setup validation
-        setupValidation(createBtn, validationMessage);
-
-        dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == createBtnType) {
-                Map<String, String> data = collectFormData();
-                ctrl.creaConferenza(data, ctrlAccount.getUtenteCorrente());
-                ctrlAccount.apriHomepageChair();
-            }
-            return null;
-        });
-
-        // Set dialog size and show
-        dialog.getDialogPane().setPrefSize(900, 700);
-        dialog.showAndWait();
-    }
-
-    private VBox createHeaderSection() {
-        VBox headerSection = new VBox(10);
-        headerSection.setAlignment(Pos.CENTER);
-        headerSection.getStyleClass().add("form-header");
-        
-        Text titleText = new Text("Nuova Conferenza Accademica");
-        titleText.getStyleClass().add("form-title");
-        
-        Text subtitleText = new Text("Compila tutti i campi per creare una nuova conferenza accademica");
-        subtitleText.getStyleClass().add("form-subtitle");
-        
-        headerSection.getChildren().addAll(titleText, subtitleText);
-        return headerSection;
-    }
-
-    private VBox createBasicInfoSection() {
-        VBox section = new VBox(20);
-        section.getStyleClass().add("form-section");
-        section.setPadding(new Insets(20));
-
-        // Acronimo
-        VBox acroBox = new VBox(8);
-        Label acroLabel = new Label("Acronimo della Conferenza");
-        acroLabel.getStyleClass().add("form-label");
-        acronimoField = new TextField();
-        acronimoField.getStyleClass().add("modern-text-field");
+        // Campi del form
+        Label acronimoLabel = new Label("Acronimo:");
+        acronimoLabel.setStyle("-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 14px;");
+        TextField acronimoField = new TextField();
         acronimoField.setPromptText("es. ICML, NIPS, ICLR...");
         acronimoField.setPrefWidth(400);
-        acroBox.getChildren().addAll(acroLabel, acronimoField);
 
-        // Titolo
-        VBox titleBox = new VBox(8);
-        Label titleLabel = new Label("Titolo Completo");
-        titleLabel.getStyleClass().add("form-label");
-        titoloField = new TextField();
-        titoloField.getStyleClass().add("modern-text-field");
+        Label titoloLabel = new Label("Titolo completo:");
+        titoloLabel.setStyle("-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 14px;");
+        TextField titoloField = new TextField();
         titoloField.setPromptText("Inserisci il titolo completo della conferenza");
         titoloField.setPrefWidth(400);
-        titleBox.getChildren().addAll(titleLabel, titoloField);
 
-        // Descrizione
-        VBox descBox = new VBox(8);
-        Label descLabel = new Label("Descrizione");
-        descLabel.getStyleClass().add("form-label");
-        descrizioneArea = new TextArea();
-        descrizioneArea.getStyleClass().add("modern-textarea");
-        descrizioneArea.setPromptText("Inserisci una descrizione dettagliata della conferenza, obiettivi e argomenti principali...");
-        descrizioneArea.setWrapText(true);
-        descrizioneArea.setPrefRowCount(4);
+        Label descrizioneLabel = new Label("Descrizione:");
+        descrizioneLabel.setStyle("-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 14px;");
+        TextArea descrizioneArea = new TextArea();
+        descrizioneArea.setPromptText("Inserisci una descrizione dettagliata della conferenza...");
         descrizioneArea.setPrefWidth(400);
-        descBox.getChildren().addAll(descLabel, descrizioneArea);
+        descrizioneArea.setPrefRowCount(4);
+        descrizioneArea.setWrapText(true);
 
-        // Luogo
-        VBox luogoBox = new VBox(8);
-        Label luogoLabel = new Label("Sede della Conferenza");
-        luogoLabel.getStyleClass().add("form-label");
-        luogoField = new TextField();
-        luogoField.getStyleClass().add("modern-text-field");
+        Label luogoLabel = new Label("Luogo:");
+        luogoLabel.setStyle("-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 14px;");
+        TextField luogoField = new TextField();
         luogoField.setPromptText("es. Milano, Italia");
         luogoField.setPrefWidth(400);
-        luogoBox.getChildren().addAll(luogoLabel, luogoField);
 
-        section.getChildren().addAll(acroBox, titleBox, descBox, luogoBox);
-        return section;
-    }
+        // Date
+        Label scadenzaSottomissioneLabel = new Label("Scadenza Sottomissione:");
+        scadenzaSottomissioneLabel.setStyle("-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 14px;");
+        DatePicker scadenzaSottomissione = new DatePicker();
+        scadenzaSottomissione.setPromptText("Scadenza Sottomissione");
+        scadenzaSottomissione.setPrefWidth(400);
 
-    private VBox createDatesSection() {
-        VBox section = new VBox(20);
-        section.getStyleClass().add("form-section");
-        section.setPadding(new Insets(20));
+        Label scadenzaRevisioniLabel = new Label("Scadenza Revisioni:");
+        scadenzaRevisioniLabel.setStyle("-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 14px;");
+        DatePicker scadenzaRevisioni = new DatePicker();
+        scadenzaRevisioni.setPromptText("Scadenza Revisioni");
+        scadenzaRevisioni.setPrefWidth(400);
 
-        // Info box about dates
-        VBox infoBox = new VBox(10);
-        infoBox.getStyleClass().add("info-box");
-        Text infoTitle = new Text("📅 Informazioni sulle Scadenze");
-        infoTitle.getStyleClass().add("info-title");
-        Text infoText = new Text("Le date devono essere in ordine cronologico e successive alla data odierna. " +
-                "Assicurati che ogni scadenza sia ragionevole rispetto alle precedenti.");
-        infoText.getStyleClass().add("info-text");
-        infoText.setWrappingWidth(800);
-        infoBox.getChildren().addAll(infoTitle, infoText);
+        Label dataGraduatoriaLabel = new Label("Pubblicazione Graduatoria:");
+        dataGraduatoriaLabel.setStyle("-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 14px;");
+        DatePicker dataGraduatoria = new DatePicker();
+        dataGraduatoria.setPromptText("Pubblicazione Graduatoria");
+        dataGraduatoria.setPrefWidth(400);
 
-        // Create grid for dates
-        GridPane datesGrid = new GridPane();
-        datesGrid.setHgap(30);
-        datesGrid.setVgap(20);
-        datesGrid.getStyleClass().add("dates-grid");
+        Label scadenzaCameraReadyLabel = new Label("Scadenza Camera-ready:");
+        scadenzaCameraReadyLabel.setStyle("-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 14px;");
+        DatePicker scadenzaCameraReady = new DatePicker();
+        scadenzaCameraReady.setPromptText("Scadenza Camera-ready");
+        scadenzaCameraReady.setPrefWidth(400);
 
-        // Initialize date pickers
-        scadenzaSottomissione = createDatePicker("Scadenza Sottomissione");
-        scadenzaRevisioni = createDatePicker("Scadenza Revisioni");
-        dataGraduatoria = createDatePicker("Pubblicazione Graduatoria");
-        scadenzaCameraReady = createDatePicker("Scadenza Camera-ready");
-        scadenzaFeedbackEditore = createDatePicker("Scadenza Feedback Editore");
-        scadenzaVersioneFinale = createDatePicker("Scadenza Versione Finale");
+        Label scadenzaFeedbackEditoreLabel = new Label("Scadenza Feedback Editore:");
+        scadenzaFeedbackEditoreLabel.setStyle("-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 14px;");
+        DatePicker scadenzaFeedbackEditore = new DatePicker();
+        scadenzaFeedbackEditore.setPromptText("Scadenza Feedback Editore");
+        scadenzaFeedbackEditore.setPrefWidth(400);
 
-        // Add to grid
-        datesGrid.add(createDateBox("1. Scadenza Sottomissione", scadenzaSottomissione), 0, 0);
-        datesGrid.add(createDateBox("2. Scadenza Revisioni", scadenzaRevisioni), 1, 0);
-        datesGrid.add(createDateBox("3. Pubblicazione Graduatoria", dataGraduatoria), 0, 1);
-        datesGrid.add(createDateBox("4. Scadenza Camera-ready", scadenzaCameraReady), 1, 1);
-        datesGrid.add(createDateBox("5. Scadenza Feedback Editore", scadenzaFeedbackEditore), 0, 2);
-        datesGrid.add(createDateBox("6. Scadenza Versione Finale", scadenzaVersioneFinale), 1, 2);
+        Label scadenzaVersioneFinaleLabel = new Label("Scadenza Versione Finale:");
+        scadenzaVersioneFinaleLabel.setStyle("-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 14px;");
+        DatePicker scadenzaVersioneFinale = new DatePicker();
+        scadenzaVersioneFinale.setPromptText("Scadenza Versione Finale");
+        scadenzaVersioneFinale.setPrefWidth(400);
 
-        section.getChildren().addAll(infoBox, datesGrid);
-        return section;
-    }
+        // Parametri numerici
+        Label minRevLabel = new Label("Numero Minimo Revisori per Paper:");
+        minRevLabel.setStyle("-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 14px;");
+        Spinner<Integer> numeroMinimoRevisori = new Spinner<>(1, 10, 3);
+        numeroMinimoRevisori.setPrefWidth(400);
 
-    private VBox createConfigurationSection() {
-        VBox section = new VBox(20);
-        section.getStyleClass().add("form-section");
-        section.setPadding(new Insets(20));
+        Label nWinLabel = new Label("Numero Massimo Paper Vincitori:");
+        nWinLabel.setStyle("-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 14px;");
+        Spinner<Integer> numeroVincitori = new Spinner<>(1, 100, 10);
+        numeroVincitori.setPrefWidth(400);
 
-        GridPane configGrid = new GridPane();
-        configGrid.setHgap(40);
-        configGrid.setVgap(25);
-        configGrid.getStyleClass().add("config-grid");
-
-        // Left column
-        VBox leftColumn = new VBox(20);
-
-        // Numero Minimo Revisori
-        VBox minRevBox = new VBox(8);
-        Label minRevLabel = new Label("Numero Minimo Revisori per Paper");
-        minRevLabel.getStyleClass().add("form-label");
-        numeroMinimoRevisori = new Spinner<>(1, 10, 3);
-        numeroMinimoRevisori.getStyleClass().add("modern-spinner");
-        numeroMinimoRevisori.setPrefWidth(150);
-        numeroMinimoRevisori.setEditable(true);
-        minRevBox.getChildren().addAll(minRevLabel, numeroMinimoRevisori);
-
-        // Numero Vincitori
-        VBox nWinBox = new VBox(8);
-        Label nWinLabel = new Label("Numero Massimo Paper Vincitori");
-        nWinLabel.getStyleClass().add("form-label");
-        numeroVincitori = new Spinner<>(1, 100, 10);
-        numeroVincitori.getStyleClass().add("modern-spinner");
-        numeroVincitori.setPrefWidth(150);
-        numeroVincitori.setEditable(true);
-        nWinBox.getChildren().addAll(nWinLabel, numeroVincitori);
-
-        leftColumn.getChildren().addAll(minRevBox, nWinBox);
-
-        // Right column
-        VBox rightColumn = new VBox(20);
-
-        // Valutazione Range
-        VBox valBox = new VBox(8);
-        Label valLabel = new Label("Range di Valutazione");
-        valLabel.getStyleClass().add("form-label");
-        
+        Label valLabel = new Label("Range di Valutazione:");
+        valLabel.setStyle("-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 14px;");
         HBox valRange = new HBox(15);
         valRange.setAlignment(Pos.CENTER_LEFT);
-        
         Label minLabel = new Label("Minima:");
-        minLabel.getStyleClass().add("field-label");
-        valutazioneMinima = new Spinner<>(-10, 10, 0);
-        valutazioneMinima.getStyleClass().add("modern-spinner");
+        minLabel.setStyle("-fx-text-fill: #374151; -fx-font-size: 13px;");
+        Spinner<Integer> valutazioneMinima = new Spinner<>(-10, 10, 0);
         valutazioneMinima.setPrefWidth(100);
-        valutazioneMinima.setEditable(true);
-        
         Label maxLabel = new Label("Massima:");
-        maxLabel.getStyleClass().add("field-label");
-        valutazioneMassima = new Spinner<>(-10, 10, 5);
-        valutazioneMassima.getStyleClass().add("modern-spinner");
+        maxLabel.setStyle("-fx-text-fill: #374151; -fx-font-size: 13px;");
+        Spinner<Integer> valutazioneMassima = new Spinner<>(-10, 10, 5);
         valutazioneMassima.setPrefWidth(100);
-        valutazioneMassima.setEditable(true);
-        
         valRange.getChildren().addAll(minLabel, valutazioneMinima, maxLabel, valutazioneMassima);
-        valBox.getChildren().addAll(valLabel, valRange);
 
-        // Distribuzione
-        VBox distribBox = new VBox(8);
-        Label distribLabel = new Label("Modalità Distribuzione Paper");
-        distribLabel.getStyleClass().add("form-label");
-        modalitaDistribuzione = new ChoiceBox<>();
-        modalitaDistribuzione.getStyleClass().add("modern-choice-box");
+        Label distribLabel = new Label("Modalità Distribuzione Paper:");
+        distribLabel.setStyle("-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 14px;");
+        ChoiceBox<String> modalitaDistribuzione = new ChoiceBox<>();
         modalitaDistribuzione.getItems().addAll("MANUALE", "AUTOMATICA", "BROADCAST");
         modalitaDistribuzione.setValue("MANUALE");
-        modalitaDistribuzione.setPrefWidth(200);
-        distribBox.getChildren().addAll(distribLabel, modalitaDistribuzione);
+        modalitaDistribuzione.setPrefWidth(400);
 
-        rightColumn.getChildren().addAll(valBox, distribBox);
+        // Stile per tutti i campi input
+        String inputStyle = "-fx-background-color: #ffffff; -fx-text-fill: #1e293b; " +
+                            "-fx-border-color: #cbd5e1; -fx-border-width: 1; -fx-border-radius: 8; " +
+                            "-fx-background-radius: 8; -fx-padding: 12 16 12 16; -fx-font-size: 14px;";
 
-        configGrid.add(leftColumn, 0, 0);
-        configGrid.add(rightColumn, 1, 0);
+        acronimoField.setStyle(inputStyle);
+        titoloField.setStyle(inputStyle);
+        descrizioneArea.setStyle(inputStyle);
+        luogoField.setStyle(inputStyle);
+        scadenzaSottomissione.setStyle(inputStyle + " -fx-focus-color: transparent; -fx-faint-focus-color: transparent;");
+        scadenzaRevisioni.setStyle(inputStyle + " -fx-focus-color: transparent; -fx-faint-focus-color: transparent;");
+        dataGraduatoria.setStyle(inputStyle + " -fx-focus-color: transparent; -fx-faint-focus-color: transparent;");
+        scadenzaCameraReady.setStyle(inputStyle + " -fx-focus-color: transparent; -fx-faint-focus-color: transparent;");
+        scadenzaFeedbackEditore.setStyle(inputStyle + " -fx-focus-color: transparent; -fx-faint-focus-color: transparent;");
+        scadenzaVersioneFinale.setStyle(inputStyle + " -fx-focus-color: transparent; -fx-faint-focus-color: transparent;");
+        numeroMinimoRevisori.setStyle(inputStyle);
+        numeroVincitori.setStyle(inputStyle);
+        valutazioneMinima.setStyle(inputStyle);
+        valutazioneMassima.setStyle(inputStyle);
+        modalitaDistribuzione.setStyle(inputStyle);
 
-        // Configuration info
-        VBox configInfoBox = new VBox(10);
-        configInfoBox.getStyleClass().add("info-box");
-        Text configInfoTitle = new Text("⚙️ Configurazione Parametri");
-        configInfoTitle.getStyleClass().add("info-title");
-        Text configInfoText = new Text("Definisci i parametri di valutazione e gestione per la conferenza. " +
-                "I revisori valuteranno i paper nel range specificato e la distribuzione determina come vengono assegnati.");
-        configInfoText.getStyleClass().add("info-text");
-        configInfoText.setWrappingWidth(800);
-        configInfoBox.getChildren().addAll(configInfoTitle, configInfoText);
+        // Messaggio di errore
+        Label errorLabel = new Label();
+        errorLabel.setStyle("-fx-text-fill: #dc2626; -fx-font-size: 14px;");
 
-        section.getChildren().addAll(configGrid, configInfoBox);
-        return section;
-    }
+        // Pulsanti
+        Button createButton = new Button("Crea Conferenza");
+        createButton.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; " +
+                             "-fx-border-color: transparent; -fx-padding: 12 24 12 24; " +
+                             "-fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 14px; " +
+                             "-fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.3), 4, 0, 0, 2);");
 
-    private DatePicker createDatePicker(String promptText) {
-        DatePicker datePicker = new DatePicker();
-        datePicker.getStyleClass().add("modern-date-picker");
-        datePicker.setPromptText(promptText);
-        datePicker.setPrefWidth(250);
-        return datePicker;
-    }
+        Button backButton = new Button("Annulla");
+        backButton.setStyle("-fx-background-color: #6b7280; -fx-text-fill: white; " +
+                           "-fx-border-color: transparent; -fx-padding: 12 24 12 24; " +
+                           "-fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 14px; " +
+                           "-fx-effect: dropshadow(gaussian, rgba(107, 114, 128, 0.3), 4, 0, 0, 2);");
 
-    private VBox createDateBox(String labelText, DatePicker datePicker) {
-        VBox box = new VBox(8);
-        Label label = new Label(labelText);
-        label.getStyleClass().add("form-label");
-        box.getChildren().addAll(label, datePicker);
-        return box;
-    }
+        HBox buttonContainer = new HBox(12, createButton, backButton);
+        buttonContainer.setAlignment(Pos.CENTER);
 
-    private void setupValidation(Node createBtn, Text validationMessage) {
-        Runnable validate = () -> {
-            boolean emptyFields = acronimoField.getText().isEmpty() || titoloField.getText().isEmpty() || 
-                    descrizioneArea.getText().isEmpty() || luogoField.getText().isEmpty() || 
-                    scadenzaSottomissione.getValue() == null || scadenzaRevisioni.getValue() == null ||
-                    dataGraduatoria.getValue() == null || scadenzaCameraReady.getValue() == null || 
-                    scadenzaFeedbackEditore.getValue() == null || scadenzaVersioneFinale.getValue() == null;
+        // Layout principale
+        VBox formContainer = new VBox(16,
+            titleLabel, subtitleLabel,
+            acronimoLabel, acronimoField,
+            titoloLabel, titoloField,
+            descrizioneLabel, descrizioneArea,
+            luogoLabel, luogoField,
+            scadenzaSottomissioneLabel, scadenzaSottomissione,
+            scadenzaRevisioniLabel, scadenzaRevisioni,
+            dataGraduatoriaLabel, dataGraduatoria,
+            scadenzaCameraReadyLabel, scadenzaCameraReady,
+            scadenzaFeedbackEditoreLabel, scadenzaFeedbackEditore,
+            scadenzaVersioneFinaleLabel, scadenzaVersioneFinale,
+            minRevLabel, numeroMinimoRevisori,
+            nWinLabel, numeroVincitori,
+            valLabel, valRange,
+            distribLabel, modalitaDistribuzione,
+            errorLabel,
+            buttonContainer
+        );
+        formContainer.setAlignment(Pos.CENTER);
+        formContainer.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; " +
+                              "-fx-border-width: 1; -fx-border-radius: 12; -fx-background-radius: 12; " +
+                              "-fx-padding: 32; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0, 0, 2); " +
+                              "-fx-max-width: 500;");
 
-            LocalDate today = LocalDate.now();
-            boolean datesOk = !emptyFields &&
-                    scadenzaSottomissione.getValue().isAfter(today) &&
-                    scadenzaRevisioni.getValue().isAfter(today) &&
-                    dataGraduatoria.getValue().isAfter(today) &&
-                    scadenzaCameraReady.getValue().isAfter(today) &&
-                    scadenzaFeedbackEditore.getValue().isAfter(today) &&
-                    scadenzaVersioneFinale.getValue().isAfter(today);
+        VBox layout = new VBox(formContainer);
+        layout.setAlignment(Pos.CENTER);
+        layout.setStyle("-fx-background-color: #f8fafc; -fx-padding: 40;");
 
-            boolean inOrder = !emptyFields &&
-                    scadenzaSottomissione.getValue().isBefore(scadenzaRevisioni.getValue()) &&
-                    scadenzaRevisioni.getValue().isBefore(dataGraduatoria.getValue()) &&
-                    dataGraduatoria.getValue().isBefore(scadenzaCameraReady.getValue()) &&
-                    scadenzaCameraReady.getValue().isBefore(scadenzaFeedbackEditore.getValue()) &&
-                    scadenzaFeedbackEditore.getValue().isBefore(scadenzaVersioneFinale.getValue());
+        // Validazione e gestione eventi
+        createButton.setOnAction(e -> {
+            String acronimo = acronimoField.getText().trim();
+            String titolo = titoloField.getText().trim();
+            String descrizione = descrizioneArea.getText().trim();
+            String luogo = luogoField.getText().trim();
+            LocalDate sottom = scadenzaSottomissione.getValue();
+            LocalDate rev = scadenzaRevisioni.getValue();
+            LocalDate grad = dataGraduatoria.getValue();
+            LocalDate cam = scadenzaCameraReady.getValue();
+            LocalDate feed = scadenzaFeedbackEditore.getValue();
+            LocalDate ver = scadenzaVersioneFinale.getValue();
+            int minRev = numeroMinimoRevisori.getValue();
+            int nWin = numeroVincitori.getValue();
+            int valMin = valutazioneMinima.getValue();
+            int valMax = valutazioneMassima.getValue();
+            String distrib = modalitaDistribuzione.getValue();
 
-            boolean numericValid = numeroMinimoRevisori.getValue() >= 1 && numeroVincitori.getValue() >= 1;
-            boolean rangeValid = valutazioneMinima.getValue() < valutazioneMassima.getValue();
-
-            String errorMessage = "";
-            if (emptyFields) {
-                errorMessage = "⚠️ Tutti i campi devono essere compilati";
-            } else if (!datesOk) {
-                errorMessage = "📅 Le date devono essere future (a partire da domani)";
-            } else if (!inOrder) {
-                errorMessage = "🔄 Le scadenze devono essere in ordine cronologico";
-            } else if (!numericValid) {
-                errorMessage = "🔢 Revisori e vincitori devono essere almeno 1";
-            } else if (!rangeValid) {
-                errorMessage = "📊 Valutazione minima deve essere inferiore alla massima";
-            } else {
-                errorMessage = "✅ Tutti i campi sono validi";
+            if (acronimo.isEmpty() || titolo.isEmpty() || descrizione.isEmpty() || luogo.isEmpty() ||
+                sottom == null || rev == null || grad == null || cam == null || feed == null || ver == null) {
+                errorLabel.setText("Tutti i campi sono obbligatori.");
+                return;
             }
-
-            validationMessage.setText(errorMessage);
-            boolean isValid = !errorMessage.startsWith("⚠️") && !errorMessage.startsWith("📅") && 
-                             !errorMessage.startsWith("🔄") && !errorMessage.startsWith("🔢") && 
-                             !errorMessage.startsWith("📊");
-            createBtn.setDisable(!isValid);
+            if (sottom.isAfter(rev) || rev.isAfter(grad) || grad.isAfter(cam) || cam.isAfter(feed) || feed.isAfter(ver)) {
+                errorLabel.setText("Le date devono essere in ordine cronologico.");
+                return;
+            }
+            if (valMin >= valMax) {
+                errorLabel.setText("La valutazione minima deve essere inferiore alla massima.");
+                return;
+            }
             
-            // Add visual feedback
-            validationMessage.getStyleClass().removeAll("error-message", "warning-message", "success-message");
-            if (isValid) {
-                validationMessage.getStyleClass().add("success-message");
-            } else {
-                validationMessage.getStyleClass().add("error-message");
-            }
-        };
+            errorLabel.setText("");
+            Map<String, String> data = new HashMap<>();
+            data.put("acronimo", acronimo);
+            data.put("titolo", titolo);
+            data.put("descrizione", descrizione);
+            data.put("luogo", luogo);
+            data.put("scadenzaSottomissione", sottom.toString());
+            data.put("scadenzaRevisioni", rev.toString());
+            data.put("dataGraduatoria", grad.toString());
+            data.put("scadenzaCameraReady", cam.toString());
+            data.put("scadenzaFeedbackEditore", feed.toString());
+            data.put("scadenzaVersioneFinale", ver.toString());
+            data.put("numeroMinimoRevisori", String.valueOf(minRev));
+            data.put("valutazioneMinima", String.valueOf(valMin));
+            data.put("valutazioneMassima", String.valueOf(valMax));
+            data.put("numeroVincitori", String.valueOf(nWin));
+            data.put("modalitaDistribuzione", distrib);
+            
+            ctrl.creaConferenza(data, ctrlAccount.getUtenteCorrente());
+            stage.close();
+            ctrlAccount.apriHomepageChair();
+        });
 
-        // Add listeners to all form fields
-        acronimoField.textProperty().addListener((obs, oldV, newV) -> validate.run());
-        titoloField.textProperty().addListener((obs, oldV, newV) -> validate.run());
-        descrizioneArea.textProperty().addListener((obs, oldV, newV) -> validate.run());
-        luogoField.textProperty().addListener((obs, oldV, newV) -> validate.run());
-        scadenzaSottomissione.valueProperty().addListener((obs, oldV, newV) -> validate.run());
-        scadenzaRevisioni.valueProperty().addListener((obs, oldV, newV) -> validate.run());
-        dataGraduatoria.valueProperty().addListener((obs, oldV, newV) -> validate.run());
-        scadenzaCameraReady.valueProperty().addListener((obs, oldV, newV) -> validate.run());
-        scadenzaFeedbackEditore.valueProperty().addListener((obs, oldV, newV) -> validate.run());
-        scadenzaVersioneFinale.valueProperty().addListener((obs, oldV, newV) -> validate.run());
-        numeroMinimoRevisori.valueProperty().addListener((obs, oldV, newV) -> validate.run());
-        valutazioneMinima.valueProperty().addListener((obs, oldV, newV) -> validate.run());
-        valutazioneMassima.valueProperty().addListener((obs, oldV, newV) -> validate.run());
-        numeroVincitori.valueProperty().addListener((obs, oldV, newV) -> validate.run());
-        modalitaDistribuzione.valueProperty().addListener((obs, oldV, newV) -> validate.run());
+        backButton.setOnAction(e -> stage.close());
 
-        validate.run(); // Initial validation
-    }
-
-    private Map<String, String> collectFormData() {
-        Map<String, String> data = new HashMap<>();
-        
-        data.put("acronimo", acronimoField.getText());
-        data.put("titolo", titoloField.getText());
-        data.put("descrizione", descrizioneArea.getText());
-        data.put("luogo", luogoField.getText());
-        data.put("scadenzaSottomissione", scadenzaSottomissione.getValue().toString());
-        data.put("scadenzaRevisioni", scadenzaRevisioni.getValue().toString());
-        data.put("dataGraduatoria", dataGraduatoria.getValue().toString());
-        data.put("scadenzaCameraReady", scadenzaCameraReady.getValue().toString());
-        data.put("scadenzaFeedbackEditore", scadenzaFeedbackEditore.getValue().toString());
-        data.put("scadenzaVersioneFinale", scadenzaVersioneFinale.getValue().toString());
-        data.put("numeroMinimoRevisori", numeroMinimoRevisori.getValue().toString());
-        data.put("valutazioneMinima", valutazioneMinima.getValue().toString());
-        data.put("valutazioneMassima", valutazioneMassima.getValue().toString());
-        data.put("numeroVincitori", numeroVincitori.getValue().toString());
-        data.put("modalitaDistribuzione", modalitaDistribuzione.getValue());
-
-        return data;
+        Scene scene = new Scene(layout, 1050, 750);
+        scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+        stage.setScene(scene);
+        stage.show();
     }
 }

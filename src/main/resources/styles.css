@@ -136,7 +136,6 @@
     -fx-padding: 12px 16px;
     -fx-font-size: 14px;
     -fx-background-insets: 0;
-    -fx-wrap-text: true;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 2, 0, 0, 1);
 }
 
@@ -246,21 +245,7 @@
     -fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.2), 4, 0, 0, 0);
 }
 
-.date-picker, .choice-box, .combo-box {
-    -fx-background-color: #ffffff;
-    -fx-text-fill: #1e293b;
-    -fx-border-color: #cbd5e1;
-    -fx-border-width: 1;
-    -fx-border-radius: 8;
-    -fx-background-radius: 8;
-    -fx-padding: 12 16 12 16;
-    -fx-font-size: 14px;
-}
 
-.date-picker:focused, .choice-box:focused, .combo-box:focused {
-    -fx-border-color: #2563eb;
-    -fx-border-width: 2;
-}
 
 .spinner {
     -fx-background-color: #ffffff;

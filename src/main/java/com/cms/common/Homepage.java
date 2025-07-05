@@ -29,7 +29,7 @@ public class Homepage {
         Label welcomeLabel = new Label("Benvenuto nel Sistema CMS");
         welcomeLabel.setStyle("-fx-font-size: 32px; -fx-font-weight: 800; -fx-text-fill: #1e293b;");
         
-        Label userLabel = new Label("Ciao, " + utente.getEmail());
+        Label userLabel = new Label("Ciao, " + utente.getNome() + " " + utente.getCognome());
         userLabel.setStyle("-fx-font-size: 18px; -fx-text-fill: #64748b; -fx-padding: 0 0 32 0;");
         
         Label rolePromptLabel = new Label("Seleziona il tuo ruolo per accedere alle funzionalità:");
@@ -46,14 +46,14 @@ public class Homepage {
         boolean haRuoli = false;
 
         if (ruolo.charAt(0) == 'C') {
-            VBox chairCard = createRoleCard("Chair", "📋", "Gestisci conferenze e revisioni", "#10b981", 
+            VBox chairCard = createRoleCard("Chair", "📋", "Gestisci conferenze", "#10b981", 
                 e -> ctrl.apriHomepageChair());
             roleContainer.getChildren().add(chairCard);
             haRuoli = true;
         }
 
         if (ruolo.charAt(1) == 'A') {
-            VBox autoreCard = createRoleCard("Autore", "📝", "Sottometti articoli e bozze", "#2563eb", 
+            VBox autoreCard = createRoleCard("Autore", "📝", "Sottometti articoli", "#2563eb", 
                 e -> {
                     BoundaryDBMS db = new BoundaryDBMS();
                     ControlSottomissioni ctrlSottom = new ControlSottomissioni(db, utente, ctrl, stage);
@@ -65,7 +65,7 @@ public class Homepage {
         }
 
         if (ruolo.charAt(2) == 'R') {
-            VBox revisoreCard = createRoleCard("Revisore", "🔍", "Revisiona articoli sottomessi", "#f59e0b", 
+            VBox revisoreCard = createRoleCard("Revisore", "🔍", "Revisiona articoli", "#f59e0b", 
                 e -> {
                     // revisoreBtn.setOnAction(e -> ctrl.apriHomepageRevisore());
                     showAlert("Funzionalità in fase di sviluppo", Alert.AlertType.INFORMATION);
@@ -75,7 +75,7 @@ public class Homepage {
         }
 
         if (ruolo.charAt(3) == 'E') {
-            VBox editoreCard = createRoleCard("Editore", "✏️", "Gestisci pubblicazioni", "#8b5cf6", 
+            VBox editoreCard = createRoleCard("Editore", "✏", "Gestisci pubblicazioni", "#8b5cf6", 
                 e -> {
                     ctrl.apriHomepageEditor();
                 });
@@ -97,13 +97,13 @@ public class Homepage {
                               "-fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.1), 8, 0, 0, 2); " +
                               "-fx-max-width: 500;");
             
-            Label errorIcon = new Label("⚠️");
+            Label errorIcon = new Label("⚠⚠");
             errorIcon.setStyle("-fx-font-size: 48px;");
             
             Label errorTitle = new Label("Nessun Ruolo Assegnato");
             errorTitle.setStyle("-fx-font-size: 20px; -fx-font-weight: 700; -fx-text-fill: #dc2626;");
             
-            Label errorMessage = new Label("Non hai ruoli attivi nel sistema. Contatta un amministratore per proseguire.");
+            Label errorMessage = new Label("Non hai ruoli attivi nel sistema.");
             errorMessage.setStyle("-fx-font-size: 14px; -fx-text-fill: #7f1d1d; -fx-text-alignment: center; -fx-wrap-text: true;");
             
             errorCard.getChildren().addAll(errorIcon, errorTitle, errorMessage);
@@ -117,7 +117,7 @@ public class Homepage {
         
         VBox root = new VBox(header, mainContent);
 
-        Scene scene = new Scene(root, 1260, 660);
+        Scene scene = new Scene(root, 1050, 750);
         scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
         stage.setScene(scene);
         stage.setTitle("CMS - Dashboard");
@@ -128,8 +128,8 @@ public class Homepage {
         VBox card = new VBox(16);
         card.setAlignment(Pos.CENTER);
         card.setPadding(new Insets(32));
-        card.setPrefWidth(280);
-        card.setPrefHeight(200);
+        card.setPrefWidth(220);
+        card.setPrefHeight(160);
         card.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; " +
                      "-fx-border-width: 1; -fx-border-radius: 16; -fx-background-radius: 16; " +
                      "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0, 0, 4); " +

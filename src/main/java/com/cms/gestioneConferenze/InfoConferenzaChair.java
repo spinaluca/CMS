@@ -437,7 +437,7 @@ public class InfoConferenzaChair {
         root.setCenter(new ScrollPane(contentContainer));
 
         // Set up scene
-        Scene scene = new Scene(root, 1200, 800);
+        Scene scene = new Scene(root, 1050, 750);
         scene.setFill(Color.web("#f5f7fa"));
 
         // Apply CSS styles if available

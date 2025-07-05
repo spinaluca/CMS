@@ -67,7 +67,7 @@ public class HomepageAutore {
         header.getBtnBack().setOnAction(e -> ctrlAccount.apriHomepageGenerale());
         VBox root = new VBox(header, scrollPane);
 
-        Scene scene = new Scene(root, 1100, 750);
+        Scene scene = new Scene(root, 1050, 750);
         // Load the CSS file
         String cssFile = getClass().getResource("/styles.css").toExternalForm();
         scene.getStylesheets().add(cssFile);
@@ -128,54 +128,19 @@ public class HomepageAutore {
         colL.setPrefWidth(150);
         colL.setStyle("-fx-font-size: 13px; -fx-alignment: CENTER_LEFT;");
 
-        // Descrizione column with text wrapping
+        // Descrizione column
         TableColumn<EntityConferenza, String> colD = new TableColumn<>("Descrizione");
-        colD.setCellValueFactory(c -> {
-            String descrizione = c.getValue().getDescrizione();
-            if (descrizione != null && descrizione.length() > 200) {
-                descrizione = descrizione.substring(0, 200) + "...";
-            }
-            return new SimpleStringProperty(descrizione);
-        });
-        
-        colD.setCellFactory(tc -> new TableCell<EntityConferenza, String>() {
-            private final Text text = new Text();
-            private static final int TEXT_PADDING = 24;
-
-            {
-                text.setStyle("-fx-font-size: 13px; -fx-fill: #4b5563;");
-                text.wrappingWidthProperty().bind(tc.widthProperty().subtract(TEXT_PADDING));
-                setPrefHeight(Region.USE_COMPUTED_SIZE);
-                setWrapText(true);
-            }
-
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setGraphic(null);
-                } else {
-                    text.setText(item);
-                    setGraphic(text);
-                }
-            }
-        });
-
-        // Bind column widths
-        colD.prefWidthProperty().bind(
-            table.widthProperty()
-                .subtract(colA.widthProperty())
-                .subtract(colT.widthProperty())
-                .subtract(colL.widthProperty())
-                .subtract(2) // Account for borders
-        );
+        colD.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getDescrizione()));
+        colD.setPrefWidth(300);
 
         table.getColumns().addAll(colA, colT, colL, colD);
-        table.setFixedCellSize(50);
+        table.setFixedCellSize(45);
+        table.setPrefHeight(5000);
         table.setStyle(
             "-fx-background-color: #ffffff;" +
             "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0, 0, 2);" +
-            "-fx-background-radius: 8;"
+            "-fx-background-radius: 8;" +
+            "-fx-border-width: 0;"
         );
         
         // Add hover and click effects

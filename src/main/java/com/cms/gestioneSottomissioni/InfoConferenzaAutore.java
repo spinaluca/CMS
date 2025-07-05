@@ -34,8 +34,8 @@ public class InfoConferenzaAutore {
         EntityConferenza conf = ctrl.getConferenza(idConferenza)
                 .orElseThrow(() -> new RuntimeException("Conferenza non trovata: " + idConferenza));
 
-        double width = 900;
-        double height = isIscritto ? 750 : 500;
+        double width = 1050;
+        double height = 750;
         double leftWidth = 400;
         double rightWidth = 450;
 

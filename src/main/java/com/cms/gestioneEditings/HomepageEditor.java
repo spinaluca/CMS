@@ -50,44 +50,15 @@ public class HomepageEditor {
         colL.setPrefWidth(150);
 
         TableColumn<EntityConferenza, String> colD = new TableColumn<>("Descrizione");
-        colD.setCellValueFactory(c -> {
-            String descrizione = c.getValue().getDescrizione();
-            if (descrizione.length() > 200) {
-                descrizione = descrizione.substring(0, 200) + "...";
-            }
-            return new SimpleStringProperty(descrizione);
-        });
+        colD.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getDescrizione()));
+        colD.setPrefWidth(300);
 
-        colD.setCellFactory(tc -> new TableCell<EntityConferenza, String>() {
-            private final Text text = new Text();
-            {
-                text.wrappingWidthProperty().bind(tc.widthProperty());
-            }
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setGraphic(null);
-                } else {
-                    text.setText(item);
-                    setGraphic(text);
-                }
-            }
-        });
-
-        table.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
-        colD.prefWidthProperty().bind(
-                table.widthProperty()
-                        .subtract(table.snappedLeftInset() + table.snappedRightInset())
-                        .subtract(colA.widthProperty())
-                        .subtract(colT.widthProperty())
-                        .subtract(colL.widthProperty())
-                        .subtract(2)
-        );
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         table.getColumns().addAll(colA, colT, colL, colD);
-        table.setFixedCellSize(40);
+        table.setFixedCellSize(45);
         table.setItems(data);
+        table.setPrefHeight(5000);
 
         Button btnDettagli = new Button("Dettagli");
         btnDettagli.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; " +
@@ -114,7 +85,7 @@ public class HomepageEditor {
         buttonContainer.setPadding(new Insets(16, 0, 16, 0));
 
         table.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; " +
-                "-fx-border-width: 1; -fx-border-radius: 12; " +
+                "-fx-border-width: 0; " +
                 "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 8, 0, 0, 2);");
 
         VBox contentContainer = new VBox(16, titleLabel, subtitleLabel, table, buttonContainer);
@@ -126,7 +97,7 @@ public class HomepageEditor {
 
         VBox root = new VBox(header, contentContainer);
 
-        Scene scene = new Scene(root, 1200, 800);
+        Scene scene = new Scene(root, 1050, 750);
         scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
         stage.setScene(scene);
         stage.setTitle("CMS - Gestione Editings");
