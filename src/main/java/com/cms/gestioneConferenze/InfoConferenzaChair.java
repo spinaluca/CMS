@@ -158,7 +158,7 @@ public class InfoConferenzaChair {
         tableArticoli.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         // PULSANTI ARTICOLI
-        Button btnVisualizzaVersione = new Button("Visualizza ultima versione");
+        Button btnVisualizzaVersione = new Button("Visualizza Ultima Versione");
         btnVisualizzaVersione.setStyle("-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-border-color: transparent;" +
                 "-fx-padding: 10 20; -fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 13px;" +
                 "-fx-effect: dropshadow(gaussian, rgba(59,130,246,0.3),4,0,0,2);");
