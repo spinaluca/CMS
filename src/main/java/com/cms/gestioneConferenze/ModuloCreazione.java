@@ -503,8 +503,8 @@ public class ModuloCreazione {
 
         // Validazione e gestione eventi
         Runnable validate = () -> {
-            boolean emptyFields = acronimoField.getText().isEmpty() || titoloField.getText().isEmpty() ||
-                descrizioneArea.getText().isEmpty() || luogoField.getText().isEmpty() ||
+            boolean emptyFields = acronimoField.getText().isEmpty() || titoloField.getText().isEmpty() || 
+                    descrizioneArea.getText().isEmpty() || luogoField.getText().isEmpty() || 
                 dpSub.getValue() == null || dpRev.getValue() == null || dpGrad.getValue() == null ||
                 dpCR.getValue() == null || dpFB.getValue() == null || dpFinal.getValue() == null;
 
@@ -567,11 +567,11 @@ public class ModuloCreazione {
                 return;
             }
 
-            Map<String, String> data = new HashMap<>();
-            data.put("acronimo", acronimoField.getText());
-            data.put("titolo", titoloField.getText());
-            data.put("descrizione", descrizioneArea.getText());
-            data.put("luogo", luogoField.getText());
+        Map<String, String> data = new HashMap<>();
+        data.put("acronimo", acronimoField.getText());
+        data.put("titolo", titoloField.getText());
+        data.put("descrizione", descrizioneArea.getText());
+        data.put("luogo", luogoField.getText());
             data.put("scadenzaSottomissione", dpSub.getValue().toString());
             data.put("scadenzaRevisioni", dpRev.getValue().toString());
             data.put("dataGraduatoria", dpGrad.getValue().toString());

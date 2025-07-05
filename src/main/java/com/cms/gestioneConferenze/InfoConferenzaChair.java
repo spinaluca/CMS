@@ -40,524 +40,214 @@ public class InfoConferenzaChair {
     public void show() {
         EntityConferenza conf = ctrl.getConferenza(confId)
                 .orElseThrow(() -> new RuntimeException("Conferenza non trovata: " + confId));
+        Label lbl = new Label("[" + conf.getAcronimo() + "] " + conf.getTitolo());
+        lbl.setStyle("-fx-font-size: 24px; -fx-font-weight: 700; -fx-text-fill: #1e293b; -fx-padding: 0 0 8 0;");
 
-        // Styling constants
-        String cardStyle = "-fx-background-color: #ffffff; -fx-background-radius: 8; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);";
-        String titleStyle = "-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;";
-        String sectionTitleStyle = "-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #34495e; -fx-padding: 0 0 10 0;";
-        String labelStyle = "-fx-text-fill: #7f8c8d; -fx-font-size: 13px;";
-        String valueStyle = "-fx-text-fill: #2c3e50; -fx-font-size: 13px; -fx-font-weight: 500;";
+        // INFO CONFERENZA
+        VBox left = new VBox(8,
+                new Label("Luogo: " + conf.getLuogo()),
+                new Label("Distribuzione: " + conf.getModalitaDistribuzione()),
+                new Label("Scadenza Sottomissione: " + conf.getScadenzaSottomissione()),
+                new Label("Scadenza Revisioni: " + conf.getScadenzaRevisioni()),
+                new Label("Data Pubblicazione Graduatoria: " + conf.getDataGraduatoria()),
+                new Label("Scadenza Camera-ready: " + conf.getScadenzaCameraReady()),
+                new Label("Scadenza Feedback Editore: " + conf.getScadenzaFeedbackEditore()),
+                new Label("Scadenza Versione Finale: " + conf.getScadenzaVersioneFinale()),
+                new Label("Numero Minimo Revisori: " + conf.getNumeroMinimoRevisori()),
+                new Label("Valutazione Min: " + conf.getValutazioneMinima() +
+                        " | Max: " + conf.getValutazioneMassima()),
+                new Label("Numero Vincitori: " + conf.getNumeroVincitori()),
+                new Label("Editor: " + conf.getEditor()
+                        .map(email -> email + " | " + ctrl2.getDatiUtente(email)
+                                .map(u -> u.getNome() + " " + u.getCognome())
+                                .orElse(""))
+                        .orElse("<nessuno>"))
+        );
+        left.setPrefWidth(400);
+        left.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-border-width: 0;" +
+                "-fx-padding: 0;");
 
-        // Main title
-        Label titleLabel = new Label(conf.getTitolo());
-        titleLabel.setStyle(titleStyle);
-        Label subTitle = new Label("[" + conf.getAcronimo() + "]");
-        subTitle.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 16px;");
-        VBox titleBox = new VBox(2, titleLabel, subTitle);
-        titleBox.setAlignment(Pos.CENTER_LEFT);
-        titleBox.setPadding(new Insets(0, 0, 20, 0));
+        // DESCRIZIONE
+        Label descrizione = new Label(conf.getDescrizione());
+        descrizione.setWrapText(true);
+        descrizione.setStyle("-fx-text-fill: #1e293b; -fx-font-size: 14px;");
 
-        // Main content container
-        VBox mainContainer = new VBox(20);
-        mainContainer.setPadding(new Insets(20));
-        mainContainer.setStyle(
-            "-fx-background-color: #f8f9fa;" +
-            "-fx-padding: 20;"
+        ScrollPane descr = new ScrollPane(descrizione);
+        descr.setFitToWidth(true);
+        descr.setPrefViewportHeight(5000);
+        descr.setStyle("-fx-background-color: transparent;" +
+                "-fx-focus-color: transparent;" +
+                "-fx-faint-focus-color: transparent;" +
+                "-fx-background-insets: 0;" +
+                "-fx-padding: 0;" +
+                "-fx-border-width: 0;");
+        descr.lookupAll(".viewport").forEach(node ->
+                node.setStyle("-fx-background-color: transparent;")
         );
 
-        // Conference details section
-        VBox conferenceDetails = new VBox(8);
-        Label detailsTitle = new Label("Informazioni Conferenza");
-        detailsTitle.setStyle(sectionTitleStyle);
+        // PULSANTE AGGIUNGI EDITOR
+        Button bEd = new Button("Aggiungi Editor");
+        bEd.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-border-color: transparent;" +
+                "-fx-padding: 10 20; -fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 13px;" +
+                "-fx-effect: dropshadow(gaussian, rgba(37,99,235,0.3),4,0,0,2);");
 
-        // Add conference details
-        addDetailRow(conferenceDetails, "Luogo:", conf.getLuogo(), labelStyle, valueStyle);
-        addDetailRow(conferenceDetails, "Distribuzione:", conf.getModalitaDistribuzione(), labelStyle, valueStyle);
-        addDetailRow(conferenceDetails, "Scadenza Sottomissione:", conf.getScadenzaSottomissione(), labelStyle, valueStyle);
-        addDetailRow(conferenceDetails, "Scadenza Revisioni:", conf.getScadenzaRevisioni(), labelStyle, valueStyle);
-        addDetailRow(conferenceDetails, "Pubblicazione Graduatoria:", conf.getDataGraduatoria(), labelStyle, valueStyle);
-        addDetailRow(conferenceDetails, "Scadenza Camera-ready:", conf.getScadenzaCameraReady(), labelStyle, valueStyle);
-        addDetailRow(conferenceDetails, "Scadenza Feedback Editori:", conf.getScadenzaFeedbackEditore(), labelStyle, valueStyle);
-        addDetailRow(conferenceDetails, "Scadenza Versione Finale:", conf.getScadenzaVersioneFinale(), labelStyle, valueStyle);
-        addDetailRow(conferenceDetails, "Numero Minimo Revisori:", String.valueOf(conf.getNumeroMinimoRevisori()), labelStyle, valueStyle);
-        addDetailRow(conferenceDetails, "Valutazione Minima:", String.valueOf(conf.getValutazioneMinima()) + " | Massima: " + conf.getValutazioneMassima(), labelStyle, valueStyle);
-        addDetailRow(conferenceDetails, "Numero Vincitori:", String.valueOf(conf.getNumeroVincitori()), labelStyle, valueStyle);
+        bEd.setOnAction(e -> new PopupInserimento()
+                .promptEmail("editor")
+                .ifPresent(email -> {
+                    ctrl.aggiungiEditor(email, confId);
+                    show();
+                }));
 
-        // Editor info
-        String editorInfo = conf.getEditor()
-                .map(email -> email + ctrl2.getDatiUtente(email).map(u -> " | " + u.getNome() + " " + u.getCognome()).orElse(""))
-                .orElse("<nessuno>");
-        addDetailRow(conferenceDetails, "Editor:", editorInfo, labelStyle, valueStyle);
-
-        // Description section
-        VBox descriptionBox = new VBox(8);
-        Label descTitle = new Label("Descrizione");
-        descTitle.setStyle(sectionTitleStyle);
-
-        Label descriptionLabel = new Label(conf.getDescrizione());
-        descriptionLabel.setWrapText(true);
-        descriptionLabel.setStyle(valueStyle + " -fx-line-spacing: 3px;");
-
-        ScrollPane descScroll = new ScrollPane(descriptionLabel);
-        descScroll.setFitToWidth(true);
-        descScroll.setPrefHeight(120);
-        descScroll.setStyle(
-                "-fx-background-color: transparent;" +
-                        "-fx-focus-color: transparent;" +
-                        "-fx-faint-focus-color: transparent;" +
-                        "-fx-background-insets: 0;" +
-                        "-fx-padding: 0;" +
-                        "-fx-border-width: 0;"
-        );
-
-        descriptionBox.getChildren().addAll(descTitle, descScroll);
-        
-        // Create a horizontal container for the main content
-        HBox mainContent = new HBox(30);
-        mainContent.setAlignment(Pos.TOP_LEFT);
-        mainContent.setStyle(
-            "-fx-padding: 20;" +
-            "-fx-background-color: #ffffff;" +
-            "-fx-background-radius: 8;" +
-            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0.5, 0, 2);"
-        );
-        
-        // Left side - Conference details
-        VBox leftPanel = new VBox(15);
-        leftPanel.setStyle("-fx-min-width: 300; -fx-max-width: 400;");
-        leftPanel.getChildren().add(conferenceDetails);
-        
-        // Vertical separator
-        Separator vSeparator = new Separator(Orientation.VERTICAL);
-        vSeparator.setPadding(new Insets(0, 20, 0, 20));
-        
-        // Right side - Description and statistics
-        VBox rightPanel = new VBox(30);
-        rightPanel.setStyle("-fx-padding: 0; -fx-pref-width: 400;");
-        
-        // Description section
-        descriptionBox.setStyle("-fx-padding: 0;");
-        rightPanel.getChildren().add(descriptionBox);
-        
-        // Statistics section
-        VBox statsSection = new VBox(15);
-        statsSection.setStyle("-fx-padding: 20; -fx-background-color: #f8f9fa; -fx-background-radius: 8;");
-        
-        Label statsTitle = new Label("Statistiche");
-        statsTitle.setStyle(sectionTitleStyle);
-        
-        // Simple stats that don't rely on tableArticoli or revisori
-        String statoConferenza = "Non specificato";
-        if (conf.getScadenzaSottomissione() != null) {
-            statoConferenza = "In corso";
+        VBox right;
+        if (conf.getEditor().isPresent()) {
+            right = new VBox(8, new Label("Descrizione:"), descr);
+        } else {
+            right = new VBox(8, new Label("Descrizione:"), descr, bEd);
         }
-        if (conf.getScadenzaRevisioni() != null && LocalDate.now().isAfter(conf.getScadenzaRevisioni())) {
-            statoConferenza = "Chiusa";
-        }
-        
-        VBox statsCards = new VBox(10,
-            createStatCard("Stato", statoConferenza, "#9b59b6")
-        );
-        
-        // Add deadline warning if close
-        LocalDate now = LocalDate.now();
-        LocalDate submissionDeadline = conf.getScadenzaSottomissione();
-        if (submissionDeadline != null) {
-            long daysLeft = ChronoUnit.DAYS.between(now, submissionDeadline);
-            if (daysLeft <= 7 && daysLeft >= 0) {
-                String warningText = "Scadenza sottomissioni tra " + daysLeft + " giorni";
-                Label deadlineWarning = new Label(warningText);
-                deadlineWarning.setStyle(
-                    "-fx-text-fill: #d35400;" +
-                    "-fx-font-weight: bold;" +
-                    "-fx-padding: 8 12;" +
-                    "-fx-background-color: #fdebd0;" +
-                    "-fx-background-radius: 4;"
-                );
-                statsSection.getChildren().add(deadlineWarning);
-            }
-        }
-        
-        statsSection.getChildren().addAll(statsTitle, statsCards);
-        
-        // Add statistics to the right panel
-        rightPanel.getChildren().add(statsSection);
-        
-        // Add panels to main content with vertical separator
-        mainContent.getChildren().addAll(leftPanel, vSeparator, rightPanel);
-        
-        // Add main content to the container
-        mainContainer.getChildren().addAll(titleBox, mainContent);
-        
-        // Add articles table section below the main content
-        VBox articlesCard = new VBox(15);
-        articlesCard.setStyle(cardStyle);
-        articlesCard.setPadding(new Insets(20));
-        
-        Label articlesTitle = new Label("Articoli Sottomessi");
-        articlesTitle.setStyle(sectionTitleStyle);
+        right.setPrefWidth(450);
+        right.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-border-width: 0;" +
+                "-fx-padding: 0;");
 
-        // Create table with modern styling
+        // PANNELLO UNIFICATO CON INFO E DESCRIZIONE
+        HBox infoPanel = new HBox(20, left, right);
+        infoPanel.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1;" +
+                "-fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 20;" +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1),8,0,0,2);");
+        infoPanel.setPrefWidth(900);
+        infoPanel.setMaxHeight(490);
+
+        HBox infoSection = new HBox(20, infoPanel);
+        infoSection.setPadding(new Insets(10));
+
+        // ARTICOLI
+        Label articoliLbl = new Label("Articoli:");
         TableView<EntityArticolo> tableArticoli = new TableView<>();
-        tableArticoli.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
-        tableArticoli.setStyle(
-                "-fx-background-color: #f8f9fa;" +
-                        "-fx-background-radius: 4;" +
-                        "-fx-border-color: #e9ecef;" +
-                        "-fx-border-radius: 4;"
-        );
+        tableArticoli.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        // Position column
-        TableColumn<EntityArticolo, Integer> colPos = new TableColumn<>("#");
+
+        TableColumn<EntityArticolo, Integer> colPos = new TableColumn<>("Pos.");
         colPos.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getPosizione()));
-        colPos.setStyle("-fx-alignment: CENTER;");
 
-        // Title column
         TableColumn<EntityArticolo, String> colTit = new TableColumn<>("Titolo");
         colTit.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getTitolo()));
         colTit.setMinWidth(200);
 
-        // Author column
         TableColumn<EntityArticolo, String> colAut = new TableColumn<>("Autore");
-        colAut.setCellValueFactory(data -> {
-            String email = data.getValue().getAutoreId();
-            return new ReadOnlyStringWrapper(
-                    ctrl2.getDatiUtente(email)
-                            .map(u -> u.getNome() + " " + u.getCognome() + " (" + email + ")")
-                            .orElse(email)
-            );
-        });
+        colAut.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getAutoreId()));
 
-        // Reviews count column
-        TableColumn<EntityArticolo, Integer> colRev = new TableColumn<>("Rev.");
+        TableColumn<EntityArticolo, Integer> colRev = new TableColumn<>("Revisioni");
         colRev.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getNumRevisioni()));
-        colRev.setStyle("-fx-alignment: CENTER;");
 
-        // Score column
-        TableColumn<EntityArticolo, String> colScore = new TableColumn<>("Punteggio");
-        colScore.setCellValueFactory(data -> {
-            Double score = data.getValue().getPunteggio();
-            return new ReadOnlyStringWrapper(score != null ? String.format("%.2f", score) : "N/A");
-        });
-        colScore.setStyle("-fx-alignment: CENTER-RIGHT;");
+        TableColumn<EntityArticolo, Double> colScore = new TableColumn<>("Punteggio");
+        colScore.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getPunteggio()));
 
-        // Status column with color coding
         TableColumn<EntityArticolo, String> colStato = new TableColumn<>("Stato");
         colStato.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getStato()));
-        colStato.setCellFactory(column -> new TableCell<EntityArticolo, String>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                    setStyle("");
-                } else {
-                    setText(item);
-                    setStyle(
-                            "-fx-alignment: CENTER;" +
-                                    "-fx-font-weight: bold;" +
-                                    "-fx-padding: 3 8;" +
-                                    "-fx-background-radius: 10;"
-                    );
 
-                    // Color coding based on status
-                    switch (item.toLowerCase()) {
-                        case "accettato":
-                            setStyle(getStyle() + "-fx-background-color: #d4edda; -fx-text-fill: #155724;");
-                            break;
-                        case "rifiutato":
-                            setStyle(getStyle() + "-fx-background-color: #f8d7da; -fx-text-fill: #721c24;");
-                            break;
-                        case "in revisione":
-                            setStyle(getStyle() + "-fx-background-color: #fff3cd; -fx-text-fill: #856404;");
-                            break;
-                        default:
-                            setStyle(getStyle() + "-fx-background-color: #e2e3e5; -fx-text-fill: #383d41;");
-                    }
-                }
-            }
-        });
-
-        // Add columns to table
         tableArticoli.getColumns().addAll(colPos, colTit, colAut, colRev, colScore, colStato);
-
-        // Load and sort articles
         tableArticoli.getItems().addAll(ctrl.getArticoliConferenza(confId).stream()
                 .sorted(Comparator.comparingInt(EntityArticolo::getPosizione))
                 .collect(Collectors.toList()));
 
-        // Add table to articles card
-        articlesCard.getChildren().addAll(articlesTitle, tableArticoli);
-        VBox.setVgrow(tableArticoli, Priority.ALWAYS);
+        // Stile della tabella come in HomepageChair
+        tableArticoli.setFixedCellSize(45);
+        tableArticoli.setPrefHeight(5000);
+        tableArticoli.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; " +
+                      "-fx-border-width: 0; " +
+                      "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 8, 0, 0, 2);");
+        tableArticoli.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        // Reviewers Section
-        VBox reviewersCard = new VBox(15);
-        reviewersCard.setStyle(cardStyle);
+        // PULSANTI ARTICOLI
+        Button btnVisualizzaVersione = new Button("Visualizza ultima versione");
+        btnVisualizzaVersione.setStyle("-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-border-color: transparent;" +
+                "-fx-padding: 10 20; -fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 13px;" +
+                "-fx-effect: dropshadow(gaussian, rgba(59,130,246,0.3),4,0,0,2);");
 
-        Label reviewersTitle = new Label("Revisori");
-        reviewersTitle.setStyle(sectionTitleStyle);
+        Button btnRevisiona = new Button("Revisiona");
+        btnRevisiona.setStyle("-fx-background-color: #8b5cf6; -fx-text-fill: white; -fx-border-color: transparent;" +
+                "-fx-padding: 10 20; -fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 13px;" +
+                "-fx-effect: dropshadow(gaussian, rgba(139,92,246,0.3),4,0,0,2);");
 
-        // Create reviewers list with status
+        // Per ora senza azioni definite
+        btnVisualizzaVersione.setOnAction(e -> {
+            // TODO: Implementare visualizzazione ultima versione
+        });
+
+        btnRevisiona.setOnAction(e -> {
+            // TODO: Implementare revisione
+        });
+
+        HBox articoliButtons = new HBox(10, btnVisualizzaVersione, btnRevisiona);
+
+        VBox articoliBox = new VBox(8, articoliLbl, tableArticoli, articoliButtons);
+        articoliBox.setPrefWidth(700);
+        articoliBox.setStyle(left.getStyle());
+
+        // REVISORI
+        Label revisoriLbl = new Label("Revisori:");
         ListView<String> lvRev = new ListView<>();
-        lvRev.setStyle(
-                "-fx-background-color: #f8f9fa;" +
-                        "-fx-background-radius: 4;" +
-                        "-fx-border-color: #e9ecef;" +
-                        "-fx-border-radius: 4;"
-        );
-
-        // Populate reviewers list with status
-        Map<String, String> revisori = ctrl.getRevisoriConStato(confId);
-        revisori.forEach((email, statoRevisore) -> {
+        ctrl.getRevisoriConStato(confId).forEach((email, stato) -> {
             String nome = ctrl2.getDatiUtente(email)
                     .map(u -> u.getNome() + " " + u.getCognome())
                     .orElse("");
-            String statusText = "";
-
-            // Color code status
-            switch (statoRevisore.toLowerCase()) {
-                case "attivo":
-                    statusText = "[✅ " + statoRevisore + "]";
-                    break;
-                case "in attesa":
-                    statusText = "[⏳ " + statoRevisore + "]";
-                    break;
-                case "rifiutato":
-                    statusText = "[❌ " + statoRevisore + "]";
-                    break;
-                default:
-                    statusText = "[" + statoRevisore + "]";
-            }
-            
-            lvRev.getItems().add(email + (nome.isEmpty() ? "" : " | " + nome) + " " + statusText);
+            lvRev.getItems().add(email + (nome.isEmpty() ? "" : " | " + nome) + " [" + stato + "]");
         });
 
-        // Action buttons
-        Button btnInvite = createButton("Invita Revisore", "#3498db");
-        btnInvite.setOnAction(e -> new PopupInserimento()
+        Button bInv = new Button("Invita Revisore");
+        bInv.setStyle("-fx-background-color: #10b981; -fx-text-fill: white; -fx-border-color: transparent;" +
+                "-fx-padding: 10 20; -fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 13px;" +
+                "-fx-effect: dropshadow(gaussian, rgba(16,185,129,0.3),4,0,0,2);");
+
+        Button bRem = new Button("Rimuovi Revisore");
+        bRem.setStyle("-fx-background-color: #f59e0b; -fx-text-fill: white; -fx-border-color: transparent;" +
+                "-fx-padding: 10 20; -fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 13px;" +
+                "-fx-effect: dropshadow(gaussian, rgba(245,158,11,0.3),4,0,0,2);");
+
+        bInv.setOnAction(e -> new PopupInserimento()
                 .promptEmail("revisore")
                 .ifPresent(email -> {
                     ctrl.invitaRevisore(email, confId);
-                    showNotification("Invito inviato a " + email);
                     show();
                 }));
 
-        Button btnRemove = createButton("Rimuovi", "#e74c3c");
-        btnRemove.setDisable(true);
-        btnRemove.setOnAction(e -> {
+        bRem.setOnAction(e -> {
             String sel = lvRev.getSelectionModel().getSelectedItem();
             if (sel != null) {
-                String email = sel.split(" ")[0]; // Extract just the email
-                ctrl.rimuoviRevisore(email, confId);
-                showNotification("Revisore rimosso: " + email);
+                ctrl.rimuoviRevisore(sel.split(" ")[0], confId);
                 show();
             }
         });
 
-        // ...
+        HBox revButtons = new HBox(10, bInv, bRem);
+        // Stile del ListView come la tabella
+        lvRev.setFixedCellSize(45);
+        lvRev.setPrefHeight(5000);
+        lvRev.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; " +
+                      "-fx-border-width: 0; " +
+                      "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 8, 0, 0, 2);");
 
-        // Editor Section
-        VBox editorCard = new VBox(15);
-        editorCard.setStyle(cardStyle);
+        VBox revisoriBox = new VBox(8, revisoriLbl, lvRev, revButtons);
+        revisoriBox.setPrefWidth(350);
+        revisoriBox.setStyle(left.getStyle());
 
-        Label editorTitle = new Label("Gestione Editor");
-        editorTitle.setStyle(sectionTitleStyle);
+        HBox listsBox = new HBox(15, articoliBox, revisoriBox);
+        listsBox.setPadding(new Insets(10));
 
-        // Editor info
-        String currentEditor = conf.getEditor()
-                .map(email -> {
-                    String userInfo = ctrl2.getDatiUtente(email)
-                            .map(u -> u.getNome() + " " + u.getCognome() + " (" + email + ")")
-                            .orElse(email);
-                    return "Editor attuale: " + userInfo;
-                })
-                .orElse("Nessun editor assegnato");
+        // BOTTOM BUTTONS
+        VBox layout = new VBox(lbl, infoSection, listsBox);
+        layout.setPadding(new Insets(20));
+        layout.setStyle("-fx-background-color: #f8fafc;");
 
-        Label editorLabel = new Label(currentEditor);
-        editorLabel.setStyle(valueStyle);
-
-        // Editor action buttons
-        HBox editorButtons = new HBox(10);
-        editorButtons.setAlignment(Pos.CENTER);
-
-        Button btnAddEditor = createButton("Aggiungi Editor", "#2ecc71");
-        btnAddEditor.setDisable(conf.getEditor().isPresent());
-        btnAddEditor.setOnAction(e -> new PopupInserimento()
-                .promptEmail("editor")
-                .ifPresent(email -> {
-                    ctrl.aggiungiEditor(email, confId);
-                    showNotification("Editor aggiunto: " + email);
-                    show();
-                }));
-
-        Button btnRemoveEditor = createButton("Rimuovi Editor", "#e74c3c");
-        btnRemoveEditor.setDisable(!conf.getEditor().isPresent());
-        btnRemoveEditor.setOnAction(e -> {
-            // Remove editor by setting it to null
-            conf.getEditor().ifPresent(email -> {
-                ctrl.aggiungiEditor(null, confId);
-                showNotification("Editor rimosso");
-                show();
-            });
-        });
-
-        editorButtons.getChildren().addAll(btnAddEditor, btnRemoveEditor);
-
-        // Add components to editor card
-        editorCard.getChildren().addAll(editorTitle, editorLabel, editorButtons);
-
-        // Navigation button
-        Button btnBack = createButton("Torna alla Home", "#6b7280");
-        btnBack.setOnAction(e -> new HomepageChair(stage, ctrl, ctrl2).show());
-
-        // Create articles and reviewers container
-        HBox listsBox = new HBox(20, articlesCard, reviewersCard);
-        listsBox.setPadding(new Insets(0, 0, 20, 0));
-
-        // Create main layout container
-        VBox contentContainer = new VBox(20);
-        contentContainer.setPadding(new Insets(20));
-        contentContainer.setStyle("-fx-background-color: #f5f7fa;");
-        
-        // Add all components to main content
-        contentContainer.getChildren().addAll(titleBox, mainContent, listsBox, editorCard, btnBack);
-
-        // Add fade animation
-        FadeTransition fadeIn = new FadeTransition(javafx.util.Duration.millis(300), contentContainer);
-        fadeIn.setFromValue(0);
-        fadeIn.setToValue(1);
-
-        // Create header with back button
         HeaderBar header = new HeaderBar(ctrl2, this::show);
         header.getBtnBack().setOnAction(e -> ctrl2.apriHomepageChair());
 
-        // Create root layout
-        BorderPane root = new BorderPane();
-        root.setTop(header);
-        root.setCenter(new ScrollPane(contentContainer));
+        VBox root = new VBox(header, layout);
+        root.setStyle("-fx-background-color: #f8fafc;");
 
-        // Set up scene
-        Scene scene = new Scene(root, 1050, 750);
-        scene.setFill(Color.web("#f5f7fa"));
-
-        // Apply CSS styles if available
-        try {
-            scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
-        } catch (Exception e) {
-            // Stylesheet not found, continue without it
-        }
-
-        // Configure and show stage
+        Scene scene = new Scene(root, 1050, 850);
+        scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
         stage.setScene(scene);
-        stage.setTitle("Gestione Conferenza - " + conf.getAcronimo());
-
-        // Play animation
-        fadeIn.play();
+        stage.setTitle("Dettagli Conferenza");
         stage.show();
-    }
-
-    private void addDetailRow(VBox container, String label, Object value, String labelStyle, String valueStyle) {
-        if (value == null) return;
-        
-        HBox row = new HBox(10);
-        row.setAlignment(Pos.CENTER_LEFT);
-
-        Label labelLbl = new Label(label);
-        labelLbl.setStyle(labelStyle);
-
-        String valueStr = value.toString();
-        if (value instanceof java.time.LocalDate) {
-            valueStr = ((java.time.LocalDate) value).format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-        }
-        
-        Label valueLbl = new Label(valueStr);
-        valueLbl.setStyle(valueStyle);
-
-        row.getChildren().addAll(labelLbl, valueLbl);
-        container.getChildren().add(row);
-    }
-
-    private Button createButton(String text, String color) {
-        Button button = new Button(text);
-        button.setStyle(
-            "-fx-background-color: " + color + "; " +
-            "-fx-text-fill: white; " +
-            "-fx-border-color: transparent; " +
-            "-fx-padding: 12 24 12 24; " +
-            "-fx-background-radius: 8; " +
-            "-fx-font-weight: 600; " +
-            "-fx-font-size: 14px; " +
-            "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 4, 0, 0, 2);"
-        );
-
-        button.setOnMouseEntered(e -> button.setStyle(
-            "-fx-background-color: " + darkenColor(color) + "; " +
-            "-fx-text-fill: white; " +
-            "-fx-border-color: transparent; " +
-            "-fx-padding: 12 24 12 24; " +
-            "-fx-background-radius: 8; " +
-            "-fx-font-weight: 600; " +
-            "-fx-font-size: 14px; " +
-            "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 6, 0, 0, 3);"
-        ));
-
-        button.setOnMouseExited(e -> button.setStyle(
-            "-fx-background-color: " + color + "; " +
-            "-fx-text-fill: white; " +
-            "-fx-border-color: transparent; " +
-            "-fx-padding: 12 24 12 24; " +
-            "-fx-background-radius: 8; " +
-            "-fx-font-weight: 600; " +
-            "-fx-font-size: 14px; " +
-            "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 4, 0, 0, 2);"
-        ));
-
-        return button;
-    }
-    
-    private String darkenColor(String color) {
-        // Simple color darkening for hover effect
-        switch(color) {
-            case "#10b981": return "#0d9f74"; // teal
-            case "#2563eb": return "#1d4ed8"; // blue
-            case "#8b5cf6": return "#7c3aed"; // purple
-            case "#f59e0b": return "#d97706"; // amber
-            case "#ef4444": return "#dc2626"; // red
-            case "#6b7280": return "#4b5563"; // gray
-            default: return color;
-        }
-    }
-
-    private HBox createStatCard(String title, String value, String color) {
-        HBox card = new HBox(10);
-        card.setStyle(
-            "-fx-background-color: " + color + "20;" +
-            "-fx-background-radius: 8;" +
-            "-fx-padding: 12;" +
-            "-fx-border-radius: 8;" +
-            "-fx-border-color: " + color + "40;"
-        );
-        
-        // Color indicator
-        Region indicator = new Region();
-        indicator.setPrefSize(4, 40);
-        indicator.setStyle("-fx-background-color: " + color + "; -fx-background-radius: 2;");
-        
-        // Content
-        VBox content = new VBox(4);
-        Label titleLabel = new Label(title);
-        titleLabel.setStyle("-fx-text-fill: #7f8c8d; -fx-font-size: 13px;");
-        
-        Label valueLabel = new Label(value);
-        valueLabel.setStyle("-fx-text-fill: #2c3e50; -fx-font-size: 18px; -fx-font-weight: bold;");
-        
-        content.getChildren().addAll(titleLabel, valueLabel);
-        card.getChildren().addAll(indicator, content);
-        
-        return card;
-    }
-    
-    private void showNotification(String message) {
-        // Implement notification logic here
     }
 }

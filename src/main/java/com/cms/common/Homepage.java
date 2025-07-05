@@ -117,7 +117,7 @@ public class Homepage {
         
         VBox root = new VBox(header, mainContent);
 
-        Scene scene = new Scene(root, 1050, 750);
+        Scene scene = new Scene(root, 1050, 850);
         scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
         stage.setScene(scene);
         stage.setTitle("CMS - Dashboard");

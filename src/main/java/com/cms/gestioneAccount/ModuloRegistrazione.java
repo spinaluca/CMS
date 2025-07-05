@@ -185,7 +185,7 @@ public class ModuloRegistrazione {
 
         backButton.setOnAction(e -> ctrl.apriLogin());
 
-        Scene scene = new Scene(layout, 1050, 750);
+        Scene scene = new Scene(layout, 1050, 850);
         scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
         stage.setScene(scene);
         stage.setTitle("CMS - Registrazione");

@@ -380,7 +380,7 @@ public class InfoConferenzaEditor {
         root.setCenter(new ScrollPane(contentContainer));
         
         // Set scene
-        Scene scene = new Scene(root, 1050, 750);
+        Scene scene = new Scene(root, 1050, 850);
         scene.setFill(Color.web("#f5f7fa"));
         
         // Apply CSS styles if available

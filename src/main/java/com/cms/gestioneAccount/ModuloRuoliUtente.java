@@ -166,7 +166,7 @@ public class ModuloRuoliUtente {
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
-        Scene scene = new Scene(scrollPane, 1050, 750);
+        Scene scene = new Scene(scrollPane, 1050, 850);
         scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
         
         stage.setScene(scene);

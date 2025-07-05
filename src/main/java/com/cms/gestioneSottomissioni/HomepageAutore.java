@@ -67,7 +67,7 @@ public class HomepageAutore {
         header.getBtnBack().setOnAction(e -> ctrlAccount.apriHomepageGenerale());
         VBox root = new VBox(header, scrollPane);
 
-        Scene scene = new Scene(root, 1050, 750);
+        Scene scene = new Scene(root, 1050, 850);
         // Load the CSS file
         String cssFile = getClass().getResource("/styles.css").toExternalForm();
         scene.getStylesheets().add(cssFile);

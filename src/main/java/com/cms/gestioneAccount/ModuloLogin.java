@@ -120,7 +120,7 @@ public class ModuloLogin {
         layout.setAlignment(Pos.CENTER);
         layout.setStyle("-fx-background-color: #f8fafc; -fx-padding: 40;");
 
-        Scene scene = new Scene(layout, 1050, 750);
+        Scene scene = new Scene(layout, 1050, 850);
         scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
         stage.setScene(scene);
         stage.setTitle("CMS - Login");
