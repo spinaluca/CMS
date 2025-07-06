@@ -64,7 +64,7 @@ public class InfoConferenzaEditor {
                                 .orElse(""))
                         .orElse("<nessuno>"))
         );
-        left.setPrefWidth(400);
+        left.setPrefWidth(800);
         left.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-border-width: 0;" +
                 "-fx-padding: 0;");
 

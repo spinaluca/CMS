@@ -45,7 +45,7 @@ public class ModuloRegistrazione {
 
         Button registerButton = new Button("Registrati");
         Button backButton = new Button("Indietro");
-
+        
         // Create modern form layout
         Label titleLabel = new Label("Registrati al CMS");
         titleLabel.setStyle("-fx-font-size: 28px; -fx-font-weight: 800; -fx-text-fill: #1e293b;");
@@ -69,7 +69,7 @@ public class ModuloRegistrazione {
         nomeField.setStyle(inputStyle);
         cognomeField.setStyle(inputStyle);
         passwordField.setStyle(inputStyle);
-        
+
         // Style DatePicker
         nascitaPicker.setStyle(
             "-fx-background-color: #ffffff;" +
@@ -121,8 +121,8 @@ public class ModuloRegistrazione {
                                "-fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.3), 4, 0, 0, 2);");
         
         backButton.setStyle("-fx-background-color: #6b7280; -fx-text-fill: white; " +
-                           "-fx-border-color: transparent; -fx-padding: 12 24 12 24; " +
-                           "-fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 14px; " +
+                              "-fx-border-color: transparent; -fx-padding: 12 24 12 24; " +
+                              "-fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 14px; " +
                            "-fx-effect: dropshadow(gaussian, rgba(107, 114, 128, 0.3), 4, 0, 0, 2);");
         
         // Create button container

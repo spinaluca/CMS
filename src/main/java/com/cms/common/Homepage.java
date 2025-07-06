@@ -71,7 +71,7 @@ public class Homepage {
                 e -> {
                     BoundaryDBMS db = new BoundaryDBMS();
                     ControlRevisioni ctrlRevisioni = new ControlRevisioni(db);
-                    HomepageRevisore homepageRevisore = new HomepageRevisore(stage, ctrlRevisioni, utente.getEmail());
+                    HomepageRevisore homepageRevisore = new HomepageRevisore(stage, ctrlRevisioni, ctrl);
                     homepageRevisore.show();
                 });
             roleContainer.getChildren().add(revisoreCard);

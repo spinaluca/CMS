@@ -921,4 +921,353 @@ public class BoundaryDBMS {
         }
         return list;
     }
+
+    // ==================== METODI PER CONTROLREVISIONI ====================
+
+    // Recupera le competenze dei revisori di una conferenza
+    public Map<String, List<String>> getCompetenzeRevisori(String confId) {
+        Map<String, List<String>> result = new HashMap<>();
+        String sql = "SELECT DISTINCT u.email, u.aree_competenza FROM utenti u "
+                + "JOIN inviti_revisori i ON u.email = i.revisore_id "
+                + "WHERE i.conferenza_id = ?";
+        try (Connection conn = DriverManager.getConnection(URL);
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, confId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                String email = rs.getString("email");
+                String areeStr = rs.getString("aree_competenza");
+                List<String> aree = (areeStr != null) ? Arrays.asList(areeStr.split(",")) : new ArrayList<>();
+                result.put(email, aree);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore getCompetenzeRevisori", e);
+        }
+        return result;
+    }
+
+    // Comunica le assegnazioni di articoli ai revisori
+    public void comunicaAssegnazioni(String confId, Map<String, List<String>> assegnazioni) {
+        String sql = "INSERT INTO revisioni(articolo_id, revisore_id) VALUES(?,?)";
+        try (Connection conn = DriverManager.getConnection(URL)) {
+            for (Map.Entry<String, List<String>> entry : assegnazioni.entrySet()) {
+                String idArticolo = entry.getKey();
+                for (String revisore : entry.getValue()) {
+                    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                        ps.setString(1, idArticolo);
+                        ps.setString(2, revisore);
+                        ps.executeUpdate();
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore comunicaAssegnazioni", e);
+        }
+    }
+
+    // Aggiorna stato dell'invito del revisore
+    public void aggiornaInvitoConferenza(String confId, String emailRevisore, String stato) {
+        String sql = "UPDATE inviti_revisori SET stato = ? WHERE conferenza_id = ? AND revisore_id = ?";
+        try (Connection conn = DriverManager.getConnection(URL);
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, stato);
+            ps.setString(2, confId);
+            ps.setString(3, emailRevisore);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore aggiornaInvitoConferenza", e);
+        }
+    }
+
+    // Restituisce mappa articolo -> stato revisione
+    public Map<String, String> getStatoRevisioni(String confId) {
+        Map<String, String> result = new HashMap<>();
+        String sql = "SELECT a.id, a.stato FROM articoli a WHERE a.conferenza_id = ?";
+        try (Connection conn = DriverManager.getConnection(URL);
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, confId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                result.put(rs.getString("id"), rs.getString("stato"));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore getStatoRevisioni", e);
+        }
+        return result;
+    }
+
+    // Rimuove una assegnazione di revisione
+    public void rimuoviAssegnazione(String idRevisione) {
+        String sql = "DELETE FROM revisioni WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection(URL);
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, idRevisione);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore rimuoviAssegnazione", e);
+        }
+    }
+
+    // Ottiene data scadenza revisioni
+    public LocalDate getDataScadenzaRevisioni(String confId) {
+        String sql = "SELECT scad_revisioni FROM conferenze WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection(URL);
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, confId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return LocalDate.parse(rs.getString("scad_revisioni"));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore getDataScadenzaRevisioni", e);
+        }
+        throw new RuntimeException("Scadenza revisioni non trovata per conferenza " + confId);
+    }
+
+    // Lista revisori di una conferenza
+    public List<String> getRevisoriConferenza(String confId) {
+        List<String> list = new ArrayList<>();
+        String sql = "SELECT revisore_id FROM inviti_revisori WHERE conferenza_id = ?";
+        try (Connection conn = DriverManager.getConnection(URL);
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, confId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(rs.getString("revisore_id"));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore getRevisoriConferenza", e);
+        }
+        return list;
+    }
+
+    // Aggiunge assegnazione revisione
+    public void aggiungiAssegnazione(String idArticolo, String emailRevisore) {
+        String sql = "INSERT INTO revisioni(articolo_id, revisore_id) VALUES(?,?)";
+        try (Connection conn = DriverManager.getConnection(URL);
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, idArticolo);
+            ps.setString(2, emailRevisore);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore aggiungiAssegnazione", e);
+        }
+    }
+
+    // Comunica graduatoria
+    public void comunicaGraduatoria(String confId, Map<String, Integer> graduatoria) {
+        String sql = "UPDATE articoli SET posizione = ? WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection(URL)) {
+            for (Map.Entry<String, Integer> entry : graduatoria.entrySet()) {
+                try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                    ps.setInt(1, entry.getValue());
+                    ps.setString(2, entry.getKey());
+                    ps.executeUpdate();
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore comunicaGraduatoria", e);
+        }
+    }
+
+    // Conferenze revisore (con stato invito)
+    public Map<EntityConferenza, String> getConferenzeRevisore(String emailRevisore) {
+        Map<EntityConferenza, String> result = new HashMap<>();
+        String sql = "SELECT c.*, i.stato FROM conferenze c JOIN inviti_revisori i ON c.id = i.conferenza_id WHERE i.revisore_id = ?";
+        try (Connection conn = DriverManager.getConnection(URL);
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, emailRevisore);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                EntityConferenza conf = mapConf(rs);
+                String stato = rs.getString("stato");
+                result.put(conf, stato);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore getConferenzeRevisore", e);
+        }
+        return result;
+    }
+
+    // Conferenza specifica revisore
+    public Optional<EntityConferenza> getConferenzaRevisore(String confId, String emailRevisore) {
+        String sql = "SELECT c.* FROM conferenze c JOIN inviti_revisori i ON c.id = i.conferenza_id WHERE c.id = ? AND i.revisore_id = ?";
+        try (Connection conn = DriverManager.getConnection(URL);
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, confId);
+            ps.setString(2, emailRevisore);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return Optional.of(mapConf(rs));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore getConferenzaRevisore", e);
+        }
+        return Optional.empty();
+    }
+
+    // Articoli assegnati a revisore
+    public List<String> getArticoliRevisore(String confId, String emailRevisore) {
+    List<String> list = new ArrayList<>();
+    String sql = "SELECT a.titolo, a.autore_id, r.voto, r.expertise " +
+                 "FROM articoli a " +
+                 "JOIN revisioni r ON a.id = r.articolo_id " +
+                 "WHERE a.conferenza_id = ? AND r.revisore_id = ?";
+    try (Connection conn = DriverManager.getConnection(URL);
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, confId);
+        ps.setString(2, emailRevisore);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            String titolo = rs.getString("titolo");
+            String autoreId = rs.getString("autore_id");
+            int voto = rs.getInt("voto");
+            int expertise = rs.getInt("expertise");
+            list.add(titolo + " | " + autoreId + " | " + voto + " | " + expertise);
+        }
+    } catch (SQLException e) {
+        throw new RuntimeException("Errore getArticoliRevisore", e);
+    }
+    return list;
+}
+
+
+    // Carica revisione
+    public void caricaRevisione(String emailRevisore, String idArticolo, int voto, int expertise, File file) {
+        String sql = "INSERT INTO revisioni(articolo_id, revisore_id, voto, expertise, file_url) VALUES(?,?,?,?,?)";
+        try (Connection conn = DriverManager.getConnection(URL);
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, idArticolo);
+            ps.setString(2, emailRevisore);
+            ps.setInt(3, voto);
+            ps.setInt(4, expertise);
+            ps.setString(5, file.getAbsolutePath());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore caricaRevisione", e);
+        }
+    }
+
+    // Controllo modalità broadcast
+    public boolean isModalitaBroadcast(String confId) {
+        String sql = "SELECT modalita_distribuzione FROM conferenze WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection(URL);
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, confId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return "BROADCAST".equalsIgnoreCase(rs.getString("modalita_distribuzione"));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore isModalitaBroadcast", e);
+        }
+        return false;
+    }
+
+    // Articoli disponibili senza revisione
+    public List<EntityArticolo> getArticoliDisponibili(String confId) {
+        List<EntityArticolo> list = new ArrayList<>();
+        String sql = "SELECT a.* FROM articoli a LEFT JOIN revisioni r ON a.id = r.articolo_id "
+                + "WHERE a.conferenza_id = ? GROUP BY a.id HAVING COUNT(r.id) = 0";
+        try (Connection conn = DriverManager.getConnection(URL);
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, confId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapArticolo(rs));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore getArticoliDisponibili", e);
+        }
+        return list;
+    }
+
+        // Assegna articolo manuale a revisore
+    public void assegnaArticoloRevisore(String idArticolo, String emailRevisore) {
+        String sql = "INSERT INTO revisioni(articolo_id, revisore_id) VALUES(?, ?)";
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, idArticolo);
+            ps.setString(2, emailRevisore);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore assegnaArticoloRevisore", e);
+        }
+    }
+
+    // Ottiene articolo per ID
+    public Optional<File> getArticolo(String idArticolo) {
+        String sql = "SELECT file_url FROM versioni WHERE articolo_id = ? ORDER BY id DESC LIMIT 1";
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, idArticolo);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                String filePath = rs.getString("file_url");
+                if (filePath != null) {
+                    File file = new File(filePath);
+                    if (file.exists()) {
+                        return Optional.of(file);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore getArticolo", e);
+        }
+        return Optional.empty();
+    }
+
+    // Ottiene voto della revisione per articolo e revisore
+    public Optional<Integer> getVotoRevisione(String idArticolo, String emailRevisore) {
+        String sql = "SELECT voto FROM revisioni WHERE articolo_id = ? AND revisore_id = ?";
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, idArticolo);
+            ps.setString(2, emailRevisore);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                Integer voto = rs.getInt("voto");
+                return Optional.ofNullable(voto);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore getVotoRevisione", e);
+        }
+        return Optional.empty();
+    }
+
+
+
+    // Conferenze automatiche per graduatoria
+    public List<EntityConferenza> getConferenzeAutomaticheConScadenza(LocalDate data) {
+        List<EntityConferenza> list = new ArrayList<>();
+        String sql = "SELECT * FROM conferenze WHERE data_graduatoria = ?";
+        try (Connection conn = DriverManager.getConnection(URL);
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, data.toString());
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapConf(rs));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore getConferenzeAutomaticheConScadenza", e);
+        }
+        return list;
+    }
+
+    // Conferenze con scadenza revisioni
+    public List<EntityConferenza> getConferenzeConScadenzaRevisioni(LocalDate data) {
+        List<EntityConferenza> list = new ArrayList<>();
+        String sql = "SELECT * FROM conferenze WHERE scad_revisioni = ?";
+        try (Connection conn = DriverManager.getConnection(URL);
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, data.toString());
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapConf(rs));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore getConferenzeConScadenzaRevisioni", e);
+        }
+        return list;
+    }
 }

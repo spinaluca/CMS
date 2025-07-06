@@ -95,4 +95,26 @@ public class PopupInserimento {
 
         return dialog.showAndWait();
     }
+
+    public Optional<String> promptGestioneInvito(String conferenza) {
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle("Gestisci Invito");
+        dialog.setHeaderText("Conferenza: " + conferenza);
+        dialog.setContentText("Accetta o rifiuta l'invito per questa conferenza");
+
+        ButtonType accettaButtonType = new ButtonType("Accetta", ButtonBar.ButtonData.OK_DONE);
+        ButtonType rifiutaButtonType = new ButtonType("Rifiuta", ButtonBar.ButtonData.OTHER);
+        dialog.getDialogPane().getButtonTypes().addAll(accettaButtonType, rifiutaButtonType, ButtonType.CANCEL);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == accettaButtonType) {
+                return "Accettato";
+            } else if (dialogButton == rifiutaButtonType) {
+                return "Rifiutato";
+            }
+            return null;
+        });
+
+        return dialog.showAndWait();
+    }
 }

@@ -2,11 +2,13 @@ package com.cms.gestioneRevisioni;
 
 import com.cms.common.HeaderBar;
 import com.cms.common.PopupAvviso;
-import com.cms.entity.EntityArticolo;
+import com.cms.gestioneAccount.ControlAccount;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -14,49 +16,65 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.util.Optional;
 
-/** Pagina di revisione articolo – UC 4.1.7.11/12 */
 public class RevisioneArticolo {
     private final Stage stage;
     private final ControlRevisioni ctrl;
+    private final ControlAccount ctrl2;
     private final String idArticolo;
-    private final String emailRevisore;
+    private final String confId;
 
-    public RevisioneArticolo(Stage stage, ControlRevisioni ctrl, String idArticolo, String emailRevisore) {
+    public RevisioneArticolo(Stage stage, ControlRevisioni ctrl, ControlAccount ctrl2, String idArticolo, String confId) {
         this.stage = stage;
         this.ctrl = ctrl;
+        this.ctrl2 = ctrl2;
         this.idArticolo = idArticolo;
-        this.emailRevisore = emailRevisore;
+        this.confId = confId;
     }
 
     public void show() {
         Label title = new Label("Revisione Articolo");
         title.setStyle("-fx-font-size: 24px; -fx-font-weight: 700; -fx-text-fill: #1e293b;");
 
-        // Dati articolo (stub)
-        Label lblTitolo = new Label("Titolo: [da caricare]");
-        Label lblAutore = new Label("Autore: [da caricare]");
-        Label lblParoleChiave = new Label("Parole chiave: [da caricare]");
+        VBox infoArticolo = new VBox(8,
+                new Label("Titolo: [da caricare]"),
+                new Label("Autore: [da caricare]"),
+                new Label("Parole chiave: [da caricare]")
+        );
+        infoArticolo.setPrefWidth(800);
 
-        Button btnVisualizza = new Button("Visualizza Articolo");
-        btnVisualizza.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-border-color: transparent;" +
-                "-fx-padding: 10 20; -fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 13px;" +
-                "-fx-effect: dropshadow(gaussian, rgba(37,99,235,0.3),4,0,0,2);");
-        btnVisualizza.setOnAction(e -> visualizzaArticolo());
+        HBox infoPanel = new HBox(20, infoArticolo);
+        infoPanel.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1;" +
+                "-fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 20;" +
+                "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1),8,0,0,2);");
+        infoPanel.setPrefWidth(5000);
+        infoPanel.setMaxHeight(200);
+
+        HBox infoSection = new HBox(20, infoPanel);
 
         Button btnCarica = new Button("Carica Revisione");
-        btnCarica.setStyle("-fx-background-color: #10b981; -fx-text-fill: white; -fx-border-color: transparent;" +
+        btnCarica.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-border-color: transparent;" +
                 "-fx-padding: 10 20; -fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 13px;" +
-                "-fx-effect: dropshadow(gaussian, rgba(16,185,129,0.3),4,0,0,2);");
+                "-fx-effect: dropshadow(gaussian, rgba(37,99,235,0.3),4,0,0,2);");
         btnCarica.setOnAction(e -> caricaRevisione());
 
-        HBox buttons = new HBox(10, btnVisualizza, btnCarica);
+        Button btnVisualizza = new Button("Visualizza Articolo");
+        btnVisualizza.setStyle("-fx-background-color: #10b981; -fx-text-fill: white; -fx-border-color: transparent;" +
+                "-fx-padding: 10 20; -fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 13px;" +
+                "-fx-effect: dropshadow(gaussian, rgba(16,185,129,0.3),4,0,0,2);");
+        btnVisualizza.setOnAction(e -> visualizzaArticolo());
 
-        VBox layout = new VBox(15, title, lblTitolo, lblAutore, lblParoleChiave, buttons);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox buttons = new HBox(10, spacer, btnCarica, btnVisualizza);
+
+        VBox layout = new VBox(16, title, infoSection);
+        layout.setSpacing(30);
+        layout.getChildren().add(buttons);
         layout.setPadding(new Insets(20));
         layout.setStyle("-fx-background-color: #f8fafc;");
 
-        HeaderBar header = new HeaderBar(null, () -> {});
-        header.getBtnBack().setOnAction(e -> stage.close());
+        HeaderBar header = new HeaderBar(ctrl2, this::show);
+        header.getBtnBack().setOnAction(e -> ctrl2.apriInfoConferenzaRevisore(confId));
 
         VBox root = new VBox(header, layout);
 
@@ -75,7 +93,6 @@ public class RevisioneArticolo {
     }
 
     private void caricaRevisione() {
-        // Dialog per inserimento voto e expertise
         Dialog<RevisionData> dialog = new Dialog<>();
         dialog.setTitle("Carica Revisione");
         dialog.setHeaderText("Inserisci voto e livello di expertise");
@@ -110,18 +127,14 @@ public class RevisioneArticolo {
 
         Optional<RevisionData> result = dialog.showAndWait();
         result.ifPresent(data -> {
-            // Selezione file
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Seleziona file revisione");
-            fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("PDF files", "*.pdf")
-            );
-            fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("All files", "*.*")
-            );
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF files", "*.pdf"));
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("All files", "*.*"));
 
             File selectedFile = fileChooser.showOpenDialog(stage);
             if (selectedFile != null) {
+                String emailRevisore = ctrl2.getUtenteCorrente().getEmail();
                 ctrl.caricaRevisione(idArticolo, emailRevisore, data.voto, data.expertise, selectedFile);
                 new PopupAvviso("Revisione caricata con successo").show();
             }
@@ -133,4 +146,4 @@ public class RevisioneArticolo {
         final int expertise;
         RevisionData(int v, int e) { voto = v; expertise = e; }
     }
-} 
+}

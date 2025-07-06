@@ -9,6 +9,9 @@ import com.cms.common.PopupErrore;
 import com.cms.common.PopupInserimento;
 import com.cms.entity.EntityUtente;
 import com.cms.utils.MailUtil;
+import com.cms.gestioneRevisioni.HomepageRevisore;
+import com.cms.gestioneRevisioni.ControlRevisioni;
+import com.cms.gestioneRevisioni.InfoConferenzaRevisore;
 import javafx.stage.Stage;
 
 import java.security.SecureRandom;
@@ -159,6 +162,14 @@ public class ControlAccount {
         new HomepageChair(stage, new ControlConferenze(db), this).show();
     }
 
+    public void apriHomepageRevisore() {
+        new HomepageRevisore(stage, new ControlRevisioni(db), this).show();
+    }
+
+    public void apriInfoConferenzaRevisore(String confId) {
+        new InfoConferenzaRevisore(stage, new ControlRevisioni(db), this, confId).show();
+    }
+
     public void apriHomepageGenerale() {
         new Homepage(stage, this, this.getUtenteCorrente()).show();
     }
@@ -196,5 +207,9 @@ public class ControlAccount {
         BoundaryDBMS db = new BoundaryDBMS();
         com.cms.gestioneEditings.ControlEditings ctrlEd = new com.cms.gestioneEditings.ControlEditings(db, getUtenteCorrente(), this, stage);
         new com.cms.gestioneEditings.HomepageEditor(stage, ctrlEd, this).show();
+    }
+
+    public Optional<String> getNomeCompleto(String email) {
+        return db.queryGetNomeCompleto(email);
     }
 }

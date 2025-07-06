@@ -63,7 +63,7 @@ public class InfoConferenzaChair {
                                 .orElse(""))
                         .orElse("<nessuno>"))
         );
-        left.setPrefWidth(400);
+        left.setPrefWidth(800);
         left.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-border-width: 0;" +
                 "-fx-padding: 0;");
 
@@ -76,10 +76,10 @@ public class InfoConferenzaChair {
         descr.setFitToWidth(true);
         descr.setPrefViewportHeight(5000);
         descr.setStyle("-fx-background-color: transparent;" +
-                "-fx-focus-color: transparent;" +
-                "-fx-faint-focus-color: transparent;" +
-                "-fx-background-insets: 0;" +
-                "-fx-padding: 0;" +
+                        "-fx-focus-color: transparent;" +
+                        "-fx-faint-focus-color: transparent;" +
+                        "-fx-background-insets: 0;" +
+                        "-fx-padding: 0;" +
                 "-fx-border-width: 0;");
         descr.lookupAll(".viewport").forEach(node ->
                 node.setStyle("-fx-background-color: transparent;")
@@ -245,7 +245,7 @@ public class InfoConferenzaChair {
         root.setStyle("-fx-background-color: #f8fafc;");
 
         Scene scene = new Scene(root, 1050, 850);
-        scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
         stage.setScene(scene);
         stage.setTitle("Dettagli Conferenza");
         stage.show();
