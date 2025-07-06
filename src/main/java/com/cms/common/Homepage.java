@@ -4,6 +4,8 @@ import com.cms.entity.EntityUtente;
 import com.cms.gestioneAccount.ControlAccount;
 import com.cms.gestioneSottomissioni.ControlSottomissioni;
 import com.cms.gestioneSottomissioni.HomepageAutore;
+import com.cms.gestioneRevisioni.ControlRevisioni;
+import com.cms.gestioneRevisioni.HomepageRevisore;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -67,8 +69,10 @@ public class Homepage {
         if (ruolo.charAt(2) == 'R') {
             VBox revisoreCard = createRoleCard("Revisore", "🔍", "Revisiona articoli", "#f59e0b", 
                 e -> {
-                    // revisoreBtn.setOnAction(e -> ctrl.apriHomepageRevisore());
-                    showAlert("Funzionalità in fase di sviluppo", Alert.AlertType.INFORMATION);
+                    BoundaryDBMS db = new BoundaryDBMS();
+                    ControlRevisioni ctrlRevisioni = new ControlRevisioni(db);
+                    HomepageRevisore homepageRevisore = new HomepageRevisore(stage, ctrlRevisioni, utente.getEmail());
+                    homepageRevisore.show();
                 });
             roleContainer.getChildren().add(revisoreCard);
             haRuoli = true;
