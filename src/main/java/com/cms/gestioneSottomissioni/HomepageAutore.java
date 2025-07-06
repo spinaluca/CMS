@@ -144,39 +144,46 @@ public class HomepageAutore {
             "-fx-border-width: 1;"
         );
         
-        // Add hover and click effects
+        // Add hover and click effects using CSS classes
         table.setRowFactory(tv -> {
-            TableRow<EntityConferenza> row = new TableRow<>();
+            TableRow<EntityConferenza> row = new TableRow<EntityConferenza>() {
+                @Override
+                protected void updateItem(EntityConferenza item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setStyle("");
+                    } else {
+                        // Set alternating row colors using CSS classes
+                        getStyleClass().removeAll("even-row", "odd-row");
+                        if (getIndex() % 2 == 0) {
+                            getStyleClass().add("even-row");
+                        } else {
+                            getStyleClass().add("odd-row");
+                        }
+                    }
+                }
+            };
             
-            // Hover effect that doesn't override selection
-            row.hoverProperty().addListener((obs, wasHovered, isNowHovered) -> {
-                if (row.isSelected()) return; // Skip hover effect if row is selected
-                if (isNowHovered) {
-                    row.setStyle("-fx-background-color: #f1f5f9; -fx-cursor: hand;");
+            // Initialize with base style class
+            row.getStyleClass().add("table-row");
+            
+            // Handle selection style
+            row.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
+                if (isNowSelected) {
+                    row.getStyleClass().add("selected-row");
                 } else {
-                    row.setStyle(
-                        row.getIndex() % 2 == 0 ? 
-                        "-fx-background-color: #ffffff;" : 
-                        "-fx-background-color: #f8fafc;"
-                    );
+                    row.getStyleClass().remove("selected-row");
                 }
             });
             
-            // Alternating row colors with selection support
-            row.styleProperty().bind(
-                Bindings.when(row.selectedProperty())
-                    .then("-fx-background-color: #e2e8f0; -fx-cursor: default;")
-                    .otherwise(
-                        Bindings.when(
-                            Bindings.createBooleanBinding(
-                                () -> row.getIndex() % 2 == 0,
-                                row.indexProperty()
-                            )
-                        )
-                        .then("-fx-background-color: #ffffff;")
-                        .otherwise("-fx-background-color: #f8fafc;")
-                    )
-            );
+            // Handle hover effect
+            row.hoverProperty().addListener((obs, wasHovered, isNowHovered) -> {
+                if (isNowHovered && !row.isSelected()) {
+                    row.getStyleClass().add("hover-row");
+                } else {
+                    row.getStyleClass().remove("hover-row");
+                }
+            });
             
             row.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2 && !row.isEmpty()) {
@@ -251,39 +258,46 @@ public class HomepageAutore {
             "-fx-border-width: 0;"
         );
         
-        // Add hover and click effects
+        // Add hover and click effects using CSS classes
         tableNonIscritto.setRowFactory(tv -> {
-            TableRow<EntityConferenza> row = new TableRow<>();
+            TableRow<EntityConferenza> row = new TableRow<EntityConferenza>() {
+                @Override
+                protected void updateItem(EntityConferenza item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setStyle("");
+                    } else {
+                        // Set alternating row colors using CSS classes
+                        getStyleClass().removeAll("even-row", "odd-row");
+                        if (getIndex() % 2 == 0) {
+                            getStyleClass().add("even-row");
+                        } else {
+                            getStyleClass().add("odd-row");
+                        }
+                    }
+                }
+            };
             
-            // Hover effect that doesn't override selection
-            row.hoverProperty().addListener((obs, wasHovered, isNowHovered) -> {
-                if (row.isSelected()) return; // Skip hover effect if row is selected
-                if (isNowHovered) {
-                    row.setStyle("-fx-background-color: #f1f5f9; -fx-cursor: hand;");
+            // Initialize with base style class
+            row.getStyleClass().add("table-row");
+            
+            // Handle selection style
+            row.selectedProperty().addListener((obs, wasSelected, isNowSelected) -> {
+                if (isNowSelected) {
+                    row.getStyleClass().add("selected-row");
                 } else {
-                    row.setStyle(
-                        row.getIndex() % 2 == 0 ? 
-                        "-fx-background-color: #ffffff;" : 
-                        "-fx-background-color: #f8fafc;"
-                    );
+                    row.getStyleClass().remove("selected-row");
                 }
             });
             
-            // Alternating row colors with selection support
-            row.styleProperty().bind(
-                Bindings.when(row.selectedProperty())
-                    .then("-fx-background-color: #e2e8f0; -fx-cursor: default;")
-                    .otherwise(
-                        Bindings.when(
-                            Bindings.createBooleanBinding(
-                                () -> row.getIndex() % 2 == 0,
-                                row.indexProperty()
-                            )
-                        )
-                        .then("-fx-background-color: #ffffff;")
-                        .otherwise("-fx-background-color: #f8fafc;")
-                    )
-            );
+            // Handle hover effect
+            row.hoverProperty().addListener((obs, wasHovered, isNowHovered) -> {
+                if (isNowHovered && !row.isSelected()) {
+                    row.getStyleClass().add("hover-row");
+                } else {
+                    row.getStyleClass().remove("hover-row");
+                }
+            });
             
             row.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2 && !row.isEmpty()) {
