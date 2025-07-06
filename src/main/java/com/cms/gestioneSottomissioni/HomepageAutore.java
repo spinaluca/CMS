@@ -140,7 +140,8 @@ public class HomepageAutore {
             "-fx-background-color: #ffffff;" +
             "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0, 0, 2);" +
             "-fx-background-radius: 8;" +
-            "-fx-border-width: 0;"
+            "-fx-border-color: #e2e8f0;" +
+            "-fx-border-width: 1;"
         );
         
         // Add hover and click effects

@@ -855,6 +855,21 @@
 }
 
 /* ============================= */
+/*  TableView Focus Override     */
+/* ============================= */
+.table-view:focused {
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 5, 0, 0, 3);
+}
+
+.list-view:focused {
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 5, 0, 0, 3);
+}
+
+/* ============================= */
 /*  Accessibility                */
 /* ============================= */
 @media (prefers-contrast: high) {

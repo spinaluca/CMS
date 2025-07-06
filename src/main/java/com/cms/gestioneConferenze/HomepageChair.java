@@ -87,7 +87,7 @@ public class HomepageChair {
 
         // Style the table
         table.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; " +
-                      "-fx-border-width: 0; " +
+                      "-fx-border-width: 1; " +
                       "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 8, 0, 0, 2);");
 
         VBox contentContainer = new VBox(16, titleLabel, subtitleLabel, table, buttonContainer);

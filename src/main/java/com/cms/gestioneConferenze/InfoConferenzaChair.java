@@ -46,7 +46,7 @@ public class InfoConferenzaChair {
         // INFO CONFERENZA
         VBox left = new VBox(8,
                 new Label("Luogo: " + conf.getLuogo()),
-                new Label("Distribuzione: " + conf.getModalitaDistribuzione()),
+                new Label("Distribuzione Revisioni: " + conf.getModalitaDistribuzione()),
                 new Label("Scadenza Sottomissione: " + conf.getScadenzaSottomissione()),
                 new Label("Scadenza Revisioni: " + conf.getScadenzaRevisioni()),
                 new Label("Data Pubblicazione Graduatoria: " + conf.getDataGraduatoria()),
@@ -104,7 +104,7 @@ public class InfoConferenzaChair {
         } else {
             right = new VBox(8, new Label("Descrizione:"), descr, bEd);
         }
-        right.setPrefWidth(450);
+        right.setPrefWidth(1000);
         right.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-border-width: 0;" +
                 "-fx-padding: 0;");
 
@@ -113,7 +113,7 @@ public class InfoConferenzaChair {
         infoPanel.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1;" +
                 "-fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 20;" +
                 "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1),8,0,0,2);");
-        infoPanel.setPrefWidth(900);
+        infoPanel.setPrefWidth(1000);
         infoPanel.setMaxHeight(490);
 
         HBox infoSection = new HBox(20, infoPanel);
@@ -153,7 +153,7 @@ public class InfoConferenzaChair {
         tableArticoli.setFixedCellSize(45);
         tableArticoli.setPrefHeight(5000);
         tableArticoli.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; " +
-                      "-fx-border-width: 0; " +
+                      "-fx-border-width: 1; " +
                       "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 8, 0, 0, 2);");
         tableArticoli.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
@@ -223,7 +223,7 @@ public class InfoConferenzaChair {
         lvRev.setFixedCellSize(45);
         lvRev.setPrefHeight(5000);
         lvRev.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; " +
-                      "-fx-border-width: 0; " +
+                      "-fx-border-width: 1; " +
                       "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 8, 0, 0, 2);");
 
         VBox revisoriBox = new VBox(8, revisoriLbl, lvRev, revButtons);
