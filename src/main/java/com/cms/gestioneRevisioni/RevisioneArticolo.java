@@ -52,15 +52,15 @@ public class RevisioneArticolo {
         HBox infoSection = new HBox(20, infoPanel);
 
         Button btnCarica = new Button("Carica Revisione");
-        btnCarica.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-border-color: transparent;" +
+        btnCarica.setStyle("-fx-background-color: #10b981; -fx-text-fill: white; -fx-border-color: transparent;" +
                 "-fx-padding: 10 20; -fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 13px;" +
-                "-fx-effect: dropshadow(gaussian, rgba(37,99,235,0.3),4,0,0,2);");
+                "-fx-effect: dropshadow(gaussian, rgba(16,185,129,0.3),4,0,0,2);");
         btnCarica.setOnAction(e -> caricaRevisione());
 
         Button btnVisualizza = new Button("Visualizza Articolo");
-        btnVisualizza.setStyle("-fx-background-color: #10b981; -fx-text-fill: white; -fx-border-color: transparent;" +
+        btnVisualizza.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-border-color: transparent;" +
                 "-fx-padding: 10 20; -fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 13px;" +
-                "-fx-effect: dropshadow(gaussian, rgba(16,185,129,0.3),4,0,0,2);");
+                "-fx-effect: dropshadow(gaussian, rgba(37,99,235,0.3),4,0,0,2);");
         btnVisualizza.setOnAction(e -> visualizzaArticolo());
 
         Region spacer = new Region();

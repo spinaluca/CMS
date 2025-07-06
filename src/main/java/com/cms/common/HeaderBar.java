@@ -53,7 +53,8 @@ public class HeaderBar extends HBox {
                                    "-fx-border-color: rgba(255, 255, 255, 0.2);" +
                                    "-fx-border-width: 1;" +
                                    "-fx-padding: 8 16 8 16;" +
-                                   "-fx-background-radius: 6;" +
+                                   "-fx-background-radius: 8;" +
+                                   "-fx-border-radius: 8;" +
                                    "-fx-font-size: 13px;" +
                                    "-fx-font-weight: 500;";
         
@@ -62,7 +63,8 @@ public class HeaderBar extends HBox {
                                    "-fx-border-color: rgba(239, 68, 68, 0.9);" +
                                    "-fx-border-width: 1;" +
                                    "-fx-padding: 8 16 8 16;" +
-                                   "-fx-background-radius: 6;" +
+                                   "-fx-background-radius: 8;" +
+                                   "-fx-border-radius: 8;" +
                                    "-fx-font-size: 13px;" +
                                    "-fx-font-weight: 500;";
         
