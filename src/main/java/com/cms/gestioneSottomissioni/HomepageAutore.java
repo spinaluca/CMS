@@ -135,7 +135,7 @@ public class HomepageAutore {
 
         table.getColumns().addAll(colA, colT, colL, colD);
         table.setFixedCellSize(45);
-        table.setPrefHeight(5000);
+        table.setPrefHeight(300);
         table.setStyle(
             "-fx-background-color: #ffffff;" +
             "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0, 0, 2);" +
@@ -207,20 +207,98 @@ public class HomepageAutore {
         Text sectionTitle = new Text("🔍 Conferenze Disponibili");
         sectionTitle.getStyleClass().add("section-title");
 
-        Label countBadge = new Label(String.valueOf(conferenzeNonIscritto.size()));
-        countBadge.getStyleClass().add("count-badge");
+        if (conferenzeNonIscritto.isEmpty()) {
+            Label emptyLabel = new Label("Non ci sono conferenze disponibili al momento.");
+            emptyLabel.getStyleClass().add("empty-message");
+            section.getChildren().addAll(sectionTitle, emptyLabel);
+            return section;
+        }
 
-        headerBox.getChildren().addAll(sectionTitle, countBadge);
+        // Create table with the same styling as enrolled conferences
+        TableView<EntityConferenza> tableNonIscritto = new TableView<>();
+        tableNonIscritto.setItems(conferenzeNonIscritto);
 
-        // Create table with modern styling
-        TableView<EntityConferenza> tableNonIscritto = creaTabella(conferenzeNonIscritto);
-        tableNonIscritto.getStyleClass().add("modern-table-view");
+        // Acronimo column
+        TableColumn<EntityConferenza, String> colA = new TableColumn<>("Acronimo");
+        colA.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getAcronimo()));
+        colA.setPrefWidth(150);
+        colA.setStyle("-fx-font-weight: 600; -fx-font-size: 13px; -fx-alignment: CENTER_LEFT;");
+
+        // Titolo column
+        TableColumn<EntityConferenza, String> colT = new TableColumn<>("Titolo");
+        colT.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getTitolo()));
+        colT.setPrefWidth(300);
+        colT.setStyle("-fx-font-weight: 600; -fx-font-size: 13px;");
+
+        // Luogo column
+        TableColumn<EntityConferenza, String> colL = new TableColumn<>("Luogo");
+        colL.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getLuogo()));
+        colL.setPrefWidth(150);
+        colL.setStyle("-fx-font-size: 13px; -fx-alignment: CENTER_LEFT;");
+
+        // Descrizione column
+        TableColumn<EntityConferenza, String> colD = new TableColumn<>("Descrizione");
+        colD.setCellValueFactory(c -> new SimpleStringProperty(c.getValue().getDescrizione()));
+        colD.setPrefWidth(300);
+
+        tableNonIscritto.getColumns().addAll(colA, colT, colL, colD);
+        tableNonIscritto.setFixedCellSize(45);
         tableNonIscritto.setPrefHeight(300);
+        tableNonIscritto.setStyle(
+            "-fx-background-color: #ffffff;" +
+            "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0, 0, 2);" +
+            "-fx-background-radius: 8;" +
+            "-fx-border-width: 0;"
+        );
+        
+        // Add hover and click effects
+        tableNonIscritto.setRowFactory(tv -> {
+            TableRow<EntityConferenza> row = new TableRow<>();
+            
+            // Hover effect that doesn't override selection
+            row.hoverProperty().addListener((obs, wasHovered, isNowHovered) -> {
+                if (row.isSelected()) return; // Skip hover effect if row is selected
+                if (isNowHovered) {
+                    row.setStyle("-fx-background-color: #f1f5f9; -fx-cursor: hand;");
+                } else {
+                    row.setStyle(
+                        row.getIndex() % 2 == 0 ? 
+                        "-fx-background-color: #ffffff;" : 
+                        "-fx-background-color: #f8fafc;"
+                    );
+                }
+            });
+            
+            // Alternating row colors with selection support
+            row.styleProperty().bind(
+                Bindings.when(row.selectedProperty())
+                    .then("-fx-background-color: #e2e8f0; -fx-cursor: default;")
+                    .otherwise(
+                        Bindings.when(
+                            Bindings.createBooleanBinding(
+                                () -> row.getIndex() % 2 == 0,
+                                row.indexProperty()
+                            )
+                        )
+                        .then("-fx-background-color: #ffffff;")
+                        .otherwise("-fx-background-color: #f8fafc;")
+                    )
+            );
+            
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !row.isEmpty()) {
+                    EntityConferenza selected = row.getItem();
+                    new InfoConferenzaAutore(stage, ctrl, selected.getId(), false).show();
+                }
+            });
+            return row;
+        });
 
         // Action buttons
         HBox actionButtons = createActionButtons(tableNonIscritto, false);
-
-        section.getChildren().addAll(headerBox, tableNonIscritto, actionButtons);
+        
+        VBox.setVgrow(tableNonIscritto, Priority.ALWAYS);
+        section.getChildren().addAll(sectionTitle, tableNonIscritto, actionButtons);
         return section;
     }
 
