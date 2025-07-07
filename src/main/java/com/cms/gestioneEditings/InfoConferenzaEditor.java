@@ -125,8 +125,6 @@ public class InfoConferenzaEditor {
 
         TableColumn<EntityArticolo, String> colFeed = new TableColumn<>("Feedback");
         colFeed.setCellValueFactory(data -> new ReadOnlyStringWrapper(ctrl.hasFeedback(data.getValue().getId()) ? "✔️" : "❌"));
-        colFeed.setStyle("-fx-alignment: CENTER;");
-
         table.getColumns().addAll(colTitolo, colAut, colFeed);
 
         List<EntityArticolo> articoli = ctrl.getCameraReadyArticoli(confId).stream()
@@ -136,14 +134,14 @@ public class InfoConferenzaEditor {
 
         // BUTTONS
         Button btnVisualizza = new Button("Visualizza Versione Camera-ready");
-        btnVisualizza.setStyle("-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-border-color: transparent;" +
-                "-fx-padding: 10 20; -fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 13px;" +
-                "-fx-effect: dropshadow(gaussian, rgba(59,130,246,0.3),4,0,0,2);");
-
-        Button btnFeedback = new Button("Invia Feedback");
-        btnFeedback.setStyle("-fx-background-color: #10b981; -fx-text-fill: white; -fx-border-color: transparent;" +
+        btnVisualizza.setStyle("-fx-background-color: #10b981; -fx-text-fill: white; -fx-border-color: transparent;" +
                 "-fx-padding: 10 20; -fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 13px;" +
                 "-fx-effect: dropshadow(gaussian, rgba(16,185,129,0.3),4,0,0,2);");
+
+        Button btnFeedback = new Button("Invia Feedback");
+        btnFeedback.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-border-color: transparent;" +
+                "-fx-padding: 10 20; -fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 13px;" +
+                "-fx-effect: dropshadow(gaussian, rgba(37,99,235,0.3),4,0,0,2);");
 
         btnVisualizza.setOnAction(e -> {
             EntityArticolo sel = table.getSelectionModel().getSelectedItem();
@@ -164,7 +162,9 @@ public class InfoConferenzaEditor {
             }
         });
 
-        HBox buttonsBox = new HBox(10, btnVisualizza, btnFeedback);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox buttonsBox = new HBox(10, spacer, btnVisualizza, btnFeedback);
 
         VBox tableBox = new VBox(8, tableLabel, table, buttonsBox);
         tableBox.setPrefWidth(1000);
@@ -180,7 +180,7 @@ public class InfoConferenzaEditor {
         VBox root = new VBox(header, layout);
         root.setStyle("-fx-background-color: #f8fafc;");
 
-        Scene scene = new Scene(root, 1050, 800);
+        Scene scene = new Scene(root, 1050, 850);
         scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
         stage.setScene(scene);
         stage.setTitle("Dettagli Conferenza - Editor");

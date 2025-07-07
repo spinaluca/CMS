@@ -3,10 +3,13 @@ package com.cms.common;
 import com.cms.gestioneAccount.ModuloRuoliUtente;
 import com.cms.gestioneAccount.ModuloPassword;
 import com.cms.gestioneAccount.ControlAccount;
+import com.cms.gestioneNotifiche.ControlNotifiche;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 public class HeaderBar extends HBox {
 
@@ -14,6 +17,7 @@ public class HeaderBar extends HBox {
     private final Button btnModificaRuoli;
     private final Button btnModificaPw;
     private final Button btnLogout;
+    private final Button btnNotifiche;
 
     public HeaderBar(ControlAccount ctrl, Runnable onReturn) {
         super(10);
@@ -22,6 +26,16 @@ public class HeaderBar extends HBox {
         btnModificaRuoli = new Button("Modifica Ruoli");
         btnModificaPw = new Button("Modifica Password");
         btnLogout = new Button("Logout");
+        btnNotifiche = new Button();
+        ImageView bellIcon = new ImageView(new Image(getClass().getResourceAsStream("/bell.png")));
+        bellIcon.setFitWidth(22);
+        bellIcon.setFitHeight(22);
+        btnNotifiche.setGraphic(bellIcon);
+        btnNotifiche.setStyle("-fx-background-color: transparent; -fx-cursor: hand; -fx-border-color: transparent;");
+        btnNotifiche.setPrefSize(36, 36);
+        btnNotifiche.setMinSize(36, 36);
+        btnNotifiche.setMaxSize(36, 36);
+        btnNotifiche.setFocusTraversable(false);
 
         //btnBack.setOnAction(e -> ctrl.apriHomepageGenerale());
         btnModificaRuoli.setOnAction(e ->
@@ -37,7 +51,7 @@ public class HeaderBar extends HBox {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        this.getChildren().addAll(btnBack, spacer, btnModificaRuoli, btnModificaPw, btnLogout);
+        this.getChildren().addAll(btnBack, spacer, btnModificaRuoli, btnModificaPw, btnLogout, btnNotifiche);
         
         // Apply modern header bar styling
         this.setStyle("-fx-background-color: linear-gradient(to right, #1e293b 0%, #334155 100%);" +
@@ -72,6 +86,10 @@ public class HeaderBar extends HBox {
         btnModificaRuoli.setStyle(headerButtonStyle);
         btnModificaPw.setStyle(headerButtonStyle);
         btnLogout.setStyle(logoutButtonStyle);
+    }
+
+    public void setControlNotifiche(ControlNotifiche ctrlNotifiche) {
+        btnNotifiche.setOnAction(e -> ctrlNotifiche.mostraPannelloNotifiche());
     }
 
     // Getter per accesso ai pulsanti

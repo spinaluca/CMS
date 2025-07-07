@@ -1302,4 +1302,38 @@ public class BoundaryDBMS {
         }
         return java.util.Optional.empty();
     }
+
+    // Restituisce le notifiche di un utente (come lista di mappe chiave-valore)
+    public java.util.List<java.util.Map<String, String>> getNotifiche(String email) {
+        java.util.List<java.util.Map<String, String>> list = new java.util.ArrayList<>();
+        String sql = "SELECT id, messaggio, data_invio, letta FROM notifiche WHERE utente_id = ? ORDER BY data_invio DESC";
+        try (java.sql.Connection conn = java.sql.DriverManager.getConnection(URL);
+             java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            java.sql.ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                java.util.Map<String, String> notifica = new java.util.HashMap<>();
+                notifica.put("id", rs.getString("id"));
+                notifica.put("messaggio", rs.getString("messaggio"));
+                notifica.put("data_invio", rs.getString("data_invio"));
+                notifica.put("letta", rs.getString("letta"));
+                list.add(notifica);
+            }
+        } catch (java.sql.SQLException e) {
+            throw new RuntimeException("Errore getNotifiche", e);
+        }
+        return list;
+    }
+
+    // Cancella una notifica dato l'id
+    public void cancellaNotifica(String idNotifica) {
+        String sql = "DELETE FROM notifiche WHERE id = ?";
+        try (java.sql.Connection conn = java.sql.DriverManager.getConnection(URL);
+             java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, idNotifica);
+            ps.executeUpdate();
+        } catch (java.sql.SQLException e) {
+            throw new RuntimeException("Errore cancellaNotifica", e);
+        }
+    }
 }
