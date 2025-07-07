@@ -61,7 +61,10 @@ public class PannelloNotifiche {
                     stage.close();
                 });
 
-                box.getChildren().addAll(msgLabel, dateLabel, btnCancella);
+                // Pulsante cancella a destra
+                HBox buttonBox = new HBox(btnCancella);
+                buttonBox.setAlignment(Pos.CENTER_RIGHT);
+                box.getChildren().addAll(msgLabel, dateLabel, buttonBox);
                 notificationsContainer.getChildren().add(box);
             }
         }
@@ -81,8 +84,10 @@ public class PannelloNotifiche {
                 "-fx-effect: dropshadow(gaussian, rgba(107,114,128,0.3), 4, 0, 0, 2);");
         btnChiudi.setOnAction(e -> stage.close());
 
-        // Contenitore form
-        VBox formContainer = new VBox(24, titleLabel, scrollPane, btnChiudi);
+        // Bottone chiudi ancorato a destra
+        HBox chiudiBox = new HBox(btnChiudi);
+        chiudiBox.setAlignment(Pos.CENTER_RIGHT);
+        VBox formContainer = new VBox(24, titleLabel, scrollPane, chiudiBox);
         formContainer.setAlignment(Pos.CENTER);
         formContainer.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; " +
                 "-fx-border-width: 1; -fx-border-radius: 12; -fx-background-radius: 12; " +
@@ -93,7 +98,7 @@ public class PannelloNotifiche {
         layout.setAlignment(Pos.CENTER);
         layout.setPadding(new Insets(10));
 
-        Scene scene = new Scene(layout, 430, 790);
+        Scene scene = new Scene(layout, 430, 890);
         scene.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
         stage.setScene(scene);
         stage.setTitle("Pannello Notifiche");
