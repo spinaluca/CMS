@@ -610,7 +610,7 @@ public class BoundaryDBMS {
         return Optional.empty();
     }
 
-    private String getArticoloId(String idConferenza, String emailAutore) {
+    public String getArticoloId(String idConferenza, String emailAutore) {
         String sql = "SELECT id FROM articoli WHERE conferenza_id = ? AND autore_id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -687,18 +687,29 @@ public class BoundaryDBMS {
     }
 
 
-    public Map<String, String> getRevisioniArticolo(String idConferenza, String emailAutore) {
+    public Map<String, String> getRevisioniArticolo(String idArticolo) {
         Map<String, String> map = new LinkedHashMap<>();
-        String idArticolo = getArticoloId(idConferenza, emailAutore);
-        String sql = "SELECT id, voto, expertise FROM revisioni WHERE articolo_id = ?";
+        String sql = "SELECT id, voto, expertise, revisore_id FROM revisioni WHERE articolo_id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setString(1, idArticolo);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                String id = rs.getString("id");
-                String descr = "Voto: " + rs.getInt("voto") + " - Expertise: " + rs.getString("expertise");
-                map.put(id, descr);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String id = rs.getString("id");
+                    String revisore = rs.getString("revisore_id");
+
+                    int voto = rs.getInt("voto");
+                    String expertise = rs.getString("expertise");
+                    // se expertise fosse NULL, lo sostituiamo con stringa vuota
+                    if (expertise == null) expertise = "";
+
+                    String descr = "Revisore: " + revisore +
+                                " - Voto: " + voto +
+                                " - Expertise: " + expertise;
+
+                    map.put(id, descr);
+                }
             }
         } catch (SQLException e) {
             throw new RuntimeException("Errore getRevisioniArticolo", e);

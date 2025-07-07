@@ -62,7 +62,7 @@ public class ControlSottomissioni {
                     }
                 }
             } else {
-                new PopupAvviso("Carica la versione aggiornata dell’articolo").show();
+                new PopupAvviso("Carica la versione aggiornata dell'articolo").show();
                 Optional<File> file = SelezioneFile.scegliFile(new Stage());
                 if (file.isPresent()) {
                     db.inviaArticolo(idConferenza, autore.getEmail(), file.get());
@@ -142,7 +142,11 @@ public class ControlSottomissioni {
     }
 
     public Map<String, String> getRevisioniArticolo(String idConferenza) {
-        return db.getRevisioniArticolo(idConferenza, autore.getEmail());
+        return db.getRevisioniArticolo(db.getArticoloId(idConferenza, autore.getEmail()));
+    }
+
+    public Map<String, String> getRevisioniArticoloById(String idArticolo) {
+        return db.getRevisioniArticolo(idArticolo);
     }
 
     public ControlAccount getAccountController() {
