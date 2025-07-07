@@ -300,48 +300,21 @@ public class ControlRevisioni {
 
         if (oggi.isBefore(scadRev)) {
             if (db.isModalitaBroadcast(confId)) {
-                List<EntityArticolo> articoli = db.getArticoliDisponibili(confId);
+                java.util.List<com.cms.entity.EntityArticolo> articoli = db.getArticoliDisponibili(confId);
                 if (articoli.isEmpty()) {
                     new com.cms.common.PopupAvviso("Nessun articolo disponibile per l'assegnazione").show();
                     return;
                 }
 
-                // Dialog selezione articoli
-                javafx.application.Platform.runLater(() -> {
-                    javafx.scene.control.Dialog<List<EntityArticolo>> dialog = new javafx.scene.control.Dialog<>();
-                    dialog.setTitle("Seleziona Articoli");
-                    dialog.setHeaderText("Scegli gli articoli da revisionare");
-
-                    javafx.scene.control.ButtonType okBtn = new javafx.scene.control.ButtonType("Conferma", javafx.scene.control.ButtonBar.ButtonData.OK_DONE);
-                    dialog.getDialogPane().getButtonTypes().addAll(okBtn, javafx.scene.control.ButtonType.CANCEL);
-
-                    javafx.scene.control.ListView<EntityArticolo> listView = new javafx.scene.control.ListView<>();
-                    listView.getItems().addAll(articoli);
-                    listView.getSelectionModel().setSelectionMode(javafx.scene.control.SelectionMode.MULTIPLE);
-                    listView.setCellFactory(lv -> new javafx.scene.control.ListCell<EntityArticolo>() {
-                        @Override
-                        protected void updateItem(EntityArticolo item, boolean empty) {
-                            super.updateItem(item, empty);
-                            if (empty || item == null) {
-                                setText(null);
-                            } else {
-                                setText(item.getTitolo());
+                // Utilizza il PopupInserimento
+                new com.cms.common.PopupInserimento()
+                        .promptSelezionaArticoli(articoli)
+                        .ifPresent(selezionati -> {
+                            for (com.cms.entity.EntityArticolo art : selezionati) {
+                                db.assegnaArticoloRevisore(art.getId(), emailRevisore);
                             }
-                        }
-                    });
-
-                    dialog.getDialogPane().setContent(listView);
-                    dialog.setResultConverter(btn -> btn == okBtn ? 
-                        new ArrayList<>(listView.getSelectionModel().getSelectedItems()) : null);
-
-                    java.util.Optional<List<EntityArticolo>> result = dialog.showAndWait();
-                    result.ifPresent(selezionati -> {
-                        for (EntityArticolo art : selezionati) {
-                            db.assegnaArticoloRevisore(art.getId(), emailRevisore);
-                        }
-                        new com.cms.common.PopupAvviso("Articoli assegnati con successo").show();
-                    });
-                });
+                            new com.cms.common.PopupAvviso("Articoli assegnati con successo").show();
+                        });
             } else {
                 new com.cms.common.PopupAvviso("Funzionalità non disponibile, la modalità di assegnazione non è broadcast").show();
             }
@@ -353,5 +326,55 @@ public class ControlRevisioni {
     // Ottiene voto della revisione per articolo e revisore
     public Optional<Integer> getVotoRevisione(String idArticolo, String emailRevisore) {
         return db.getVotoRevisione(idArticolo, emailRevisore);
+    }
+
+    // ==================== Delega sotto-revisore (UC DELEGATE_REVIEWER) ======
+    public void delegaSottoRevisore(String confId, String titoloArticolo, String emailRevisore) {
+        java.time.LocalDate oggi = java.time.LocalDate.now();
+        java.time.LocalDate scadRev = db.getDataScadenzaRevisioni(confId);
+        if (!oggi.isBefore(scadRev)) {
+            new com.cms.common.PopupAvviso("Scadenza per revisioni oltrepassata").show();
+            return;
+        }
+
+        // Recupera articolo per titolo
+        java.util.Optional<com.cms.entity.EntityArticolo> artOpt = db.queryGetArticoliConferenza(confId).stream()
+                .filter(a -> a.getTitolo().equalsIgnoreCase(titoloArticolo))
+                .findFirst();
+        if (artOpt.isEmpty()) {
+            new com.cms.common.PopupAvviso("Articolo non trovato").show();
+            return;
+        }
+        com.cms.entity.EntityArticolo articolo = artOpt.get();
+        String idArticolo = articolo.getId();
+
+        // Verifica stato (voto)
+        java.util.Optional<Integer> votoOpt = db.getVotoRevisione(idArticolo, emailRevisore);
+        if (votoOpt.isPresent() && votoOpt.get() > 0) {
+            new com.cms.common.PopupAvviso("Articolo già revisionato").show();
+            return;
+        }
+
+        // Chiedi email sotto-revisore
+        new com.cms.common.PopupInserimento().promptEmail("Sotto-revisore")
+                .ifPresent(emailSR -> {
+                    // Controlla partecipazione alla conferenza
+                    if (!db.queryRevisorePresente(emailSR, confId)) {
+                        new com.cms.common.PopupAvviso("Impossibile invitare sotto-revisore esterno alla conferenza").show();
+                        return;
+                    }
+                    // Inserisci delega (assegni articolo al sotto-revisore)
+                    db.assegnaArticoloRevisore(idArticolo, emailSR);
+                    // Notifica (solo popup per ora)
+                    new com.cms.common.PopupAvviso("Delegato con successo").show();
+                });
+    }
+
+    public java.util.Optional<com.cms.entity.EntityArticolo> getArticoloById(String idArticolo) {
+        return db.getDatiArticoloById(idArticolo);
+    }
+
+    public java.util.Optional<Integer> getExpertiseRevisione(String idArticolo, String emailRevisore) {
+        return db.getExpertiseRevisione(idArticolo, emailRevisore);
     }
 } 

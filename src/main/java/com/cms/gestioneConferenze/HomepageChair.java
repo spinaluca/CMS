@@ -47,8 +47,6 @@ public class HomepageChair {
 
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-
-
         table.getColumns().addAll(colA, colT, colL, colD);
         table.setFixedCellSize(45);
         table.setItems(data);

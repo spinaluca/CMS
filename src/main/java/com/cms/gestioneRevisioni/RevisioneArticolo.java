@@ -35,10 +35,16 @@ public class RevisioneArticolo {
         Label title = new Label("Revisione Articolo");
         title.setStyle("-fx-font-size: 24px; -fx-font-weight: 700; -fx-text-fill: #1e293b;");
 
+        // Recupera info articolo
+        com.cms.entity.EntityArticolo articolo = ctrl.getArticoloById(idArticolo).orElse(null);
+        String titolo = articolo != null ? articolo.getTitolo() : "[da caricare]";
+        String autore = articolo != null ? ctrl2.getNomeCompleto(articolo.getAutoreId()).orElse(articolo.getAutoreId()) : "[da caricare]";
+        String paroleChiave = articolo != null ? articolo.getParoleChiave() : "[da caricare]";
+
         VBox infoArticolo = new VBox(8,
-                new Label("Titolo: [da caricare]"),
-                new Label("Autore: [da caricare]"),
-                new Label("Parole chiave: [da caricare]")
+                new Label("Titolo: " + titolo),
+                new Label("Autore: " + autore),
+                new Label("Parole chiave: " + paroleChiave)
         );
         infoArticolo.setPrefWidth(800);
 

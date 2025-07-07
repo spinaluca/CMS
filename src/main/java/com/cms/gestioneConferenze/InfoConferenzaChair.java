@@ -133,10 +133,18 @@ public class InfoConferenzaChair {
         colTit.setMinWidth(200);
 
         TableColumn<EntityArticolo, String> colAut = new TableColumn<>("Autore");
-        colAut.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getAutoreId()));
+        colAut.setCellValueFactory(data -> new ReadOnlyStringWrapper(ctrl2.getNomeCompleto(data.getValue().getAutoreId())
+                .orElse(data.getValue().getAutoreId())));
 
         TableColumn<EntityArticolo, Integer> colRev = new TableColumn<>("Revisioni");
-        colRev.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getNumRevisioni()));
+        colRev.setCellValueFactory(data -> {
+            Integer numRev = data.getValue().getNumRevisioni();
+            String stato = data.getValue().getStato();
+            if (numRev == null && (stato == null || !stato.equalsIgnoreCase("In preparazione"))) {
+                return new ReadOnlyObjectWrapper<>(0);
+            }
+            return new ReadOnlyObjectWrapper<>(numRev);
+        });
 
         TableColumn<EntityArticolo, Double> colScore = new TableColumn<>("Punteggio");
         colScore.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getPunteggio()));
@@ -146,7 +154,7 @@ public class InfoConferenzaChair {
 
         tableArticoli.getColumns().addAll(colPos, colTit, colAut, colRev, colScore, colStato);
         tableArticoli.getItems().addAll(ctrl.getArticoliConferenza(confId).stream()
-                .sorted(Comparator.comparingInt(EntityArticolo::getPosizione))
+                .sorted(Comparator.comparingInt(a -> a.getPosizione() != null ? a.getPosizione() : 0))
                 .collect(Collectors.toList()));
 
         // Stile della tabella come in HomepageChair

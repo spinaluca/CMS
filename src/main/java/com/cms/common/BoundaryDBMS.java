@@ -229,8 +229,8 @@ public class BoundaryDBMS {
         LocalDate fe = LocalDate.parse(rs.getString("scad_feedback_editore"));
         LocalDate vf = LocalDate.parse(rs.getString("scad_versione_finale"));
         int    mnr  = rs.getInt("num_min_revisori");
-        int rp      = rs.getInt("num_articoli_vincitori");
-        int rn      = rs.getInt("num_articoli_vincitori");
+        int rp      = rs.getInt("valutazione_min");
+        int rn      = rs.getInt("valutazione_max");
         int nv      = rs.getInt("num_articoli_vincitori");
         String distStr = rs.getString("modalita_distribuzione");
         EntityConferenza.Distribuzione dist = EntityConferenza.Distribuzione.fromString(distStr);
@@ -1106,31 +1106,25 @@ public class BoundaryDBMS {
         return Optional.empty();
     }
 
-    // Articoli assegnati a revisore
-    public List<String> getArticoliRevisore(String confId, String emailRevisore) {
-    List<String> list = new ArrayList<>();
-    String sql = "SELECT a.titolo, a.autore_id, r.voto, r.expertise " +
-                 "FROM articoli a " +
-                 "JOIN revisioni r ON a.id = r.articolo_id " +
-                 "WHERE a.conferenza_id = ? AND r.revisore_id = ?";
-    try (Connection conn = DriverManager.getConnection(URL);
-         PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setString(1, confId);
-        ps.setString(2, emailRevisore);
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            String titolo = rs.getString("titolo");
-            String autoreId = rs.getString("autore_id");
-            int voto = rs.getInt("voto");
-            int expertise = rs.getInt("expertise");
-            list.add(titolo + " | " + autoreId + " | " + voto + " | " + expertise);
+    // Articoli assegnati a revisore → restituisce solo gli ID
+    public java.util.List<String> getArticoliRevisore(String confId, String emailRevisore) {
+        java.util.List<String> list = new java.util.ArrayList<>();
+        String sql = "SELECT a.id FROM articoli a " +
+                     "JOIN revisioni r ON a.id = r.articolo_id " +
+                     "WHERE a.conferenza_id = ? AND r.revisore_id = ?";
+        try (java.sql.Connection conn = java.sql.DriverManager.getConnection(URL);
+             java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, confId);
+            ps.setString(2, emailRevisore);
+            java.sql.ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(rs.getString("id"));
+            }
+        } catch (java.sql.SQLException e) {
+            throw new RuntimeException("Errore getArticoliRevisore", e);
         }
-    } catch (SQLException e) {
-        throw new RuntimeException("Errore getArticoliRevisore", e);
+        return list;
     }
-    return list;
-}
-
 
     // Carica revisione
     public void caricaRevisione(String emailRevisore, String idArticolo, int voto, int expertise, File file) {
@@ -1269,5 +1263,43 @@ public class BoundaryDBMS {
             throw new RuntimeException("Errore getConferenzeConScadenzaRevisioni", e);
         }
         return list;
+    }
+
+    // Ottiene i dati di un articolo tramite ID
+    public java.util.Optional<com.cms.entity.EntityArticolo> getDatiArticoloById(String idArticolo) {
+        System.out.println("[DEBUG] getDatiArticoloById chiamato con id: " + idArticolo);
+        String sql = "SELECT * FROM articoli WHERE id = ?";
+        try (java.sql.Connection conn = java.sql.DriverManager.getConnection(URL);
+             java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, idArticolo);
+            java.sql.ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                System.out.println("[DEBUG] Articolo trovato: " + rs.getString("titolo"));
+                return java.util.Optional.of(mapArticolo(rs));
+            } else {
+                System.out.println("[DEBUG] Nessun articolo trovato per id: " + idArticolo);
+            }
+        } catch (java.sql.SQLException e) {
+            throw new RuntimeException("Errore getDatiArticoloById", e);
+        }
+        return java.util.Optional.empty();
+    }
+
+    // Ottiene expertise della revisione per articolo e revisore
+    public java.util.Optional<Integer> getExpertiseRevisione(String idArticolo, String emailRevisore) {
+        String sql = "SELECT expertise FROM revisioni WHERE articolo_id = ? AND revisore_id = ?";
+        try (java.sql.Connection conn = java.sql.DriverManager.getConnection(URL);
+             java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, idArticolo);
+            ps.setString(2, emailRevisore);
+            java.sql.ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                int exp = rs.getInt("expertise");
+                return java.util.Optional.of(exp);
+            }
+        } catch (java.sql.SQLException e) {
+            throw new RuntimeException("Errore getExpertiseRevisione", e);
+        }
+        return java.util.Optional.empty();
     }
 }

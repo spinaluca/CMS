@@ -28,7 +28,7 @@ public class Homepage {
 
     public void show() {
         // Create modern welcome section
-        Label welcomeLabel = new Label("Benvenuto nel Sistema CMS");
+        Label welcomeLabel = new Label("Benvenuto nel CMS");
         welcomeLabel.setStyle("-fx-font-size: 32px; -fx-font-weight: 800; -fx-text-fill: #1e293b;");
         
         Label userLabel = new Label("Ciao, " + utente.getNome() + " " + utente.getCognome());

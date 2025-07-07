@@ -117,4 +117,33 @@ public class PopupInserimento {
 
         return dialog.showAndWait();
     }
+
+    public Optional<java.util.List<com.cms.entity.EntityArticolo>> promptSelezionaArticoli(java.util.List<com.cms.entity.EntityArticolo> articoli) {
+        javafx.scene.control.Dialog<java.util.List<com.cms.entity.EntityArticolo>> dialog = new javafx.scene.control.Dialog<>();
+        dialog.setTitle("Seleziona Articoli");
+        dialog.setHeaderText("Scegli gli articoli da revisionare");
+
+        javafx.scene.control.ButtonType okBtn = new javafx.scene.control.ButtonType("Conferma", javafx.scene.control.ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(okBtn, javafx.scene.control.ButtonType.CANCEL);
+
+        javafx.scene.control.ListView<com.cms.entity.EntityArticolo> listView = new javafx.scene.control.ListView<>();
+        listView.getItems().addAll(articoli);
+        listView.getSelectionModel().setSelectionMode(javafx.scene.control.SelectionMode.MULTIPLE);
+        listView.setCellFactory(lv -> new javafx.scene.control.ListCell<com.cms.entity.EntityArticolo>() {
+            @Override
+            protected void updateItem(com.cms.entity.EntityArticolo item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item.getTitolo());
+                }
+            }
+        });
+
+        dialog.getDialogPane().setContent(listView);
+        dialog.setResultConverter(btn -> btn == okBtn ? new java.util.ArrayList<>(listView.getSelectionModel().getSelectedItems()) : null);
+
+        return dialog.showAndWait();
+    }
 }

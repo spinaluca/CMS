@@ -118,7 +118,7 @@ public class InfoConferenzaEditor {
         colAut.setCellValueFactory(data -> {
             String email = data.getValue().getAutoreId();
             String label = ctrlAccount.getDatiUtente(email)
-                    .map(u -> email + " | " + u.getNome() + " " + u.getCognome())
+                    .map(u -> u.getNome() + " " + u.getCognome())
                     .orElse(email);
             return new ReadOnlyStringWrapper(label);
         });

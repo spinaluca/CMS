@@ -177,10 +177,8 @@ public class ControlAccount {
     public boolean verificaCredenziali(String email, String password) {
         if (login(email, password)) {
             setUtenteCorrente(email); // Passa solo l'email
-            System.out.println("true");
             return true;
         }
-        System.out.println("false");
         return false;
     }
 

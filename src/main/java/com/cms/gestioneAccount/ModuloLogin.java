@@ -20,7 +20,7 @@ public class ModuloLogin {
 
     public void show() {
         Label emailLabel = new Label("Email:");
-        TextField emailField = new TextField("a@a.a");
+        TextField emailField = new TextField("luca.spina@email.net");
         emailField.setPromptText("Inserisci il tuo indirizzo email");
         Label passwordLabel = new Label("Password:");
         PasswordField passwordField = new PasswordField();
@@ -46,7 +46,7 @@ public class ModuloLogin {
         loginButton.setOnAction(e -> {
             String email = emailField.getText().trim();
             String password = passwordField.getText();
-            password = "a@a.a";
+            password = "hashedpass17";
             if (ctrl.verificaCredenziali(email, password)) {
                 ctrl.setUtenteCorrente(email);  // salva utente loggato
 
