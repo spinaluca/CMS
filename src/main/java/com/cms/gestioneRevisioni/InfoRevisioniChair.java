@@ -26,12 +26,14 @@ public class InfoRevisioniChair {
     private final ControlRevisioni ctrl;
     private final String confId;
     private final EntityConferenza conferenza;
+    private final Runnable onReturn;
 
-    public InfoRevisioniChair(Stage stage, ControlRevisioni ctrl, EntityConferenza conferenza) {
+    public InfoRevisioniChair(Stage stage, ControlRevisioni ctrl, EntityConferenza conferenza, Runnable onReturn) {
         this.stage = stage;
         this.ctrl = ctrl;
         this.conferenza = conferenza;
         this.confId = conferenza.getId();
+        this.onReturn = onReturn;
     }
 
     public void show() {
@@ -40,18 +42,54 @@ public class InfoRevisioniChair {
 
         TableView<RevisionRow> table = creaTabella();
 
-        Button btnAggiungi = new Button("Aggiungi nuova assegnazione");
-        btnAggiungi.setStyle("-fx-background-color: #10b981; -fx-text-fill: white; -fx-border-color: transparent;" +
+        // Pulsanti esterni Visualizza, Rimuovi e Aggiungi sulla stessa linea
+        Button btnVisualizza = new Button("Visualizza");
+        btnVisualizza.setStyle("-fx-background-color: #f59e0b; -fx-text-fill: white; -fx-border-color: transparent;" +
+                "-fx-padding: 10 20; -fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 13px;" +
+                "-fx-effect: dropshadow(gaussian, rgba(245,158,11,0.3),4,0,0,2);");
+        btnVisualizza.setOnAction(e -> {
+            RevisionRow row = table.getSelectionModel().getSelectedItem();
+            if (row != null) {
+                ctrl.visualizzaRevisioneChair(row.idRevisione)
+                        .ifPresentOrElse(ok -> {},
+                                () -> new PopupAvviso("Revisione non disponibile").show());
+            } else {
+                new PopupAvviso("Seleziona una riga").show();
+            }
+        });
+
+        Button btnRimuovi = new Button("Rimuovi");
+        btnRimuovi.setStyle("-fx-background-color: #10b981; -fx-text-fill: white; -fx-border-color: transparent;" +
                 "-fx-padding: 10 20; -fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 13px;" +
                 "-fx-effect: dropshadow(gaussian, rgba(16,185,129,0.3),4,0,0,2);");
+        btnRimuovi.setOnAction(e -> {
+            RevisionRow row = table.getSelectionModel().getSelectedItem();
+            if (row != null) {
+                ctrl.rimuoviAssegnazione(row.idRevisione);
+                table.getItems().remove(row);
+                new PopupAvviso("Assegnazione rimossa correttamente").show();
+            } else {
+                new PopupAvviso("Seleziona una riga").show();
+            }
+        });
+
+        Button btnAggiungi = new Button("Aggiungi Nuova Assegnazione");
+        btnAggiungi.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-border-color: transparent;" +
+                "-fx-padding: 10 20; -fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 13px;" +
+                "-fx-effect: dropshadow(gaussian, rgba(59,130,246,0.3),4,0,0,2);");
         btnAggiungi.setOnAction(e -> ctrl.avviaAggiungiAssegnazione(confId)); // stub
 
-        VBox layout = new VBox(15, title, table, btnAggiungi);
+        // Spacer per allineare il pulsante aggiungi a destra
+        javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox azioniBox = new HBox(10, spacer, btnVisualizza, btnRimuovi, btnAggiungi);
+
+        VBox layout = new VBox(15, title, table, azioniBox);
         layout.setPadding(new Insets(20));
         layout.setStyle("-fx-background-color: #f8fafc;");
 
-        HeaderBar header = new HeaderBar(null, () -> {});
-        header.getBtnBack().setOnAction(e -> stage.close());
+        HeaderBar header = new HeaderBar(null, onReturn);
+        header.getBtnBack().setOnAction(e -> onReturn.run());
 
         VBox root = new VBox(header, layout);
 
@@ -82,53 +120,20 @@ public class InfoRevisioniChair {
         colRevisore.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().revisore));
 
         TableColumn<RevisionRow, String> colStato = new TableColumn<>("Stato");
-        colStato.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().completata ? "✔️" : "❌"));
+        colStato.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().completata ? "✓" : "✗"));
 
-        TableColumn<RevisionRow, Void> colView = new TableColumn<>("Visualizza");
-        colView.setCellFactory(param -> new TableCell<>() {
-            private final Button btn = new Button("Visualizza");
-            {
-                btn.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-border-color: transparent;" +
-                        "-fx-padding: 6 12; -fx-background-radius: 6; -fx-font-weight: 600; -fx-font-size: 12px;");
-                btn.setOnAction(e -> {
-                    RevisionRow row = getTableView().getItems().get(getIndex());
-                    ctrl.visualizzaRevisioneChair(row.idRevisione)
-                            .ifPresentOrElse(ok -> {},
-                                    () -> new PopupAvviso("Revisione non disponibile").show());
-                });
-            }
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    setGraphic(btn);
-                }
-            }
-        });
+        // Nuove colonne Voto ed Expertise
+        TableColumn<RevisionRow, String> colVoto = new TableColumn<>("Voto");
+        colVoto.setCellValueFactory(data -> new ReadOnlyStringWrapper(
+            data.getValue().voto != null && data.getValue().voto > 0 ? String.valueOf(data.getValue().voto) : ""
+        ));
 
-        TableColumn<RevisionRow, Void> colRemove = new TableColumn<>("Rimuovi");
-        colRemove.setCellFactory(param -> new TableCell<>() {
-            private final Button btn = new Button("Rimuovi");
-            {
-                btn.setStyle("-fx-background-color: #f59e0b; -fx-text-fill: white; -fx-border-color: transparent;" +
-                        "-fx-padding: 6 12; -fx-background-radius: 6; -fx-font-weight: 600; -fx-font-size: 12px;");
-                btn.setOnAction(e -> {
-                    RevisionRow row = getTableView().getItems().get(getIndex());
-                    ctrl.rimuoviAssegnazione(row.idRevisione);
-                    getTableView().getItems().remove(row);
-                    new PopupAvviso("Assegnazione rimossa correttamente").show();
-                });
-            }
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                setGraphic(empty ? null : btn);
-            }
-        });
+        TableColumn<RevisionRow, String> colExpertise = new TableColumn<>("Expertise");
+        colExpertise.setCellValueFactory(data -> new ReadOnlyStringWrapper(
+            data.getValue().expertise != null && data.getValue().expertise > 0 ? String.valueOf(data.getValue().expertise) : ""
+        ));
 
-        table.getColumns().addAll(colTitolo, colAutore, colRevisore, colStato, colView, colRemove);
+        table.getColumns().addAll(colTitolo, colAutore, colRevisore, colStato, colVoto, colExpertise);
 
         List<RevisionRow> dati = ctrl.getStatoRevisioni(confId);
         ObservableList<RevisionRow> dataObs = FXCollections.observableArrayList(dati);
@@ -143,13 +148,17 @@ public class InfoRevisioniChair {
         public final String autore;
         public final String revisore;
         public final boolean completata;
+        public final Integer voto;
+        public final Integer expertise;
 
-        public RevisionRow(String idRevisione, String titolo, String autore, String revisore, boolean completata) {
+        public RevisionRow(String idRevisione, String titolo, String autore, String revisore, boolean completata, Integer voto, Integer expertise) {
             this.idRevisione = idRevisione;
             this.titolo = titolo;
             this.autore = autore;
             this.revisore = revisore;
             this.completata = completata;
+            this.voto = voto;
+            this.expertise = expertise;
         }
     }
 } 

@@ -167,7 +167,7 @@ public class InfoConferenzaChair {
 
         // PULSANTI ARTICOLI
         Button btnVisualizzaVersione = new Button("Visualizza Ultima Versione");
-        btnVisualizzaVersione.setStyle("-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-border-color: transparent;" +
+        btnVisualizzaVersione.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-border-color: transparent;" +
                 "-fx-padding: 10 20; -fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 13px;" +
                 "-fx-effect: dropshadow(gaussian, rgba(59,130,246,0.3),4,0,0,2);");
 
@@ -175,6 +175,23 @@ public class InfoConferenzaChair {
         btnRevisiona.setStyle("-fx-background-color: #8b5cf6; -fx-text-fill: white; -fx-border-color: transparent;" +
                 "-fx-padding: 10 20; -fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 13px;" +
                 "-fx-effect: dropshadow(gaussian, rgba(139,92,246,0.3),4,0,0,2);");
+
+        // Nuovo pulsante Visualizza Stato Revisioni
+        Button btnStatoRevisioni = new Button("Visualizza Stato Revisioni");
+        btnStatoRevisioni.setStyle("-fx-background-color: #dc2626; -fx-text-fill: white; -fx-border-color: transparent;" +
+                "-fx-padding: 10 20; -fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 13px;" +
+                "-fx-effect: dropshadow(gaussian, rgba(239,68,68,0.3),4,0,0,2);");
+        btnStatoRevisioni.setOnAction(e -> {
+            com.cms.common.BoundaryDBMS db = new com.cms.common.BoundaryDBMS();
+            com.cms.gestioneRevisioni.ControlRevisioni ctrlRev = new com.cms.gestioneRevisioni.ControlRevisioni(db);
+            EntityConferenza conferenza = ctrl.getConferenza(confId)
+                    .orElseThrow(() -> new RuntimeException("Conferenza non trovata: " + confId));
+            new com.cms.gestioneRevisioni.InfoRevisioniChair(stage, ctrlRev, conferenza, this::show).show();
+        });
+
+        // Spacer per allineare il pulsante rosso a destra
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
 
         // Per ora senza azioni definite
         btnVisualizzaVersione.setOnAction(e -> {
@@ -185,7 +202,7 @@ public class InfoConferenzaChair {
             // TODO: Implementare revisione
         });
 
-        HBox articoliButtons = new HBox(10, btnVisualizzaVersione, btnRevisiona);
+        HBox articoliButtons = new HBox(10, btnVisualizzaVersione, btnRevisiona, spacer, btnStatoRevisioni);
 
         VBox articoliBox = new VBox(8, articoliLbl, tableArticoli, articoliButtons);
         articoliBox.setPrefWidth(700);

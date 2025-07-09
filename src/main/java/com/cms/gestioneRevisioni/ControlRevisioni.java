@@ -111,12 +111,36 @@ public class ControlRevisioni {
 
     /** Restituisce lo stato delle revisioni per la conferenza. */
     public List<InfoRevisioniChair.RevisionRow> getStatoRevisioni(String confId) {
-        Map<String, String> statoRevisioni = db.getStatoRevisioni(confId);
-        List<InfoRevisioniChair.RevisionRow> result = new ArrayList<>();
-        
-        // TODO: Implementare la conversione da Map a List<RevisionRow>
-        // Per ora restituiamo una lista vuota
-        return result;
+        java.util.List<java.util.Map<String, String>> raw = db.getDatiRevisioni(confId);
+        java.util.List<InfoRevisioniChair.RevisionRow> list = new java.util.ArrayList<>();
+
+        for (java.util.Map<String, String> m : raw) {
+            String artId = m.get("art_id");
+            String titolo = m.get("titolo");
+            String autoreEmail = m.get("autore_id");
+            String revisoreEmail = m.get("revisore_id");
+            String idReale = m.get("id"); // id reale della revisione, se presente
+
+            String autore = db.queryGetNomeCompleto(autoreEmail).orElse(autoreEmail);
+            if (revisoreEmail == null) {
+                continue; // non mostrare revisioni senza revisore assegnato
+            }
+            String revisore = db.queryGetNomeCompleto(revisoreEmail).orElse(revisoreEmail);
+
+            Integer voto = null;
+            Integer expertise = null;
+            try { if (m.get("voto") != null) voto = Integer.parseInt(m.get("voto")); } catch (NumberFormatException ignored) {}
+            try { if (m.get("expertise") != null) expertise = Integer.parseInt(m.get("expertise")); } catch (NumberFormatException ignored) {}
+
+            boolean completata = voto != null && voto > 0;
+
+            // Costruiamo un id combinato articolo|revisore per gestire rimozione/visualizzazione
+            String idRevisione = artId + "|" + revisoreEmail;
+
+            list.add(new InfoRevisioniChair.RevisionRow(idRevisione, titolo, autore, revisore, completata, voto, expertise));
+        }
+
+        return list;
     }
 
     /** Rimuove l'assegnazione (caso d'uso 4.1.7.6). */

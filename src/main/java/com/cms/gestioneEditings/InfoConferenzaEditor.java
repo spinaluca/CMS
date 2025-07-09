@@ -124,7 +124,7 @@ public class InfoConferenzaEditor {
         });
 
         TableColumn<EntityArticolo, String> colFeed = new TableColumn<>("Feedback");
-        colFeed.setCellValueFactory(data -> new ReadOnlyStringWrapper(ctrl.hasFeedback(data.getValue().getId()) ? "✔️" : "❌"));
+        colFeed.setCellValueFactory(data -> new ReadOnlyStringWrapper(ctrl.hasFeedback(data.getValue().getId()) ? "✓" : "✗"));
         table.getColumns().addAll(colTitolo, colAut, colFeed);
 
         List<EntityArticolo> articoli = ctrl.getCameraReadyArticoli(confId).stream()

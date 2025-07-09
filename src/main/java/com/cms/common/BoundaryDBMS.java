@@ -1347,4 +1347,31 @@ public class BoundaryDBMS {
             throw new RuntimeException("Errore cancellaNotifica", e);
         }
     }
+
+    // ======== NUOVO METODO: Dati Revisioni per InfoRevisioniChair ========
+    public java.util.List<java.util.Map<String, String>> getDatiRevisioni(String confId) {
+        java.util.List<java.util.Map<String, String>> list = new java.util.ArrayList<>();
+        String sql = "SELECT a.id AS art_id, a.titolo, a.autore_id, r.id, r.revisore_id, r.voto, r.expertise " +
+                     "FROM articoli a LEFT JOIN revisioni r ON a.id = r.articolo_id " +
+                     "WHERE a.conferenza_id = ?";
+        try (java.sql.Connection conn = java.sql.DriverManager.getConnection(URL);
+             java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, confId);
+            java.sql.ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                java.util.Map<String, String> map = new java.util.HashMap<>();
+                map.put("art_id", rs.getString("art_id"));
+                map.put("titolo", rs.getString("titolo"));
+                map.put("autore_id", rs.getString("autore_id"));
+                map.put("id", rs.getString("id"));
+                map.put("revisore_id", rs.getString("revisore_id"));
+                map.put("voto", rs.getString("voto"));
+                map.put("expertise", rs.getString("expertise"));
+                list.add(map);
+            }
+        } catch (java.sql.SQLException e) {
+            throw new RuntimeException("Errore getDatiRevisioni", e);
+        }
+        return list;
+    }
 }
