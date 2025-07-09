@@ -6,7 +6,9 @@ import com.cms.common.PopupErrore;
 import com.cms.entity.EntityArticolo;
 import com.cms.entity.EntityConferenza;
 import com.cms.entity.EntityUtente;
+import com.cms.utils.DownloadUtil;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -46,7 +48,6 @@ public class ControlConferenze {
         return conf;
     }
 
-
     public Optional<EntityConferenza> getConferenza(String id) {
         return db.getConferenza(id);
     }
@@ -79,5 +80,18 @@ public class ControlConferenze {
 
     public Optional<String> getLabelUtente(String email) {
         return db.getUtente(email).map(u -> u.getNome() + " " + u.getCognome());
+    }
+
+    public int getNumRevisioni(String articoloId) {
+        return db.getNumRevisioni(articoloId);
+    }
+
+    public void visualizzaUltimaVersione(String idArticolo) {
+        Optional<File> ultimaVersione = db.getUltimaVersione(idArticolo, null);
+        if (ultimaVersione.isPresent() && ultimaVersione != null) {
+            DownloadUtil.salvaInDownload(ultimaVersione.get(), "Ultima Versione");
+        } else {
+            new PopupErrore("Articolo non disponibile").show();
+        }
     }
 }

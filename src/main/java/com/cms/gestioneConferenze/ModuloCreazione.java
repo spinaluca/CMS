@@ -526,8 +526,24 @@ public class ModuloCreazione {
 
             boolean numericValid = minRev.getValue() >= 1 && nWin.getValue() >= 1;
 
+            // Controllo date duplicate
+            boolean duplicateDates = false;
+            if (!emptyFields) {
+                java.util.Set<LocalDate> dateSet = new java.util.HashSet<>();
+                dateSet.add(dpSub.getValue());
+                dateSet.add(dpRev.getValue());
+                dateSet.add(dpGrad.getValue());
+                dateSet.add(dpCR.getValue());
+                dateSet.add(dpFB.getValue());
+                dateSet.add(dpFinal.getValue());
+                duplicateDates = dateSet.size() < 6;
+            }
+
             if (emptyFields) {
                 errorLabel.setText("Tutti i campi devono essere compilati.");
+                createButton.setDisable(true);
+            } else if (duplicateDates) {
+                errorLabel.setText("Due o più date non possono essere uguali.");
                 createButton.setDisable(true);
             } else if (!datesOk) {
                 errorLabel.setText("Le date devono partire da domani in poi.");

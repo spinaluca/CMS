@@ -23,6 +23,13 @@ import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Collectors;
+import com.cms.utils.DownloadUtil;
+import com.cms.common.PopupErrore;
+import com.cms.common.PopupAvviso;
+import com.cms.gestioneRevisioni.RevisioneArticolo;
+import com.cms.gestioneRevisioni.ControlRevisioni;
+import com.cms.common.BoundaryDBMS;
+
 
 public class InfoConferenzaChair {
     private final Stage stage;
@@ -138,11 +145,7 @@ public class InfoConferenzaChair {
 
         TableColumn<EntityArticolo, Integer> colRev = new TableColumn<>("Revisioni");
         colRev.setCellValueFactory(data -> {
-            Integer numRev = data.getValue().getNumRevisioni();
-            String stato = data.getValue().getStato();
-            if (numRev == null && (stato == null || !stato.equalsIgnoreCase("In preparazione"))) {
-                return new ReadOnlyObjectWrapper<>(0);
-            }
+            int numRev = ctrl.getNumRevisioni(data.getValue().getId());
             return new ReadOnlyObjectWrapper<>(numRev);
         });
 
@@ -166,8 +169,8 @@ public class InfoConferenzaChair {
         tableArticoli.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         // PULSANTI ARTICOLI
-        Button btnVisualizzaVersione = new Button("Visualizza Ultima Versione");
-        btnVisualizzaVersione.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-border-color: transparent;" +
+        Button btnVisualizzaUltimaVersione = new Button("Visualizza Ultima Versione");
+        btnVisualizzaUltimaVersione.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-border-color: transparent;" +
                 "-fx-padding: 10 20; -fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 13px;" +
                 "-fx-effect: dropshadow(gaussian, rgba(59,130,246,0.3),4,0,0,2);");
 
@@ -194,15 +197,25 @@ public class InfoConferenzaChair {
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         // Per ora senza azioni definite
-        btnVisualizzaVersione.setOnAction(e -> {
-            // TODO: Implementare visualizzazione ultima versione
+        btnVisualizzaUltimaVersione.setOnAction(e -> {
+            EntityArticolo row = tableArticoli.getSelectionModel().getSelectedItem();
+            if (row != null) {
+                ctrl.visualizzaUltimaVersione(row.getId());
+            } else {
+                new PopupAvviso("Seleziona una revisione").show();
+            }
         });
 
         btnRevisiona.setOnAction(e -> {
-            // TODO: Implementare revisione
+            EntityArticolo row = tableArticoli.getSelectionModel().getSelectedItem();
+            if (row != null) {
+                new RevisioneArticolo(stage, new ControlRevisioni(new BoundaryDBMS()), ctrl2, row.getId(), confId ,true).show();
+            } else {
+                new PopupAvviso("Seleziona un articolo").show();
+            }
         });
 
-        HBox articoliButtons = new HBox(10, btnVisualizzaVersione, btnRevisiona, spacer, btnStatoRevisioni);
+        HBox articoliButtons = new HBox(10, btnVisualizzaUltimaVersione, btnRevisiona, spacer, btnStatoRevisioni);
 
         VBox articoliBox = new VBox(8, articoliLbl, tableArticoli, articoliButtons);
         articoliBox.setPrefWidth(700);

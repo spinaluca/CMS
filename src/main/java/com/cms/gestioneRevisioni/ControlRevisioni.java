@@ -152,7 +152,6 @@ public class ControlRevisioni {
 
     /** Visualizza revisione (download) (4.1.7.4). Ritorna Optional true se presente. */
     public void visualizzaRevisione(String idRevisione, String revisore) {
-        System.out.println("revisione: " + db.getRevisione(idRevisione));
         Optional<File> revisione = db.getRevisione(idRevisione);
         if (revisione.isPresent() && revisione != null) {
             DownloadUtil.salvaInDownload(revisione.get(), "Revisione di " + revisore);
@@ -285,11 +284,13 @@ public class ControlRevisioni {
 
     // ==================== Revisione Articolo (UC 4.1.7.11/12) ===========
 
-    public Optional<Boolean> visualizzaArticolo(String idArticolo) {
-        return db.getArticolo(idArticolo).map(file -> {
-            com.cms.utils.DownloadUtil.salvaInDownload(file, "articolo_" + idArticolo);
-            return true;
-        });
+    public void visualizzaArticolo(String idArticolo) {
+        Optional<File> articolo = db.getArticolo(idArticolo);
+        if (articolo.isPresent() && articolo != null) {
+            DownloadUtil.salvaInDownload(articolo.get(), "Articolo");
+        } else {
+            new PopupErrore("Articolo non disponibile").show();
+        }
     }
 
     public void caricaRevisione(String idArticolo, String emailRevisore, int voto, int expertise, File file) {

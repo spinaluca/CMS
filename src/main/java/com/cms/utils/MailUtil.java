@@ -34,14 +34,11 @@ public class MailUtil {
                     response.append(inputLine);
                 }
                 in.close();
-                System.out.println("Risposta invio mail: " + response);
                 return true;
             } else {
-                System.err.println("Errore invio mail, codice: " + responseCode);
                 return false;
             }
         } catch (Exception e) {
-            System.err.println("Eccezione invio mail: " + e.getMessage());
             return false;
         }
     }

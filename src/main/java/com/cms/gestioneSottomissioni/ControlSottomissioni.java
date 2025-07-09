@@ -86,15 +86,15 @@ public class ControlSottomissioni {
 
     public void inviaVersioneFinale(String idConferenza) {
         Optional<File> file = SelezioneFile.scegliFile(new Stage());
-        if (file.isPresent()) {
+        if (file.isPresent() ) {
             db.inviaVersioneFinale(idConferenza, autore.getEmail(), file.get());
             new PopupAvviso("Versione finale inviata").show();
         }
     }
 
     public void visualizzaArticolo(String idConferenza) {
-        Optional<File> articolo = db.getArticolo(idConferenza, autore.getEmail());
-        if (articolo.isPresent()) {
+        Optional<File> articolo = db.getArticolo(idConferenza);
+        if (articolo.isPresent() && articolo != null) {
             DownloadUtil.salvaInDownload(articolo.get(), "Articolo");
         } else {
             new PopupAvviso("Articolo non presente").show();
@@ -102,8 +102,8 @@ public class ControlSottomissioni {
     }
 
     public void visualizzaCameraready(String idConferenza) {
-        Optional<File> file = db.getCameraready(idConferenza, autore.getEmail());
-        if (file.isPresent()) {
+        Optional<File> file = db.getCameraready(idConferenza);
+        if (file.isPresent() && file != null) {
             DownloadUtil.salvaInDownload(file.get(), "Versione Camera-ready Articolo");
         } else {
             new PopupAvviso("Versione Camera-ready non presente").show();
@@ -111,8 +111,8 @@ public class ControlSottomissioni {
     }
 
     public void visualizzaVersioneFinale(String idConferenza) {
-        Optional<File> file = db.getVersioneFinale(idConferenza, autore.getEmail());
-        if (file.isPresent()) {
+        Optional<File> file = db.getVersioneFinale(idConferenza);
+        if (file.isPresent() && file != null) {
             DownloadUtil.salvaInDownload(file.get(), "Versione Finale Articolo");
         } else {
             new PopupAvviso("Versione Finale non presente").show();

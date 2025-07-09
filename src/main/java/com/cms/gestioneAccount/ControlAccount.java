@@ -170,6 +170,10 @@ public class ControlAccount {
         new InfoConferenzaRevisore(stage, new ControlRevisioni(db), this, confId).show();
     }
 
+    public void apriInfoConferenzaChair(String confId) {
+        new InfoConferenzaChair(stage, new ControlConferenze(db), this, confId).show();
+    }
+
     public void apriHomepageGenerale() {
         new Homepage(stage, this, this.getUtenteCorrente()).show();
     }

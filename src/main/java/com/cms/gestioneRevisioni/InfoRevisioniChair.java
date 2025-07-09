@@ -67,7 +67,7 @@ public class InfoRevisioniChair {
                 table.getItems().remove(row);
                 new PopupAvviso("Assegnazione rimossa correttamente").show();
             } else {
-                new PopupAvviso("Seleziona una riga").show();
+                new PopupAvviso("Seleziona una revisione").show();
             }
         });
 

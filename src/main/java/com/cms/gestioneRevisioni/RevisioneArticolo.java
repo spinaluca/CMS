@@ -22,13 +22,15 @@ public class RevisioneArticolo {
     private final ControlAccount ctrl2;
     private final String idArticolo;
     private final String confId;
-
-    public RevisioneArticolo(Stage stage, ControlRevisioni ctrl, ControlAccount ctrl2, String idArticolo, String confId) {
+    private final boolean isChair;
+    
+    public RevisioneArticolo(Stage stage, ControlRevisioni ctrl, ControlAccount ctrl2, String idArticolo, String confId, boolean isChair) {
         this.stage = stage;
         this.ctrl = ctrl;
         this.ctrl2 = ctrl2;
         this.idArticolo = idArticolo;
         this.confId = confId;
+        this.isChair = isChair;
     }
 
     public void show() {
@@ -80,7 +82,11 @@ public class RevisioneArticolo {
         layout.setStyle("-fx-background-color: #f8fafc;");
 
         HeaderBar header = new HeaderBar(ctrl2, this::show);
-        header.getBtnBack().setOnAction(e -> ctrl2.apriInfoConferenzaRevisore(confId));
+        if (isChair) {
+            header.getBtnBack().setOnAction(e -> ctrl2.apriInfoConferenzaChair(confId));
+        } else {
+            header.getBtnBack().setOnAction(e -> ctrl2.apriInfoConferenzaRevisore(confId));
+        }
 
         VBox root = new VBox(header, layout);
 
@@ -92,10 +98,7 @@ public class RevisioneArticolo {
     }
 
     private void visualizzaArticolo() {
-        ctrl.visualizzaArticolo(idArticolo).ifPresentOrElse(
-            ok -> new PopupAvviso("Articolo scaricato").show(),
-            () -> new PopupAvviso("Articolo non disponibile").show()
-        );
+        ctrl.visualizzaArticolo(idArticolo);
     }
 
     private void caricaRevisione() {

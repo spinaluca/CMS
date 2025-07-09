@@ -176,7 +176,7 @@ public class InfoConferenzaRevisore {
                 String titolo = sel[0];
                 String autore = sel[1];
                 String idArt = titoloAutoreToIdArt.get(titolo + "||" + autore);
-                new RevisioneArticolo(stage, ctrl, ctrl2, idArt, confId).show();
+                new RevisioneArticolo(stage, ctrl, ctrl2, idArt, confId, false).show();
             }
         });
 

@@ -377,11 +377,9 @@ public class BoundaryDBMS {
             ps.setString(4, utente.getCognome());
             ps.setString(5, utente.getDataNascita().toString()); // formato ISO yyyy-MM-dd
             ps.setString(6, utente.getRuolo());
-            System.out.println("Registrazione utente riuscita: " + utente.getEmail());
             ps.executeUpdate();
             return true;
         } catch (SQLException e) {
-            System.err.println("Errore inserimento utente: " + e.getMessage());
             return false; // già presente o errore
         }
     }
@@ -578,34 +576,40 @@ public class BoundaryDBMS {
         }
     }
 
-    public Optional<File> getArticolo(String idConferenza, String emailAutore) {
-        String idArticolo = getArticoloId(idConferenza, emailAutore);
-        return recuperaUltimaVersione(idArticolo, "articolo");
+    public Optional<File> getArticolo(String idArticolo) {
+        return getUltimaVersione(idArticolo, "articolo");
     }
 
-    public Optional<File> getCameraready(String idConferenza, String emailAutore) {
-        String idArticolo = getArticoloId(idConferenza, emailAutore);
-        return recuperaUltimaVersione(idArticolo, "camera_ready");
+    public Optional<File> getCameraready(String idArticolo) {
+        return getUltimaVersione(idArticolo, "camera_ready");
     }
 
-    public Optional<File> getVersioneFinale(String idConferenza, String emailAutore) {
-        String idArticolo = getArticoloId(idConferenza, emailAutore);
-        return recuperaUltimaVersione(idArticolo, "versione_finale");
+    public Optional<File> getVersioneFinale(String idArticolo) {
+        return getUltimaVersione(idArticolo, "versione_finale");
     }
 
-    private Optional<File> recuperaUltimaVersione(String idArticolo, String tipo) {
-        String sql = "SELECT file_url FROM versioni WHERE articolo_id = ? AND tipo = ? "
-                + "ORDER BY data_caricamento DESC LIMIT 1";
+    public Optional<File> getUltimaVersione(String idArticolo, String tipo) {
+        String sql = "SELECT file_url FROM versioni WHERE articolo_id = ?";
+        if (tipo != null) {
+            sql += " AND tipo = ?";
+        }
+        sql += " ORDER BY data_caricamento DESC LIMIT 1";
+
         try (Connection conn = DriverManager.getConnection(URL);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
             ps.setString(1, idArticolo);
-            ps.setString(2, tipo);
+            if (tipo != null) {
+                ps.setString(2, tipo);
+            }
+
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 return Optional.of(new File(rs.getString("file_url")));
             }
+
         } catch (SQLException e) {
-            throw new RuntimeException("Errore durante recuperaUltimaVersione", e);
+            throw new RuntimeException("Errore durante getUltimaVersione", e);
         }
         return Optional.empty();
     }
@@ -648,7 +652,6 @@ public class BoundaryDBMS {
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, idRevisione);
-            System.out.println("idRevisione: " + idRevisione);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 String fileUrl = rs.getString("file_url");
@@ -849,7 +852,7 @@ public class BoundaryDBMS {
     }
 
     public Optional<File> getVersioneCameraready(String idArticolo) {
-        return recuperaUltimaVersione(idArticolo, "camera_ready");
+        return getUltimaVersione(idArticolo, "camera_ready");
     }
 
     public LocalDate getDataScadenzaFeedbackEditore(String idConferenza) {
@@ -1205,28 +1208,6 @@ public class BoundaryDBMS {
         }
     }
 
-    // Ottiene articolo per ID
-    public Optional<File> getArticolo(String idArticolo) {
-        String sql = "SELECT file_url FROM versioni WHERE articolo_id = ? ORDER BY id DESC LIMIT 1";
-        try (Connection conn = DriverManager.getConnection(URL);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, idArticolo);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                String filePath = rs.getString("file_url");
-                if (filePath != null) {
-                    File file = new File(filePath);
-                    if (file.exists()) {
-                        return Optional.of(file);
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Errore getArticolo", e);
-        }
-        return Optional.empty();
-    }
-
     // Ottiene voto della revisione per articolo e revisore
     public Optional<Integer> getVotoRevisione(String idArticolo, String emailRevisore) {
         String sql = "SELECT voto FROM revisioni WHERE articolo_id = ? AND revisore_id = ?";
@@ -1245,6 +1226,23 @@ public class BoundaryDBMS {
         return Optional.empty();
     }
 
+    /**
+     * Restituisce il numero di revisioni con voto ed expertise non nulli per un dato articolo.
+     */
+    public int getNumRevisioni(String articoloId) {
+        String sql = "SELECT COUNT(*) FROM revisioni WHERE articolo_id = ? AND voto IS NOT NULL AND expertise IS NOT NULL";
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, articoloId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore durante getNumRevisioni", e);
+        }
+        return 0;
+    }
 
 
     // Conferenze automatiche per graduatoria
@@ -1283,17 +1281,13 @@ public class BoundaryDBMS {
 
     // Ottiene i dati di un articolo tramite ID
     public java.util.Optional<com.cms.entity.EntityArticolo> getDatiArticoloById(String idArticolo) {
-        System.out.println("[DEBUG] getDatiArticoloById chiamato con id: " + idArticolo);
         String sql = "SELECT * FROM articoli WHERE id = ?";
         try (java.sql.Connection conn = java.sql.DriverManager.getConnection(URL);
              java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, idArticolo);
             java.sql.ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                System.out.println("[DEBUG] Articolo trovato: " + rs.getString("titolo"));
                 return java.util.Optional.of(mapArticolo(rs));
-            } else {
-                System.out.println("[DEBUG] Nessun articolo trovato per id: " + idArticolo);
             }
         } catch (java.sql.SQLException e) {
             throw new RuntimeException("Errore getDatiArticoloById", e);
