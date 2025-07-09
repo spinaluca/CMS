@@ -50,11 +50,9 @@ public class InfoRevisioniChair {
         btnVisualizza.setOnAction(e -> {
             RevisionRow row = table.getSelectionModel().getSelectedItem();
             if (row != null) {
-                ctrl.visualizzaRevisioneChair(row.idRevisione)
-                        .ifPresentOrElse(ok -> {},
-                                () -> new PopupAvviso("Revisione non disponibile").show());
+                ctrl.visualizzaRevisione(row.idReale, row.revisore);
             } else {
-                new PopupAvviso("Seleziona una riga").show();
+                new PopupAvviso("Seleziona una revisione").show();
             }
         });
 
@@ -65,7 +63,7 @@ public class InfoRevisioniChair {
         btnRimuovi.setOnAction(e -> {
             RevisionRow row = table.getSelectionModel().getSelectedItem();
             if (row != null) {
-                ctrl.rimuoviAssegnazione(row.idRevisione);
+                ctrl.rimuoviAssegnazione(row.idReale);
                 table.getItems().remove(row);
                 new PopupAvviso("Assegnazione rimossa correttamente").show();
             } else {
@@ -77,7 +75,7 @@ public class InfoRevisioniChair {
         btnAggiungi.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-border-color: transparent;" +
                 "-fx-padding: 10 20; -fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 13px;" +
                 "-fx-effect: dropshadow(gaussian, rgba(59,130,246,0.3),4,0,0,2);");
-        btnAggiungi.setOnAction(e -> ctrl.avviaAggiungiAssegnazione(confId)); // stub
+        btnAggiungi.setOnAction(e -> ctrl.avviaAggiungiAssegnazione(confId, this::show));
 
         // Spacer per allineare il pulsante aggiungi a destra
         javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
@@ -108,6 +106,11 @@ public class InfoRevisioniChair {
         table.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; " +
                 "-fx-border-width: 1; " +
                 "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 8, 0, 0, 2);");
+
+        // Nuova colonna ID Revisione
+        TableColumn<RevisionRow, String> colIdReale = new TableColumn<>("ID Revisione");
+        colIdReale.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().idReale != null ? data.getValue().idReale : ""));
+        colIdReale.setMinWidth(80);
 
         TableColumn<RevisionRow, String> colTitolo = new TableColumn<>("Articolo");
         colTitolo.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().titolo));
@@ -144,6 +147,7 @@ public class InfoRevisioniChair {
     // DTO semplice per la tabella
     public static class RevisionRow {
         public final String idRevisione;
+        public final String idReale;
         public final String titolo;
         public final String autore;
         public final String revisore;
@@ -151,8 +155,9 @@ public class InfoRevisioniChair {
         public final Integer voto;
         public final Integer expertise;
 
-        public RevisionRow(String idRevisione, String titolo, String autore, String revisore, boolean completata, Integer voto, Integer expertise) {
+        public RevisionRow(String idRevisione, String idReale, String titolo, String autore, String revisore, boolean completata, Integer voto, Integer expertise) {
             this.idRevisione = idRevisione;
+            this.idReale = idReale;
             this.titolo = titolo;
             this.autore = autore;
             this.revisore = revisore;

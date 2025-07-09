@@ -174,6 +174,77 @@ public class PopupInserimento {
         return dialog.showAndWait();
     }
 
+    public Optional<Map<String, String>> promptAssegnazione(java.util.List<com.cms.entity.EntityArticolo> articoli,
+                                                            java.util.List<String> revisori) {
+        Dialog<Map<String, String>> dialog = new Dialog<>();
+        dialog.setTitle("Nuova Assegnazione");
+        dialog.setHeaderText("Seleziona articolo e revisore");
+
+        ButtonType okBtn = new ButtonType("Conferma", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelBtn = ButtonType.CANCEL;
+        dialog.getDialogPane().getButtonTypes().addAll(okBtn, cancelBtn);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(12);
+
+        Label artLbl = new Label("Articolo:");
+        artLbl.setStyle(getLabelStyle());
+        ChoiceBox<com.cms.entity.EntityArticolo> cbArt = new ChoiceBox<>();
+        cbArt.getItems().addAll(articoli);
+        cbArt.setConverter(new javafx.util.StringConverter<>() {
+            @Override
+            public String toString(com.cms.entity.EntityArticolo a) {
+                return a == null ? "" : a.getTitolo();
+            }
+            @Override
+            public com.cms.entity.EntityArticolo fromString(String s) { return null; }
+        });
+
+        Label revLbl = new Label("Revisore:");
+        revLbl.setStyle(getLabelStyle());
+        ChoiceBox<String> cbRev = new ChoiceBox<>();
+        cbRev.getItems().addAll(revisori);
+
+        grid.addRow(0, artLbl, cbArt);
+        grid.addRow(1, revLbl, cbRev);
+
+        Text warning = new Text("Seleziona articolo e revisore.");
+        warning.setFill(Color.web("#dc2626"));
+        warning.setFont(Font.font(12));
+        grid.add(warning, 0, 2, 2, 1);
+
+        dialog.getDialogPane().setContent(grid);
+        styleDialogPane(dialog.getDialogPane());
+
+        Button confirmButton = (Button) dialog.getDialogPane().lookupButton(okBtn);
+        stylePrimaryButton(confirmButton);
+        Button cancelButton = (Button) dialog.getDialogPane().lookupButton(cancelBtn);
+        styleSecondaryButton(cancelButton);
+
+        Runnable validate = () -> {
+            boolean valid = cbArt.getSelectionModel().getSelectedItem() != null && cbRev.getSelectionModel().getSelectedItem() != null;
+            confirmButton.setDisable(!valid);
+            warning.setVisible(!valid);
+        };
+
+        cbArt.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> validate.run());
+        cbRev.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> validate.run());
+        validate.run();
+
+        dialog.setResultConverter(btn -> {
+            if (btn == okBtn) {
+                Map<String, String> map = new HashMap<>();
+                map.put("articolo_id", cbArt.getSelectionModel().getSelectedItem().getId());
+                map.put("revisore_email", cbRev.getSelectionModel().getSelectedItem());
+                return map;
+            }
+            return null;
+        });
+
+        return dialog.showAndWait();
+    }
+
     private void styleDialogPane(DialogPane pane) {
         pane.setStyle("-fx-background-color: #ffffff;");
     }

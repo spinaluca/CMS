@@ -162,7 +162,7 @@ public class ControlSottomissioni {
     }
 
     public Optional<String> getNomeCompleto(String email) {
-        return db.queryGetNomeCompleto(email);
+        return db.getNomeCompleto(email);
     }
 
     public EntityArticolo getDatiArticolo(String idConferenza) {

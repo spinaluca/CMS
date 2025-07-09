@@ -17,7 +17,7 @@ public class ControlConferenze {
     }
 
     public List<EntityConferenza> getConferenze(EntityUtente utenteCorrente) {
-        return db.queryGetConferenze(utenteCorrente.getEmail());
+        return db.getConferenze(utenteCorrente.getEmail());
     }
 
     public EntityConferenza creaConferenza(Map<String, String> map, EntityUtente utenteCorrente) {
@@ -48,7 +48,7 @@ public class ControlConferenze {
 
 
     public Optional<EntityConferenza> getConferenza(String id) {
-        return db.queryGetConferenza(id);
+        return db.getConferenza(id);
     }
 
     public void invitaRevisore(String email, String confId) {
@@ -70,14 +70,14 @@ public class ControlConferenze {
     }
 
     public List<EntityArticolo> getArticoliConferenza(String confId) {
-        return db.queryGetArticoliConferenza(confId);
+        return db.getArticoliConferenza(confId);
     }
 
     public Map<String, String> getRevisoriConStato(String confId) {
-        return db.queryGetRevisoriConStato(confId); // email → stato
+        return db.getRevisoriConStato(confId); // email → stato
     }
 
     public Optional<String> getLabelUtente(String email) {
-        return db.queryGetUtente(email).map(u -> u.getNome() + " " + u.getCognome());
+        return db.getUtente(email).map(u -> u.getNome() + " " + u.getCognome());
     }
 }

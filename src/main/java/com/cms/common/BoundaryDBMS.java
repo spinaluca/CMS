@@ -66,12 +66,12 @@ public class BoundaryDBMS {
         }
     }
 
-    // ... (tutti i metodi queryGetConferenze, queryGetConferenza, queryCreaConferenza,
+    // ... (tutti i metodi getConferenze, getConferenza, queryCreaConferenza,
     //     queryRevisorePresente, queryInvitaRevisore, queryRimuoviRevisore,
-    //     queryAggiungiEditor, queryGetUltimaVersione rimangono identici)
+    //     queryAggiungiEditor, getUltimaVersione rimangono identici)
     // Li riporto per completezza, ma li puoi copiare pari pari da prima:
 
-    public List<EntityConferenza> queryGetConferenze(String currentChairId) {
+    public List<EntityConferenza> getConferenze(String currentChairId) {
         String sql = "SELECT * FROM conferenze WHERE chair_id = ?";
         List<EntityConferenza> list = new ArrayList<>();
         try (Connection conn = DriverManager.getConnection(URL);
@@ -82,12 +82,12 @@ public class BoundaryDBMS {
                 list.add(mapConf(rs));
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore durante queryGetConferenze", e);
+            throw new RuntimeException("Errore durante getConferenze", e);
         }
         return list;
     }
 
-    public Optional<EntityConferenza> queryGetConferenza(String id) {
+    public Optional<EntityConferenza> getConferenza(String id) {
         String sql = "SELECT * FROM conferenze WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -109,7 +109,7 @@ public class BoundaryDBMS {
                 return Optional.of(conf);
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore durante queryGetConferenza", e);
+            throw new RuntimeException("Errore durante getConferenza", e);
         }
         return Optional.empty();
     }
@@ -197,7 +197,7 @@ public class BoundaryDBMS {
         }
     }
 
-    public Optional<String> queryGetUltimaVersione(String idArticolo) {
+    public Optional<String> getUltimaVersione(String idArticolo) {
         String sql =
                 "SELECT file_url FROM versioni " +
                         "WHERE articolo_id = ? " +
@@ -210,7 +210,7 @@ public class BoundaryDBMS {
                 return Optional.of(rs.getString("file_url"));
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore durante queryGetUltimaVersione", e);
+            throw new RuntimeException("Errore durante getUltimaVersione", e);
         }
         return Optional.empty();
     }
@@ -248,7 +248,7 @@ public class BoundaryDBMS {
         return c;
     }
 
-    public List<EntityArticolo> queryGetArticoliConferenza(String confId) {
+    public List<EntityArticolo> getArticoliConferenza(String confId) {
         String sql = "SELECT * FROM articoli WHERE conferenza_id = ?";
         List<EntityArticolo> list = new ArrayList<>();
         try (Connection conn = DriverManager.getConnection(URL);
@@ -269,12 +269,12 @@ public class BoundaryDBMS {
                 ));
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore durante queryGetArticoliConferenza", e);
+            throw new RuntimeException("Errore durante getArticoliConferenza", e);
         }
         return list;
     }
 
-    public Map<String, String> queryGetRevisoriConStato(String confId) {
+    public Map<String, String> getRevisoriConStato(String confId) {
         String sql = "SELECT revisore_id, stato FROM inviti_revisori WHERE conferenza_id = ?";
         Map<String, String> map = new HashMap<>();
         try (Connection conn = DriverManager.getConnection(URL);
@@ -285,12 +285,12 @@ public class BoundaryDBMS {
                 map.put(rs.getString("revisore_id"), rs.getString("stato"));
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore durante queryGetRevisoriConStato", e);
+            throw new RuntimeException("Errore durante getRevisoriConStato", e);
         }
         return map;
     }
 
-    public Optional<String> queryGetNomeCompleto(String email) {
+    public Optional<String> getNomeCompleto(String email) {
         String sql = "SELECT nome, cognome FROM utenti WHERE email = ?";
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -302,7 +302,7 @@ public class BoundaryDBMS {
                 return Optional.of(nome + " " + cognome);
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore durante queryGetNomeCompleto", e);
+            throw new RuntimeException("Errore durante getNomeCompleto", e);
         }
         return Optional.empty();
     }
@@ -388,7 +388,7 @@ public class BoundaryDBMS {
 
 
     // Recupera dati utente
-    public Optional<EntityUtente> queryGetUtente(String email) {
+    public Optional<EntityUtente> getUtente(String email) {
         String sql = "SELECT * FROM utenti WHERE email = ?";
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -427,7 +427,7 @@ public class BoundaryDBMS {
                 ));
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore durante queryGetUtente", e);
+            throw new RuntimeException("Errore durante getUtente", e);
         }
         return Optional.empty();
     }
@@ -648,9 +648,14 @@ public class BoundaryDBMS {
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, idRevisione);
+            System.out.println("idRevisione: " + idRevisione);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return Optional.of(new File(rs.getString("file_url")));
+                String fileUrl = rs.getString("file_url");
+                if (fileUrl == null || fileUrl.trim().isEmpty()) {
+                    return Optional.empty();
+                }
+                return Optional.of(new File(fileUrl));
             }
         } catch (SQLException e) {
             throw new RuntimeException("Errore durante getRevisione", e);

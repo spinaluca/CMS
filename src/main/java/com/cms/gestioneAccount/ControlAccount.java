@@ -62,7 +62,7 @@ public class ControlAccount {
     }
 
     public Optional<EntityUtente> getDatiUtente(String email) {
-        return db.queryGetUtente(email);
+        return db.getUtente(email);
     }
 
     public boolean richiestaModificaPassword(String email, String vecchiaPw, String nuovaPw) {
@@ -208,6 +208,6 @@ public class ControlAccount {
     }
 
     public Optional<String> getNomeCompleto(String email) {
-        return db.queryGetNomeCompleto(email);
+        return db.getNomeCompleto(email);
     }
 }

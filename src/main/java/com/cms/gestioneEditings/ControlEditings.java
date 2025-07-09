@@ -38,7 +38,7 @@ public class ControlEditings {
     }
 
     public List<EntityArticolo> getArticoliConferenza(String idConferenza) {
-        return db.queryGetArticoliConferenza(idConferenza);
+        return db.getArticoliConferenza(idConferenza);
     }
 
     /* ------------------ Versione Camera-ready ------------------ */
@@ -93,6 +93,6 @@ public class ControlEditings {
     }
 
     public java.util.Optional<String> getLabelUtente(String email) {
-        return db.queryGetUtente(email).map(u -> u.getNome() + " " + u.getCognome());
+        return db.getUtente(email).map(u -> u.getNome() + " " + u.getCognome());
     }
 } 

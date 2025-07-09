@@ -8,6 +8,8 @@ import com.cms.common.PopupInserimento;
 import com.cms.common.PopupAvviso;
 import com.cms.gestioneRevisioni.InfoConferenzaRevisore;
 import com.cms.gestioneAccount.ControlAccount;
+import com.cms.utils.DownloadUtil;
+import com.cms.common.PopupErrore;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -62,7 +64,7 @@ public class ControlRevisioni {
         String confId = conf.getId();
         int minimoRevisori = conf.getNumeroMinimoRevisori();
 
-        List<EntityArticolo> articoli = db.queryGetArticoliConferenza(confId);
+        List<EntityArticolo> articoli = db.getArticoliConferenza(confId);
         Map<String, List<String>> competenzeRevisori = db.getCompetenzeRevisori(confId);
 
         // Pre-calcola lower-case keywords per articoli
@@ -121,11 +123,11 @@ public class ControlRevisioni {
             String revisoreEmail = m.get("revisore_id");
             String idReale = m.get("id"); // id reale della revisione, se presente
 
-            String autore = db.queryGetNomeCompleto(autoreEmail).orElse(autoreEmail);
+            String autore = db.getNomeCompleto(autoreEmail).orElse(autoreEmail);
             if (revisoreEmail == null) {
                 continue; // non mostrare revisioni senza revisore assegnato
             }
-            String revisore = db.queryGetNomeCompleto(revisoreEmail).orElse(revisoreEmail);
+            String revisore = db.getNomeCompleto(revisoreEmail).orElse(revisoreEmail);
 
             Integer voto = null;
             Integer expertise = null;
@@ -137,7 +139,7 @@ public class ControlRevisioni {
             // Costruiamo un id combinato articolo|revisore per gestire rimozione/visualizzazione
             String idRevisione = artId + "|" + revisoreEmail;
 
-            list.add(new InfoRevisioniChair.RevisionRow(idRevisione, titolo, autore, revisore, completata, voto, expertise));
+            list.add(new InfoRevisioniChair.RevisionRow(idRevisione, idReale, titolo, autore, revisore, completata, voto, expertise));
         }
 
         return list;
@@ -149,23 +151,31 @@ public class ControlRevisioni {
     }
 
     /** Visualizza revisione (download) (4.1.7.4). Ritorna Optional true se presente. */
-    public java.util.Optional<Boolean> visualizzaRevisioneChair(String idRevisione) {
-        return db.getRevisione(idRevisione).map(file -> {
-            com.cms.utils.DownloadUtil.salvaInDownload(file, "revisione_" + idRevisione);
-            return true;
-        });
+    public void visualizzaRevisione(String idRevisione, String revisore) {
+        System.out.println("revisione: " + db.getRevisione(idRevisione));
+        Optional<File> revisione = db.getRevisione(idRevisione);
+        if (revisione.isPresent() && revisione != null) {
+            DownloadUtil.salvaInDownload(revisione.get(), "Revisione di " + revisore);
+        } else {
+            new PopupErrore("Revisione non disponibile").show();
+        }
     }
 
     /** Avvia procedura di aggiunta assegnazione (stub). */
-    public void avviaAggiungiAssegnazione(String confId) {
+    public void avviaAggiungiAssegnazione(String confId, Runnable onRefresh) {
         java.time.LocalDate oggi = java.time.LocalDate.now();
-        java.time.LocalDate scadSottom = db.getDataScadenzaSottomissione(confId);
         java.time.LocalDate scadRev = db.getDataScadenzaRevisioni(confId);
 
-        if (oggi.isAfter(scadSottom) && oggi.isBefore(scadRev)) {
+        if (oggi.isBefore(scadRev)) {
             // Recupera articoli e revisori
-            java.util.List<com.cms.entity.EntityArticolo> articoli = db.queryGetArticoliConferenza(confId);
-            java.util.List<String> revisori = db.getRevisoriConferenza(confId);
+            java.util.List<com.cms.entity.EntityArticolo> articoli = db.getArticoliConferenza(confId);
+            java.util.Map<String, String> revisoriStato = db.getRevisoriConStato(confId);
+            java.util.List<String> revisori = new java.util.ArrayList<>();
+            for (var entry : revisoriStato.entrySet()) {
+                if ("Accettato".equalsIgnoreCase(entry.getValue())) {
+                    revisori.add(entry.getKey());
+                }
+            }
 
             if (articoli.isEmpty() || revisori.isEmpty()) {
                 new com.cms.common.PopupAvviso("Nessun articolo o revisore disponibile").show();
@@ -173,48 +183,18 @@ public class ControlRevisioni {
             }
 
             javafx.application.Platform.runLater(() -> {
-                javafx.scene.control.Dialog<Void> dialog = new javafx.scene.control.Dialog<>();
-                dialog.setTitle("Nuova Assegnazione");
-                dialog.setHeaderText("Seleziona articolo e revisore");
-
-                javafx.scene.control.ButtonType okBtn = new javafx.scene.control.ButtonType("Conferma", javafx.scene.control.ButtonBar.ButtonData.OK_DONE);
-                dialog.getDialogPane().getButtonTypes().addAll(okBtn, javafx.scene.control.ButtonType.CANCEL);
-
-                javafx.scene.layout.GridPane grid = new javafx.scene.layout.GridPane();
-                grid.setHgap(10); grid.setVgap(10);
-
-                javafx.scene.control.ChoiceBox<com.cms.entity.EntityArticolo> cbArt = new javafx.scene.control.ChoiceBox<>();
-                cbArt.getItems().addAll(articoli);
-                cbArt.setConverter(new javafx.util.StringConverter<>() {
-                    @Override public String toString(com.cms.entity.EntityArticolo a){return a.getTitolo();}
-                    @Override public com.cms.entity.EntityArticolo fromString(String s){return null;}
-                });
-
-                javafx.scene.control.ChoiceBox<String> cbRev = new javafx.scene.control.ChoiceBox<>();
-                revisori.forEach(email -> cbRev.getItems().add(email));
-
-                grid.addRow(0, new javafx.scene.control.Label("Articolo:"), cbArt);
-                grid.addRow(1, new javafx.scene.control.Label("Revisore:"), cbRev);
-
-                dialog.getDialogPane().setContent(grid);
-
-                dialog.setResultConverter(btn -> btn==okBtn?null:null);
-
-                java.util.Optional<Void> res = dialog.showAndWait();
-                if (res.isPresent()) {
-                    com.cms.entity.EntityArticolo artSel = cbArt.getSelectionModel().getSelectedItem();
-                    String revSel = cbRev.getSelectionModel().getSelectedItem();
-                    if (artSel==null || revSel==null) {
-                        new com.cms.common.PopupAvviso("Seleziona articolo e revisore").show();
-                        return;
-                    }
-                    String emailRevisore = revSel.split(" ")[0];
-                    db.aggiungiAssegnazione(artSel.getId(), emailRevisore);
-                    new com.cms.common.PopupAvviso("Assegnazione inserita").show();
-                }
+                new com.cms.common.PopupInserimento()
+                        .promptAssegnazione(articoli, revisori)
+                        .ifPresent(sel -> {
+                            String artId = sel.get("articolo_id");
+                            String revEmail = sel.get("revisore_email");
+                            db.aggiungiAssegnazione(artId, revEmail);
+                            new com.cms.common.PopupAvviso("Assegnazione inserita").show();
+                            if (onRefresh != null) onRefresh.run();
+                        });
             });
         } else {
-            new com.cms.common.PopupAvviso("Errore, periodo delle revisioni già concluso").show();
+            new com.cms.common.PopupAvviso("Errore, non sei nel periodo delle revisioni").show();
         }
     }
 
@@ -234,7 +214,7 @@ public class ControlRevisioni {
     private void creaGraduatoriaConferenza(EntityConferenza conf) {
         String confId = conf.getId();
         // Recupera articoli e calcola punteggio medio (stub)
-        List<EntityArticolo> arts = db.queryGetArticoliConferenza(confId);
+        List<EntityArticolo> arts = db.getArticoliConferenza(confId);
         Map<String, Integer> ranking = new HashMap<>();
         arts.sort(Comparator.comparingDouble(a -> -(a.getPunteggio()==null?0:a.getPunteggio())));
         int pos=1;
@@ -362,7 +342,7 @@ public class ControlRevisioni {
         }
 
         // Recupera articolo per titolo
-        java.util.Optional<com.cms.entity.EntityArticolo> artOpt = db.queryGetArticoliConferenza(confId).stream()
+        java.util.Optional<com.cms.entity.EntityArticolo> artOpt = db.getArticoliConferenza(confId).stream()
                 .filter(a -> a.getTitolo().equalsIgnoreCase(titoloArticolo))
                 .findFirst();
         if (artOpt.isEmpty()) {
