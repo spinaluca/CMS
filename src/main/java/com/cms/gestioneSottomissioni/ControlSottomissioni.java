@@ -40,23 +40,23 @@ public class ControlSottomissioni {
         new PopupAvviso("Iscrizione effettuata").show();
     }
 
-    public boolean sottomettiArticolo(String idConferenza) {
+    public boolean sottomettiArticolo(String idArticolo) {
         LocalDate oggi = LocalDate.now();
-        LocalDate dataScadenza = db.getDataScadenzaSottomissione(idConferenza);
+        LocalDate dataScadenza = db.getDataScadenzaSottomissione(getDatiArticolo(idArticolo).getConferenzaId());
 
         if (oggi.isBefore(dataScadenza)) {
-            boolean giaSottomesso = db.haArticoloSottomesso(idConferenza, autore.getEmail());
+            boolean giaSottomesso = db.haArticoloSottomesso(idArticolo);
 
             if (!giaSottomesso) {
                 // Primo invio: inserisci titolo + parole chiave
                 Optional<Map<String, String>> dati = new PopupInserimento().promptDatiArticolo();
                 if (dati.isPresent()) {
-                    db.inviaDettagliArticolo(idConferenza, autore.getEmail(),
+                    db.inviaDettagliArticolo(idArticolo,
                             dati.get().get("titolo"), dati.get().get("paroleChiave"));
 
                     Optional<File> file = SelezioneFile.scegliFile(new Stage());
                     if (file.isPresent()) {
-                        db.inviaArticolo(idConferenza, autore.getEmail(), file.get());
+                        db.inviaArticolo(idArticolo, file.get());
                         new PopupAvviso("Articolo sottomesso").show();
                         return true;
                     }
@@ -65,7 +65,7 @@ public class ControlSottomissioni {
                 new PopupAvviso("Carica la versione aggiornata dell'articolo").show();
                 Optional<File> file = SelezioneFile.scegliFile(new Stage());
                 if (file.isPresent()) {
-                    db.inviaArticolo(idConferenza, autore.getEmail(), file.get());
+                    db.inviaArticolo(idArticolo, file.get());
                     new PopupAvviso("Articolo aggiornato").show();
                     return true;
                 }
@@ -76,24 +76,73 @@ public class ControlSottomissioni {
         return false;
     }
 
-    public void inviaCameraready(String idConferenza) {
+    public void inviaCameraready(String idArticolo) {
+        EntityArticolo articolo = getDatiArticolo(idArticolo);
+        String idConferenza = articolo.getConferenzaId();
+        Optional<EntityConferenza> confOpt = getConferenza(idConferenza);
+        if (confOpt.isEmpty()) {
+            new PopupAvviso("Conferenza non trovata").show();
+            return;
+        }
+        EntityConferenza conf = confOpt.get();
+        LocalDate oggi = LocalDate.now();
+        LocalDate dataGraduatoria = conf.getDataGraduatoria();
+        LocalDate scadenzaCameraReady = conf.getScadenzaCameraReady();
+
+        if (oggi.isBefore(dataGraduatoria) || oggi.isEqual(dataGraduatoria) || oggi.isAfter(scadenzaCameraReady)) {
+            new PopupAvviso("Periodo di invio versione camera-ready non valido").show();
+            return;
+        }
+
+        Integer posizione = articolo.getPosizione();
+        int numVincitori = conf.getNumeroVincitori();
+        if (posizione == null || posizione < 1 || posizione > numVincitori) {
+            new PopupAvviso("Solo i vincitori possono inviare la camera-ready").show();
+            return;
+        }
+
         Optional<File> file = SelezioneFile.scegliFile(new Stage());
-        if (file.isPresent()) {
-            db.inviaCameraready(idConferenza, autore.getEmail(), file.get());
+        if (file.isPresent() && file != null) {
+            db.inviaCameraready(idArticolo, file.get());
             new PopupAvviso("Camera-ready inviata").show();
         }
     }
 
-    public void inviaVersioneFinale(String idConferenza) {
+    public void inviaVersioneFinale(String idArticolo) {
+        EntityArticolo articolo = getDatiArticolo(idArticolo);
+        String idConferenza = articolo.getConferenzaId();
+        Optional<EntityConferenza> confOpt = getConferenza(idConferenza);
+        if (confOpt.isEmpty()) {
+            new PopupAvviso("Conferenza non trovata").show();
+            return;
+        }
+        EntityConferenza conf = confOpt.get();
+        LocalDate oggi = LocalDate.now();
+        LocalDate dataGraduatoria = conf.getDataGraduatoria();
+        LocalDate scadenzaFeedbackEditore = conf.getScadenzaFeedbackEditore();
+        LocalDate scadenzaVersioneFinale = conf.getScadenzaVersioneFinale();
+
+        if (oggi.isBefore(scadenzaFeedbackEditore) || oggi.isEqual(scadenzaFeedbackEditore) || oggi.isAfter(scadenzaVersioneFinale)) {
+            new PopupAvviso("Periodo di invio versione finale non valido").show();
+            return;
+        }
+
+        Integer posizione = articolo.getPosizione();
+        int numVincitori = conf.getNumeroVincitori();
+        if (posizione == null || posizione < 1 || posizione > numVincitori) {
+            new PopupAvviso("Solo i vincitori possono inviare la versione finale").show();
+            return;
+        }
+
         Optional<File> file = SelezioneFile.scegliFile(new Stage());
-        if (file.isPresent() ) {
-            db.inviaVersioneFinale(idConferenza, autore.getEmail(), file.get());
+        if (file.isPresent() && file != null) {
+            db.inviaVersioneFinale(idArticolo, file.get());
             new PopupAvviso("Versione finale inviata").show();
         }
     }
 
-    public void visualizzaArticolo(String idConferenza) {
-        Optional<File> articolo = db.getArticolo(idConferenza);
+    public void visualizzaArticolo(String idArticolo) {
+        Optional<File> articolo = db.getArticolo(idArticolo);
         if (articolo.isPresent() && articolo != null) {
             DownloadUtil.salvaInDownload(articolo.get(), "Articolo");
         } else {
@@ -101,8 +150,8 @@ public class ControlSottomissioni {
         }
     }
 
-    public void visualizzaCameraready(String idConferenza) {
-        Optional<File> file = db.getCameraready(idConferenza);
+    public void visualizzaCameraready(String idArticolo) {
+        Optional<File> file = db.getCameraready(idArticolo);
         if (file.isPresent() && file != null) {
             DownloadUtil.salvaInDownload(file.get(), "Versione Camera-ready Articolo");
         } else {
@@ -110,8 +159,8 @@ public class ControlSottomissioni {
         }
     }
 
-    public void visualizzaVersioneFinale(String idConferenza) {
-        Optional<File> file = db.getVersioneFinale(idConferenza);
+    public void visualizzaVersioneFinale(String idArticolo) {
+        Optional<File> file = db.getVersioneFinale(idArticolo);
         if (file.isPresent() && file != null) {
             DownloadUtil.salvaInDownload(file.get(), "Versione Finale Articolo");
         } else {
@@ -119,8 +168,8 @@ public class ControlSottomissioni {
         }
     }
 
-    public void visualizzaFeedback(String idConferenza) {
-        Optional<File> file = db.getFeedback(idConferenza, autore.getEmail());
+    public void visualizzaFeedback(String idArticolo) {
+        Optional<File> file = db.getFeedback(idArticolo);
         if (file.isPresent()) {
             DownloadUtil.salvaInDownload(file.get(), "Feedback Editor");
         } else {
@@ -165,8 +214,12 @@ public class ControlSottomissioni {
         return db.getNomeCompleto(email);
     }
 
-    public EntityArticolo getDatiArticolo(String idConferenza) {
-        return db.getDatiArticolo(idConferenza, autore.getEmail())
-                .orElseThrow(() -> new RuntimeException("Articolo non trovato per conferenza " + idConferenza));
+    public EntityArticolo getDatiArticolo(String idArticolo) {
+        return db.getDatiArticolo(idArticolo)
+                .orElseThrow(() -> new RuntimeException("Articolo non trovato"));
+    }
+
+    public String getArticoloId(String idConferenza, String emailAutore) {
+        return db.getArticoloId(idConferenza, emailAutore);
     }
 }

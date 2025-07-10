@@ -99,7 +99,7 @@ public class HomepageAutore {
         btnDetail.setOnAction(e -> {
             EntityConferenza sel = table.getSelectionModel().getSelectedItem();
             if (sel != null)
-                new InfoConferenzaAutore(stage, ctrl, sel.getId(), ctrl.isAutoreIscritto(sel.getId())).show();
+                new InfoConferenzaAutore(stage, ctrl, ctrlAccount, sel.getId(), ctrl.isAutoreIscritto(sel.getId())).show();
         });
 
         HBox buttonContainer = new HBox(12);

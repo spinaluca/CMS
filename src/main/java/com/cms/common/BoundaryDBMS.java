@@ -536,8 +536,7 @@ public class BoundaryDBMS {
         }
     }
 
-    public void inviaArticolo(String idConferenza, String emailAutore, File file) {
-        String idArticolo = getArticoloId(idConferenza, emailAutore);
+    public void inviaArticolo(String idArticolo, File file) {
         inserisciVersione(idArticolo, "articolo", file);
 
         // Imposta lo stato come "Sottomesso"
@@ -552,13 +551,11 @@ public class BoundaryDBMS {
         }
     }
 
-    public void inviaCameraready(String idConferenza, String emailAutore, File file) {
-        String idArticolo = getArticoloId(idConferenza, emailAutore);
+    public void inviaCameraready(String idArticolo, File file) {
         inserisciVersione(idArticolo, "camera_ready", file);
     }
 
-    public void inviaVersioneFinale(String idConferenza, String emailAutore, File file) {
-        String idArticolo = getArticoloId(idConferenza, emailAutore);
+    public void inviaVersioneFinale(String idArticolo, File file) {
         inserisciVersione(idArticolo, "versione_finale", file);
     }
 
@@ -593,7 +590,7 @@ public class BoundaryDBMS {
         if (tipo != null) {
             sql += " AND tipo = ?";
         }
-        sql += " ORDER BY data_caricamento DESC LIMIT 1";
+        sql += " ORDER BY id DESC LIMIT 1";
 
         try (Connection conn = DriverManager.getConnection(URL);
             PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -631,8 +628,7 @@ public class BoundaryDBMS {
                 + " autore=" + emailAutore);
     }
 
-    public Optional<File> getFeedback(String idConferenza, String emailAutore) {
-        String idArticolo = getArticoloId(idConferenza, emailAutore);
+    public Optional<File> getFeedback(String idArticolo) {
         String sql = "SELECT file_url FROM feedback_editor WHERE articolo_id = ? ORDER BY data_invio DESC LIMIT 1";
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -739,12 +735,11 @@ public class BoundaryDBMS {
         );
     }
 
-    public Optional<EntityArticolo> getDatiArticolo(String idConferenza, String emailAutore) {
-        String sql = "SELECT * FROM articoli WHERE conferenza_id = ? AND autore_id = ?";
+    public Optional<EntityArticolo> getDatiArticolo(String idArticolo) {
+        String sql = "SELECT * FROM articoli WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, idConferenza);
-            ps.setString(2, emailAutore);
+            ps.setString(1, idArticolo);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 return Optional.of(mapArticolo(rs));
@@ -771,12 +766,11 @@ public class BoundaryDBMS {
     }
 
 
-    public boolean haArticoloSottomesso(String idConferenza, String emailAutore) {
-        String sql = "SELECT COUNT(*) as cnt FROM articoli WHERE conferenza_id = ? AND autore_id = ? AND stato = \"Sottomesso\"";
+    public boolean haArticoloSottomesso(String idArticolo) {
+        String sql = "SELECT COUNT(*) as cnt FROM articoli WHERE id = ? AND stato = \"Sottomesso\"";
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, idConferenza);
-            ps.setString(2, emailAutore);
+            ps.setString(1, idArticolo);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 return rs.getInt("cnt") > 0;
@@ -787,31 +781,17 @@ public class BoundaryDBMS {
         return false;
     }
 
-    public void inviaDettagliArticolo(String idConferenza, String emailAutore, String titolo, String paroleChiave) {
+    public void inviaDettagliArticolo(String idArticolo, String titolo, String paroleChiave) {
         String sql = "UPDATE articoli SET titolo = ?, parole_chiave = ? " +
-                "WHERE conferenza_id = ? AND autore_id = ?";
+                "WHERE id = ?";
 
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, titolo);
             ps.setString(2, paroleChiave);
-            ps.setString(3, idConferenza);
-            ps.setString(4, emailAutore);
-
-            int rowsAffected = ps.executeUpdate();
-            if (rowsAffected == 0) {
-                // se non esiste ancora, inserisci
-                String insertSql = "INSERT INTO articoli (conferenza_id, autore_id, titolo, parole_chiave) VALUES (?, ?, ?, ?)";
-                try (PreparedStatement psInsert = conn.prepareStatement(insertSql)) {
-                    psInsert.setString(1, idConferenza);
-                    psInsert.setString(2, emailAutore);
-                    psInsert.setString(3, titolo);
-                    psInsert.setString(4, paroleChiave);
-                    psInsert.executeUpdate();
-                }
-            }
-
+            ps.setString(3, idArticolo);
+            ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Errore inviaDettagliArticolo", e);
         }

@@ -3,6 +3,8 @@ package com.cms.gestioneSottomissioni;
 import com.cms.common.HeaderBar;
 import com.cms.entity.EntityArticolo;
 import com.cms.entity.EntityConferenza;
+import com.cms.entity.EntityUtente;
+import com.cms.gestioneAccount.ControlAccount;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -14,13 +16,15 @@ import javafx.scene.layout.Priority;
 public class InfoConferenzaAutore {
     private final Stage stage;
     private final ControlSottomissioni ctrl;
+    private final ControlAccount ctrl2;
     private final String idConferenza;
     private final boolean isIscritto;
     private Label stato;
 
-    public InfoConferenzaAutore(Stage stage, ControlSottomissioni ctrl, String idConferenza, boolean isIscritto) {
+    public InfoConferenzaAutore(Stage stage, ControlSottomissioni ctrl, ControlAccount ctrl2, String idConferenza, boolean isIscritto) {
         this.stage = stage;
         this.ctrl = ctrl;
+        this.ctrl2 = ctrl2;
         this.idConferenza = idConferenza;
         this.isIscritto = isIscritto;
     }
@@ -92,7 +96,8 @@ public class InfoConferenzaAutore {
 
         // === BLOCCO INFERIORE: A SINISTRA info articolo, A DESTRA tabella revisioni ===
         if (isIscritto) {
-            EntityArticolo art = ctrl.getDatiArticolo(idConferenza);
+            String idArticolo = ctrl.getArticoloId(idConferenza, ctrl2.getUtenteCorrente().getEmail());
+            EntityArticolo art = ctrl.getDatiArticolo(idArticolo);
             Label titoloArt = new Label("Titolo: " + (art.getTitolo() != null ? art.getTitolo() : "<non inserito>"));
             stato = new Label("Stato: " + (art.getStato() != null ? art.getStato() : "<non assegnato>"));
             Label posizione = new Label("Posizione: " + (art.getPosizione() != null ? art.getPosizione() : "<nessuna>"));
@@ -177,22 +182,65 @@ public class InfoConferenzaAutore {
             // Bottoni
             Region spacer1 = new Region();
             HBox.setHgrow(spacer1, Priority.ALWAYS);
+            
+            // Pulsanti di invio
+            Button btnSottomettiArticolo = createButton("Sottometti Articolo", "#f59e0b");
+            btnSottomettiArticolo.setOnAction(e -> {
+                if (ctrl.sottomettiArticolo(art.getId())) {
+                    show(); // Ricarica la pagina per aggiornare i dati
+                }
+            });
+            
+            Button btnInviaCameraReady = createButton("Invia Camera-ready", "#10b981");
+            btnInviaCameraReady.setOnAction(e -> {
+                ctrl.inviaCameraready(art.getId());
+                show(); // Ricarica la pagina per aggiornare i dati
+            });
+            
+            Button btnInviaVersioneFinale = createButton("Invia Versione Finale", "#2563eb");
+            btnInviaVersioneFinale.setOnAction(e -> {
+                ctrl.inviaVersioneFinale(art.getId());
+                show(); // Ricarica la pagina per aggiornare i dati
+            });
+            
             HBox bottoniInvio = new HBox(10,
                 spacer1,
-                createButton("Sottometti Articolo", "#f59e0b"),
-                createButton("Invia Camera-ready", "#10b981"),
-                createButton("Invia Versione Finale", "#2563eb")
+                btnSottomettiArticolo,
+                btnInviaCameraReady,
+                btnInviaVersioneFinale
             );
             bottoniInvio.setPadding(new Insets(0, 0, 0, 0));
 
             Region spacer2 = new Region();
             HBox.setHgrow(spacer2, Priority.ALWAYS);
+            
+            // Pulsanti di visualizzazione
+            Button btnVisualizzaFeedbackEditor = createButton("Visualizza Feedback Editor", "#8b5cf6");
+            btnVisualizzaFeedbackEditor.setOnAction(e -> {
+                ctrl.visualizzaFeedback(art.getId());
+            });
+            
+            Button btnVisualizzaArticolo = createButton("Visualizza Articolo", "#f59e0b");
+            btnVisualizzaArticolo.setOnAction(e -> {
+                ctrl.visualizzaArticolo(art.getId());
+            });
+            
+            Button btnVisualizzaCameraReady = createButton("Visualizza Camera-ready", "#10b981");
+            btnVisualizzaCameraReady.setOnAction(e -> {
+                ctrl.visualizzaCameraready(art.getId());
+            });
+            
+            Button btnVisualizzaVersioneFinale = createButton("Visualizza Versione Finale", "#2563eb");
+            btnVisualizzaVersioneFinale.setOnAction(e -> {
+                ctrl.visualizzaVersioneFinale(art.getId());
+            });
+            
             HBox bottoniVisual = new HBox(10,
                 spacer2,
-                createButton("Visualizza Feedback Editor", "#8b5cf6"),
-                createButton("Visualizza Articolo", "#f59e0b"),
-                createButton("Visualizza Camera-ready", "#10b981"),
-                createButton("Visualizza Versione Finale", "#2563eb")
+                btnVisualizzaFeedbackEditor,
+                btnVisualizzaArticolo,
+                btnVisualizzaCameraReady,
+                btnVisualizzaVersioneFinale
             );
             bottoniVisual.setPadding(new Insets(0, 0, 0, 0));
 
