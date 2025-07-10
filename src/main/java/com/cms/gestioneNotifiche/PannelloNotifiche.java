@@ -11,17 +11,18 @@ import java.util.List;
 import java.util.Map;
 
 public class PannelloNotifiche {
+    private final Stage stage;
     private final ControlNotifiche ctrl;
-    private final List<Map<String, String>> notifiche;
+    private List<Map<String, String>> notifiche;
 
-    public PannelloNotifiche(ControlNotifiche ctrl, List<Map<String, String>> notifiche) {
+    public PannelloNotifiche(Stage stage, ControlNotifiche ctrl, List<Map<String, String>> notifiche) {
         this.ctrl = ctrl;
+        this.stage = stage;
         this.notifiche = notifiche;
     }
 
     public void show() {
-        Stage stage = new Stage(); // nuovo stage separato
-
+        // Recupera la lista aggiornata delle notifiche ogni volta
         // Titolo
         Label titleLabel = new Label("Pannello Notifiche");
         titleLabel.setStyle("-fx-font-size: 28px; -fx-font-weight: 800; -fx-text-fill: #1e293b;");
@@ -49,7 +50,6 @@ public class PannelloNotifiche {
                 Label dateLabel = new Label(notifica.getOrDefault("data", ""));
                 dateLabel.setStyle("-fx-text-fill: #64748b; -fx-font-size: 13px;");
 
-
                 Button btnCancella = new Button("Cancella");
                 btnCancella.setStyle("-fx-background-color: #dc2626; -fx-text-fill: white; " +
                         "-fx-border-color: transparent; -fx-padding: 8 16 8 16; -fx-background-radius: 8; " +
@@ -57,8 +57,8 @@ public class PannelloNotifiche {
                         "-fx-effect: dropshadow(gaussian, rgba(220,38,38,0.3), 4, 0, 0, 2);");
 
                 btnCancella.setOnAction(e -> {
-                    ctrl.cancellaNotifica(notifica.get("id"));
-                    stage.close();
+                    notifiche = ctrl.cancellaNotifica(notifica.get("id"));
+                    show();
                 });
 
                 // Pulsante cancella a destra

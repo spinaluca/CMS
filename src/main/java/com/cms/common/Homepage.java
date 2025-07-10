@@ -118,8 +118,6 @@ public class Homepage {
 
         HeaderBar header = new HeaderBar(ctrl, this::show);
         header.getBtnBack().setOnAction(e -> ctrl.richiestaLogout());
-        com.cms.gestioneNotifiche.ControlNotifiche ctrlNotifiche = new com.cms.gestioneNotifiche.ControlNotifiche(new com.cms.common.BoundaryDBMS(), ctrl, stage);
-        header.setControlNotifiche(ctrlNotifiche);
         
         VBox root = new VBox(header, mainContent);
 

@@ -18,6 +18,7 @@ public class HeaderBar extends HBox {
     private final Button btnModificaPw;
     private final Button btnLogout;
     private final Button btnNotifiche;
+    private final ControlNotifiche ctrlNotifiche;
 
     public HeaderBar(ControlAccount ctrl, Runnable onReturn) {
         super(10);
@@ -47,6 +48,9 @@ public class HeaderBar extends HBox {
         );
 
         btnLogout.setOnAction(e -> ctrl.richiestaLogout());
+
+        ctrlNotifiche = new ControlNotifiche(ctrl);
+        btnNotifiche.setOnAction(e -> ctrlNotifiche.mostraPannelloNotifiche());
 
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -86,10 +90,6 @@ public class HeaderBar extends HBox {
         btnModificaRuoli.setStyle(headerButtonStyle);
         btnModificaPw.setStyle(headerButtonStyle);
         btnLogout.setStyle(logoutButtonStyle);
-    }
-
-    public void setControlNotifiche(ControlNotifiche ctrlNotifiche) {
-        btnNotifiche.setOnAction(e -> ctrlNotifiche.mostraPannelloNotifiche());
     }
 
     // Getter per accesso ai pulsanti
