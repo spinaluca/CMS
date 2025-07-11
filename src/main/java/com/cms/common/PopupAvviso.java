@@ -19,6 +19,7 @@ public class PopupAvviso {
         alert.setContentText(msg);
 
         DialogPane pane = alert.getDialogPane();
+        pane.getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
         styleDialogPane(pane);
 
         Button okButton = (Button) pane.lookupButton(alert.getButtonTypes().get(0));

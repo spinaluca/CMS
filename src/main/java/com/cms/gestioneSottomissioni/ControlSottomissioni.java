@@ -4,6 +4,7 @@ import com.cms.common.BoundaryDBMS;
 import com.cms.common.PopupAvviso;
 import com.cms.common.PopupInserimento;
 import com.cms.common.SelezioneFile;
+import com.cms.common.PopupErrore;
 import com.cms.entity.EntityArticolo;
 import com.cms.entity.EntityUtente;
 import com.cms.entity.EntityConferenza;
@@ -146,7 +147,7 @@ public class ControlSottomissioni {
         if (articolo.isPresent() && articolo != null) {
             DownloadUtil.salvaInDownload(articolo.get(), "Articolo");
         } else {
-            new PopupAvviso("Articolo non presente").show();
+            new PopupErrore("Articolo non presente").show();
         }
     }
 
@@ -155,7 +156,7 @@ public class ControlSottomissioni {
         if (file.isPresent() && file != null) {
             DownloadUtil.salvaInDownload(file.get(), "Versione Camera-ready Articolo");
         } else {
-            new PopupAvviso("Versione Camera-ready non presente").show();
+            new PopupErrore("Versione Camera-ready non presente").show();
         }
     }
 
@@ -164,7 +165,7 @@ public class ControlSottomissioni {
         if (file.isPresent() && file != null) {
             DownloadUtil.salvaInDownload(file.get(), "Versione Finale Articolo");
         } else {
-            new PopupAvviso("Versione Finale non presente").show();
+            new PopupErrore("Versione Finale non presente").show();
         }
     }
 
@@ -173,7 +174,7 @@ public class ControlSottomissioni {
         if (file.isPresent()) {
             DownloadUtil.salvaInDownload(file.get(), "Feedback Editor");
         } else {
-            new PopupAvviso("Feedback non presente").show();
+            new PopupErrore("Feedback non presente").show();
         }
     }
 
@@ -182,7 +183,7 @@ public class ControlSottomissioni {
         if (file.isPresent()) {
             DownloadUtil.salvaInDownload(file.get(), "Revisione");
         } else {
-            new PopupAvviso("Revisione non presente").show();
+            new PopupErrore("Revisione non presente").show();
         }
     }
 

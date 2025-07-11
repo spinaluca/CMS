@@ -17,6 +17,8 @@ import javafx.stage.Stage;
 import java.security.SecureRandom;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
+import com.cms.gestioneEditings.ControlEditings;
+import com.cms.gestioneEditings.HomepageEditor;
 
 public class ControlAccount {
     private final BoundaryDBMS db;
@@ -207,8 +209,8 @@ public class ControlAccount {
 
     public void apriHomepageEditor() {
         BoundaryDBMS db = new BoundaryDBMS();
-        com.cms.gestioneEditings.ControlEditings ctrlEd = new com.cms.gestioneEditings.ControlEditings(db, getUtenteCorrente(), this, stage);
-        new com.cms.gestioneEditings.HomepageEditor(stage, ctrlEd, this).show();
+        ControlEditings ctrlEd = new ControlEditings(db, getUtenteCorrente(), this, stage);
+        new HomepageEditor(stage, ctrlEd, this).show();
     }
 
     public Optional<String> getNomeCompleto(String email) {

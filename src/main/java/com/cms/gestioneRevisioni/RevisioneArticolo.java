@@ -2,7 +2,9 @@ package com.cms.gestioneRevisioni;
 
 import com.cms.common.HeaderBar;
 import com.cms.common.PopupAvviso;
+import com.cms.common.PopupInserimento;
 import com.cms.gestioneAccount.ControlAccount;
+import com.cms.entity.EntityArticolo;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -38,7 +40,7 @@ public class RevisioneArticolo {
         title.setStyle("-fx-font-size: 24px; -fx-font-weight: 700; -fx-text-fill: #1e293b;");
 
         // Recupera info articolo
-        com.cms.entity.EntityArticolo articolo = ctrl.getArticoloById(idArticolo).orElse(null);
+        EntityArticolo articolo = ctrl.getArticoloById(idArticolo).orElse(null);
         String titolo = articolo != null ? articolo.getTitolo() : "[da caricare]";
         String autore = articolo != null ? ctrl2.getNomeCompleto(articolo.getAutoreId()).orElse(articolo.getAutoreId()) : "[da caricare]";
         String paroleChiave = articolo != null ? articolo.getParoleChiave() : "[da caricare]";
@@ -102,39 +104,7 @@ public class RevisioneArticolo {
     }
 
     private void caricaRevisione() {
-        Dialog<RevisionData> dialog = new Dialog<>();
-        dialog.setTitle("Carica Revisione");
-        dialog.setHeaderText("Inserisci voto e livello di expertise");
-
-        ButtonType okButtonType = new ButtonType("Conferma", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(okButtonType, ButtonType.CANCEL);
-
-        VBox content = new VBox(10);
-        content.setPadding(new Insets(10));
-
-        Spinner<Integer> spinnerVoto = new Spinner<>(1, 10, 5);
-        spinnerVoto.setEditable(true);
-        spinnerVoto.setPrefWidth(100);
-
-        Spinner<Integer> spinnerExpertise = new Spinner<>(1, 5, 3);
-        spinnerExpertise.setEditable(true);
-        spinnerExpertise.setPrefWidth(100);
-
-        content.getChildren().addAll(
-            new Label("Voto (1-10):"), spinnerVoto,
-            new Label("Livello Expertise (1-5):"), spinnerExpertise
-        );
-
-        dialog.getDialogPane().setContent(content);
-
-        dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == okButtonType) {
-                return new RevisionData(spinnerVoto.getValue(), spinnerExpertise.getValue());
-            }
-            return null;
-        });
-
-        Optional<RevisionData> result = dialog.showAndWait();
+        Optional<PopupInserimento.RevisionData> result = new PopupInserimento().promptVotoExpertise();
         result.ifPresent(data -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Seleziona file revisione");

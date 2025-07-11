@@ -10,6 +10,8 @@ import javafx.stage.Stage;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 
 public class ModuloCreazione {
 
@@ -529,7 +531,7 @@ public class ModuloCreazione {
             // Controllo date duplicate
             boolean duplicateDates = false;
             if (!emptyFields) {
-                java.util.Set<LocalDate> dateSet = new java.util.HashSet<>();
+                Set<LocalDate> dateSet = new HashSet<>();
                 dateSet.add(dpSub.getValue());
                 dateSet.add(dpRev.getValue());
                 dateSet.add(dpGrad.getValue());

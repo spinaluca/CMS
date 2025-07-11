@@ -14,6 +14,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.TilePane;
 import javafx.stage.Stage;
+import javafx.event.EventHandler;
+import javafx.event.ActionEvent;
 
 public class Homepage {
     private final Stage stage;
@@ -128,7 +130,7 @@ public class Homepage {
         stage.show();
     }
 
-    private VBox createRoleCard(String title, String icon, String description, String accentColor, javafx.event.EventHandler<javafx.event.ActionEvent> action) {
+    private VBox createRoleCard(String title, String icon, String description, String accentColor, EventHandler<ActionEvent> action) {
         VBox card = new VBox(16);
         card.setAlignment(Pos.CENTER);
         card.setPadding(new Insets(32));

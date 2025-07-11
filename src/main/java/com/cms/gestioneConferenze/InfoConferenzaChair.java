@@ -29,6 +29,7 @@ import com.cms.common.PopupAvviso;
 import com.cms.gestioneRevisioni.RevisioneArticolo;
 import com.cms.gestioneRevisioni.ControlRevisioni;
 import com.cms.common.BoundaryDBMS;
+import com.cms.gestioneRevisioni.InfoRevisioniChair;
 
 
 public class InfoConferenzaChair {
@@ -185,11 +186,11 @@ public class InfoConferenzaChair {
                 "-fx-padding: 10 20; -fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 13px;" +
                 "-fx-effect: dropshadow(gaussian, rgba(239,68,68,0.3),4,0,0,2);");
         btnStatoRevisioni.setOnAction(e -> {
-            com.cms.common.BoundaryDBMS db = new com.cms.common.BoundaryDBMS();
-            com.cms.gestioneRevisioni.ControlRevisioni ctrlRev = new com.cms.gestioneRevisioni.ControlRevisioni(db);
+            BoundaryDBMS db = new BoundaryDBMS();
+            ControlRevisioni ctrlRev = new ControlRevisioni(db);
             EntityConferenza conferenza = ctrl.getConferenza(confId)
                     .orElseThrow(() -> new RuntimeException("Conferenza non trovata: " + confId));
-            new com.cms.gestioneRevisioni.InfoRevisioniChair(stage, ctrlRev, conferenza, this::show).show();
+            new InfoRevisioniChair(stage, ctrlRev, conferenza, this::show).show();
         });
 
         // Spacer per allineare il pulsante rosso a destra

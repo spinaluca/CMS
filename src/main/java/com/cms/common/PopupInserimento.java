@@ -7,10 +7,16 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.geometry.Insets;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import com.cms.entity.EntityArticolo;
+import java.util.List;
+import java.util.ArrayList;
+import com.cms.gestioneRevisioni.ControlRevisioni;
+import javafx.util.StringConverter;
 
 public class PopupInserimento {
 
@@ -35,6 +41,7 @@ public class PopupInserimento {
         VBox content = new VBox(8, inputField, warning);
         dlg.getDialogPane().setContent(content);
         styleDialogPane(dlg.getDialogPane());
+        dlg.getDialogPane().getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
 
         inputField.textProperty().addListener((obs, oldVal, newVal) -> {
             boolean valid = newVal.matches("^[\\w-.]+@[\\w-]+\\.[a-zA-Z]{2,}$");
@@ -80,6 +87,7 @@ public class PopupInserimento {
 
         dialog.getDialogPane().setContent(grid);
         styleDialogPane(dialog.getDialogPane());
+        dialog.getDialogPane().getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
 
         Button confirmButton = (Button) dialog.getDialogPane().lookupButton(okButtonType);
         stylePrimaryButton(confirmButton);
@@ -128,6 +136,7 @@ public class PopupInserimento {
         dialog.getDialogPane().getButtonTypes().addAll(accettaButtonType, rifiutaButtonType, cancelButtonType);
 
         styleDialogPane(dialog.getDialogPane());
+        dialog.getDialogPane().getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
 
         Button acceptButton = (Button) dialog.getDialogPane().lookupButton(accettaButtonType);
         stylePrimaryButton(acceptButton);
@@ -148,8 +157,8 @@ public class PopupInserimento {
         return dialog.showAndWait();
     }
 
-    public Optional<java.util.List<com.cms.entity.EntityArticolo>> promptSelezionaArticoli(java.util.List<com.cms.entity.EntityArticolo> articoli) {
-        Dialog<java.util.List<com.cms.entity.EntityArticolo>> dialog = new Dialog<>();
+    public Optional<List<EntityArticolo>> promptSelezionaArticoli(List<EntityArticolo> articoli, ControlRevisioni ctrlRevisioni) {
+        Dialog<List<EntityArticolo>> dialog = new Dialog<>();
         dialog.setTitle("Seleziona Articoli");
         dialog.setHeaderText("Scegli gli articoli da revisionare");
 
@@ -157,25 +166,40 @@ public class PopupInserimento {
         ButtonType cancelBtn = ButtonType.CANCEL;
         dialog.getDialogPane().getButtonTypes().addAll(okBtn, cancelBtn);
 
-        ListView<com.cms.entity.EntityArticolo> listView = new ListView<>();
+        ListView<EntityArticolo> listView = new ListView<>();
         listView.getItems().addAll(articoli);
         listView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        listView.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(EntityArticolo item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    String nomeAutore = ctrlRevisioni.getNomeCompletoAutore(item.getAutoreId());
+                    setText(item.getTitolo() + "  [" + nomeAutore + "]");
+                }
+            }
+        });
 
         dialog.getDialogPane().setContent(listView);
         styleDialogPane(dialog.getDialogPane());
+        dialog.getDialogPane().getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+        dialog.getDialogPane().setPrefWidth(430);
+        dialog.getDialogPane().setPrefHeight(430);
 
         Button confirmButton = (Button) dialog.getDialogPane().lookupButton(okBtn);
         stylePrimaryButton(confirmButton);
         Button cancelButton = (Button) dialog.getDialogPane().lookupButton(cancelBtn);
         styleSecondaryButton(cancelButton);
 
-        dialog.setResultConverter(btn -> btn == okBtn ? new java.util.ArrayList<>(listView.getSelectionModel().getSelectedItems()) : null);
+        dialog.setResultConverter(btn -> btn == okBtn ? new ArrayList<>(listView.getSelectionModel().getSelectedItems()) : null);
 
         return dialog.showAndWait();
     }
 
-    public Optional<Map<String, String>> promptAssegnazione(java.util.List<com.cms.entity.EntityArticolo> articoli,
-                                                            java.util.List<String> revisori) {
+    public Optional<Map<String, String>> promptAssegnazione(List<EntityArticolo> articoli,
+                                                            List<String> revisori) {
         Dialog<Map<String, String>> dialog = new Dialog<>();
         dialog.setTitle("Nuova Assegnazione");
         dialog.setHeaderText("Seleziona articolo e revisore");
@@ -190,15 +214,15 @@ public class PopupInserimento {
 
         Label artLbl = new Label("Articolo:");
         artLbl.setStyle(getLabelStyle());
-        ChoiceBox<com.cms.entity.EntityArticolo> cbArt = new ChoiceBox<>();
+        ChoiceBox<EntityArticolo> cbArt = new ChoiceBox<>();
         cbArt.getItems().addAll(articoli);
-        cbArt.setConverter(new javafx.util.StringConverter<>() {
+        cbArt.setConverter(new StringConverter<>() {
             @Override
-            public String toString(com.cms.entity.EntityArticolo a) {
+            public String toString(EntityArticolo a) {
                 return a == null ? "" : a.getTitolo();
             }
             @Override
-            public com.cms.entity.EntityArticolo fromString(String s) { return null; }
+            public EntityArticolo fromString(String s) { return null; }
         });
 
         Label revLbl = new Label("Revisore:");
@@ -216,6 +240,7 @@ public class PopupInserimento {
 
         dialog.getDialogPane().setContent(grid);
         styleDialogPane(dialog.getDialogPane());
+        dialog.getDialogPane().getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
 
         Button confirmButton = (Button) dialog.getDialogPane().lookupButton(okBtn);
         stylePrimaryButton(confirmButton);
@@ -238,6 +263,58 @@ public class PopupInserimento {
                 map.put("articolo_id", cbArt.getSelectionModel().getSelectedItem().getId());
                 map.put("revisore_email", cbRev.getSelectionModel().getSelectedItem());
                 return map;
+            }
+            return null;
+        });
+
+        return dialog.showAndWait();
+    }
+
+    public static class RevisionData {
+        public final int voto;
+        public final int expertise;
+        public RevisionData(int voto, int expertise) {
+            this.voto = voto;
+            this.expertise = expertise;
+        }
+    }
+
+    public Optional<RevisionData> promptVotoExpertise() {
+        Dialog<RevisionData> dialog = new Dialog<>();
+        dialog.setTitle("Carica Revisione");
+        dialog.setHeaderText("Inserisci voto e livello di expertise");
+
+        ButtonType okButtonType = new ButtonType("Conferma", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(okButtonType, ButtonType.CANCEL);
+
+        VBox content = new VBox(10);
+        content.setPadding(new Insets(10));
+
+        Spinner<Integer> spinnerVoto = new Spinner<>(1, 10, 5);
+        spinnerVoto.setEditable(true);
+        spinnerVoto.setPrefWidth(100);
+
+        Spinner<Integer> spinnerExpertise = new Spinner<>(1, 5, 3);
+        spinnerExpertise.setEditable(true);
+        spinnerExpertise.setPrefWidth(100);
+
+        content.getChildren().addAll(
+            new Label("Voto (1-10):"), spinnerVoto,
+            new Label("Livello Expertise (1-5):"), spinnerExpertise
+        );
+
+        dialog.getDialogPane().setContent(content);
+        styleDialogPane(dialog.getDialogPane());
+        dialog.getDialogPane().getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
+
+        Button confirmButton = (Button) dialog.getDialogPane().lookupButton(okButtonType);
+        stylePrimaryButton(confirmButton);
+        Button cancelButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.CANCEL);
+        styleSecondaryButton(cancelButton);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == okButtonType) {
+                return new RevisionData(spinnerVoto.getValue(), spinnerExpertise.getValue());
             }
             return null;
         });

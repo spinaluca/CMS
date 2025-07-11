@@ -91,7 +91,7 @@ public class ControlConferenze {
         if (ultimaVersione.isPresent() && ultimaVersione != null) {
             DownloadUtil.salvaInDownload(ultimaVersione.get(), "Ultima Versione");
         } else {
-            new PopupErrore("Articolo non disponibile").show();
+            new PopupErrore("Articolo non presente").show();
         }
     }
 }

@@ -2,6 +2,7 @@ package com.cms.gestioneEditings;
 
 import com.cms.common.BoundaryDBMS;
 import com.cms.common.PopupAvviso;
+import com.cms.common.PopupErrore;
 import com.cms.common.SelezioneFile;
 import com.cms.entity.EntityArticolo;
 import com.cms.entity.EntityConferenza;
@@ -47,7 +48,7 @@ public class ControlEditings {
         if (fileOpt.isPresent()) {
             DownloadUtil.salvaInDownload(fileOpt.get(), "Versione Camera-ready Articolo");
         } else {
-            new PopupAvviso("Versione camera-ready non presente").show();
+            new PopupErrore("Versione camera-ready non presente").show();
         }
     }
 
@@ -92,7 +93,7 @@ public class ControlEditings {
         return db.getCameraReadyArticoli(confId);
     }
 
-    public java.util.Optional<String> getLabelUtente(String email) {
+    public Optional<String> getLabelUtente(String email) {
         return db.getUtente(email).map(u -> u.getNome() + " " + u.getCognome());
     }
 } 

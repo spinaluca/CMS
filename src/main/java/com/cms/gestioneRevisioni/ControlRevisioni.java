@@ -17,6 +17,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.io.File;
 import java.util.ArrayList;
+import javafx.application.Platform;
+import javafx.stage.Stage;
 
 /**
  * ControlRevisioni gestisce la logica relativa alle revisioni.
@@ -113,10 +115,10 @@ public class ControlRevisioni {
 
     /** Restituisce lo stato delle revisioni per la conferenza. */
     public List<InfoRevisioniChair.RevisionRow> getStatoRevisioni(String confId) {
-        java.util.List<java.util.Map<String, String>> raw = db.getDatiRevisioni(confId);
-        java.util.List<InfoRevisioniChair.RevisionRow> list = new java.util.ArrayList<>();
+        List<Map<String, String>> raw = db.getDatiRevisioni(confId);
+        List<InfoRevisioniChair.RevisionRow> list = new ArrayList<>();
 
-        for (java.util.Map<String, String> m : raw) {
+        for (Map<String, String> m : raw) {
             String artId = m.get("art_id");
             String titolo = m.get("titolo");
             String autoreEmail = m.get("autore_id");
@@ -156,20 +158,20 @@ public class ControlRevisioni {
         if (revisione.isPresent() && revisione != null) {
             DownloadUtil.salvaInDownload(revisione.get(), "Revisione di " + revisore);
         } else {
-            new PopupErrore("Revisione non disponibile").show();
+            new PopupErrore("Revisione non presente").show();
         }
     }
 
     /** Avvia procedura di aggiunta assegnazione (stub). */
     public void avviaAggiungiAssegnazione(String confId, Runnable onRefresh) {
-        java.time.LocalDate oggi = java.time.LocalDate.now();
-        java.time.LocalDate scadRev = db.getDataScadenzaRevisioni(confId);
+        LocalDate oggi = LocalDate.now();
+        LocalDate scadRev = db.getDataScadenzaRevisioni(confId);
 
         if (oggi.isBefore(scadRev)) {
             // Recupera articoli e revisori
-            java.util.List<com.cms.entity.EntityArticolo> articoli = db.getArticoliConferenza(confId);
-            java.util.Map<String, String> revisoriStato = db.getRevisoriConStato(confId);
-            java.util.List<String> revisori = new java.util.ArrayList<>();
+            List<EntityArticolo> articoli = db.getArticoliConferenza(confId);
+            Map<String, String> revisoriStato = db.getRevisoriConStato(confId);
+            List<String> revisori = new ArrayList<>();
             for (var entry : revisoriStato.entrySet()) {
                 if ("Accettato".equalsIgnoreCase(entry.getValue())) {
                     revisori.add(entry.getKey());
@@ -177,23 +179,27 @@ public class ControlRevisioni {
             }
 
             if (articoli.isEmpty() || revisori.isEmpty()) {
-                new com.cms.common.PopupAvviso("Nessun articolo o revisore disponibile").show();
+                new PopupAvviso("Nessun articolo o revisore disponibile").show();
                 return;
             }
 
-            javafx.application.Platform.runLater(() -> {
-                new com.cms.common.PopupInserimento()
+            Platform.runLater(() -> {
+                new PopupInserimento()
                         .promptAssegnazione(articoli, revisori)
                         .ifPresent(sel -> {
                             String artId = sel.get("articolo_id");
                             String revEmail = sel.get("revisore_email");
-                            db.aggiungiAssegnazione(artId, revEmail);
-                            new com.cms.common.PopupAvviso("Assegnazione inserita").show();
-                            if (onRefresh != null) onRefresh.run();
+                            boolean inserito = db.aggiungiAssegnazione(artId, revEmail);
+                            if (!inserito) {
+                                new PopupErrore("L'assegnazione tra revisore e articolo è già presente.").show();
+                            } else {
+                                new PopupAvviso("Assegnazione inserita").show();
+                                if (onRefresh != null) onRefresh.run();
+                            }
                         });
             });
         } else {
-            new com.cms.common.PopupAvviso("Errore, non sei nel periodo delle revisioni").show();
+            new PopupAvviso("Errore, non sei nel periodo delle revisioni").show();
         }
     }
 
@@ -246,9 +252,9 @@ public class ControlRevisioni {
         Optional<EntityConferenza> conferenzaOpt = db.getConferenzaRevisore(idConferenza, emailRevisore);
         if (conferenzaOpt.isPresent()) {
             // Apri la finestra InfoConferenzaRevisore
-            javafx.application.Platform.runLater(() -> {
+            Platform.runLater(() -> {
                 // Creiamo un nuovo stage per la finestra InfoConferenzaRevisore
-                javafx.stage.Stage newStage = new javafx.stage.Stage();
+                Stage newStage = new Stage();
                 // TODO: Questo metodo deve essere aggiornato per passare ControlAccount
                 // Per ora usiamo un approccio temporaneo
                 new PopupAvviso("Funzionalità in fase di aggiornamento").show();
@@ -259,14 +265,14 @@ public class ControlRevisioni {
     /**
      * Visualizza i dettagli della conferenza per il revisore con ControlAccount (UC 4.1.7.8)
      */
-    public void visualizzaConferenza(String idConferenza, com.cms.gestioneAccount.ControlAccount ctrlAccount) {
+    public void visualizzaConferenza(String idConferenza, ControlAccount ctrlAccount) {
         String emailRevisore = ctrlAccount.getUtenteCorrente().getEmail();
         Optional<EntityConferenza> conferenzaOpt = db.getConferenzaRevisore(idConferenza, emailRevisore);
         if (conferenzaOpt.isPresent()) {
             // Apri la finestra InfoConferenzaRevisore
-            javafx.application.Platform.runLater(() -> {
+            Platform.runLater(() -> {
                 // Creiamo un nuovo stage per la finestra InfoConferenzaRevisore
-                javafx.stage.Stage newStage = new javafx.stage.Stage();
+                Stage newStage = new Stage();
                 InfoConferenzaRevisore infoConf = new InfoConferenzaRevisore(
                     newStage, 
                     this, 
@@ -289,7 +295,7 @@ public class ControlRevisioni {
         if (articolo.isPresent() && articolo != null) {
             DownloadUtil.salvaInDownload(articolo.get(), "Articolo");
         } else {
-            new PopupErrore("Articolo non disponibile").show();
+            new PopupErrore("Articolo non presente").show();
         }
     }
 
@@ -305,26 +311,26 @@ public class ControlRevisioni {
 
         if (oggi.isBefore(scadRev)) {
             if (db.isModalitaBroadcast(confId)) {
-                java.util.List<com.cms.entity.EntityArticolo> articoli = db.getArticoliDisponibili(confId);
+                List<EntityArticolo> articoli = db.getArticoliDisponibili(confId, emailRevisore);
                 if (articoli.isEmpty()) {
-                    new com.cms.common.PopupAvviso("Nessun articolo disponibile per l'assegnazione").show();
+                    new PopupAvviso("Nessun articolo disponibile per l'assegnazione").show();
                     return;
                 }
 
                 // Utilizza il PopupInserimento
-                new com.cms.common.PopupInserimento()
-                        .promptSelezionaArticoli(articoli)
+                new PopupInserimento()
+                        .promptSelezionaArticoli(articoli, this)
                         .ifPresent(selezionati -> {
-                            for (com.cms.entity.EntityArticolo art : selezionati) {
+                            for (EntityArticolo art : selezionati) {
                                 db.assegnaArticoloRevisore(art.getId(), emailRevisore);
                             }
-                            new com.cms.common.PopupAvviso("Articoli assegnati con successo").show();
+                            new PopupAvviso("Articolo assegnato con successo").show();
                         });
             } else {
-                new com.cms.common.PopupAvviso("Funzionalità non disponibile, la modalità di assegnazione non è broadcast").show();
+                new PopupErrore("Funzionalità non presente, la modalità di assegnazione non è broadcast").show();
             }
         } else {
-            new com.cms.common.PopupAvviso("Scadenza per revisioni oltrepassata").show();
+            new PopupAvviso("Scadenza per revisioni oltrepassata").show();
         }
     }
 
@@ -335,51 +341,57 @@ public class ControlRevisioni {
 
     // ==================== Delega sotto-revisore (UC DELEGATE_REVIEWER) ======
     public void delegaSottoRevisore(String confId, String titoloArticolo, String emailRevisore) {
-        java.time.LocalDate oggi = java.time.LocalDate.now();
-        java.time.LocalDate scadRev = db.getDataScadenzaRevisioni(confId);
+        LocalDate oggi = LocalDate.now();
+        LocalDate scadRev = db.getDataScadenzaRevisioni(confId);
         if (!oggi.isBefore(scadRev)) {
-            new com.cms.common.PopupAvviso("Scadenza per revisioni oltrepassata").show();
+            new PopupAvviso("Scadenza per revisioni oltrepassata").show();
             return;
         }
 
         // Recupera articolo per titolo
-        java.util.Optional<com.cms.entity.EntityArticolo> artOpt = db.getArticoliConferenza(confId).stream()
+        Optional<EntityArticolo> artOpt = db.getArticoliConferenza(confId).stream()
                 .filter(a -> a.getTitolo().equalsIgnoreCase(titoloArticolo))
                 .findFirst();
         if (artOpt.isEmpty()) {
-            new com.cms.common.PopupAvviso("Articolo non trovato").show();
+            new PopupAvviso("Articolo non trovato").show();
             return;
         }
-        com.cms.entity.EntityArticolo articolo = artOpt.get();
+        EntityArticolo articolo = artOpt.get();
         String idArticolo = articolo.getId();
 
         // Verifica stato (voto)
-        java.util.Optional<Integer> votoOpt = db.getVotoRevisione(idArticolo, emailRevisore);
+        Optional<Integer> votoOpt = db.getVotoRevisione(idArticolo, emailRevisore);
         if (votoOpt.isPresent() && votoOpt.get() > 0) {
-            new com.cms.common.PopupAvviso("Articolo già revisionato").show();
+            new PopupAvviso("Articolo già revisionato").show();
             return;
         }
 
         // Chiedi email sotto-revisore
-        new com.cms.common.PopupInserimento().promptEmail("Sotto-revisore")
+        new PopupInserimento().promptEmail("Sotto-revisore")
                 .ifPresent(emailSR -> {
                     // Controlla partecipazione alla conferenza
                     if (!db.queryRevisorePresente(emailSR, confId)) {
-                        new com.cms.common.PopupAvviso("Impossibile invitare sotto-revisore esterno alla conferenza").show();
+                        new PopupAvviso("Impossibile invitare sotto-revisore esterno alla conferenza").show();
                         return;
                     }
                     // Inserisci delega (assegni articolo al sotto-revisore)
                     db.assegnaArticoloRevisore(idArticolo, emailSR);
+                    // Elimina la revisione del revisore principale
+                    db.getIdRevisione(idArticolo, emailRevisore).ifPresent(db::rimuoviAssegnazione);
                     // Notifica (solo popup per ora)
-                    new com.cms.common.PopupAvviso("Delegato con successo").show();
+                    new PopupAvviso("Revisione delegata con successo a " + db.getNomeCompleto(emailSR).orElse(emailSR)).show();
                 });
     }
 
-    public java.util.Optional<com.cms.entity.EntityArticolo> getArticoloById(String idArticolo) {
+    public Optional<EntityArticolo> getArticoloById(String idArticolo) {
         return db.getDatiArticoloById(idArticolo);
     }
 
-    public java.util.Optional<Integer> getExpertiseRevisione(String idArticolo, String emailRevisore) {
+    public Optional<Integer> getExpertiseRevisione(String idArticolo, String emailRevisore) {
         return db.getExpertiseRevisione(idArticolo, emailRevisore);
+    }
+
+    public String getNomeCompletoAutore(String email) {
+        return db.getNomeCompleto(email).orElse(email);
     }
 } 

@@ -12,6 +12,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.scene.layout.Priority;
+import java.util.Map;
 
 public class InfoConferenzaAutore {
     private final Stage stage;
@@ -140,9 +141,9 @@ public class InfoConferenzaAutore {
             table.getColumns().setAll(colRevisore, colVoto, colExpertise);
 
             // Popolamento tabella: uso ctrl.getRevisioniArticoloById(art.getId())
-            java.util.Map<String, String> revisioni = ctrl.getRevisioniArticoloById(art.getId());
+            Map<String, String> revisioni = ctrl.getRevisioniArticoloById(art.getId());
             if (revisioni != null) {
-                for (java.util.Map.Entry<String, String> entry : revisioni.entrySet()) {
+                for (Map.Entry<String, String> entry : revisioni.entrySet()) {
                     String descrizioneRev = entry.getValue(); // "Revisore: X - Voto: Y - Expertise: Z"
                     String revisore = "<non assegnato>";
                     String voto = "-";

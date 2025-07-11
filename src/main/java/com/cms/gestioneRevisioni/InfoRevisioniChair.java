@@ -13,6 +13,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 
 import java.util.List;
@@ -78,7 +79,7 @@ public class InfoRevisioniChair {
         btnAggiungi.setOnAction(e -> ctrl.avviaAggiungiAssegnazione(confId, this::show));
 
         // Spacer per allineare il pulsante aggiungi a destra
-        javafx.scene.layout.Region spacer = new javafx.scene.layout.Region();
+        Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
         HBox azioniBox = new HBox(10, spacer, btnVisualizza, btnRimuovi, btnAggiungi);
 

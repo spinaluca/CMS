@@ -2,6 +2,7 @@ package com.cms.gestioneRevisioni;
 
 import com.cms.common.HeaderBar;
 import com.cms.entity.EntityConferenza;
+import com.cms.entity.EntityArticolo;
 import com.cms.gestioneAccount.ControlAccount;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.geometry.Insets;
@@ -128,7 +129,7 @@ public class InfoConferenzaRevisore {
 
         List<String> idArticoli = ctrl.getArticoliRevisore(confId, getEmailRevisore());
         for (String idArt : idArticoli) {
-            com.cms.entity.EntityArticolo art = ctrl.getArticoloById(idArt).orElse(null);
+            EntityArticolo art = ctrl.getArticoloById(idArt).orElse(null);
             if (art == null) continue;
             String titolo = art.getTitolo();
             String autore = ctrl2.getNomeCompleto(art.getAutoreId()).orElse(art.getAutoreId());
