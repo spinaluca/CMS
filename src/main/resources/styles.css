@@ -109,6 +109,16 @@
     -fx-padding: 0;
 }
 
+.table-cell > .text-field {
+    -fx-background-insets: 0;
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+    -fx-border-color: transparent;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+
 .table-view .column-header-background {
     -fx-background-color: #f8fafc;
     -fx-background-radius: 12 12 0 0;

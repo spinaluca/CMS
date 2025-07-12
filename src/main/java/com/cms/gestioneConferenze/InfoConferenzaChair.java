@@ -14,7 +14,9 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.*;
+import javafx.util.converter.IntegerStringConverter;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
@@ -131,10 +133,29 @@ public class InfoConferenzaChair {
         Label articoliLbl = new Label("Articoli:");
         TableView<EntityArticolo> tableArticoli = new TableView<>();
         tableArticoli.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        tableArticoli.setEditable(true);
 
 
         TableColumn<EntityArticolo, Integer> colPos = new TableColumn<>("Pos.");
         colPos.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getPosizione()));
+        
+        // Verifica se la data odierna è prima della data graduatoria
+        LocalDate oggi = LocalDate.now();
+        boolean editabile = oggi.isBefore(conf.getDataGraduatoria());
+        
+        colPos.setEditable(editabile);
+        if (editabile) {
+            colPos.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+            
+            // Gestisci il commit dell'edit
+            colPos.setOnEditCommit(event -> {
+                EntityArticolo articolo = event.getRowValue();
+                Integer nuovaPosizione = event.getNewValue();
+                ctrl.aggiornaPosizioneArticolo(articolo.getId(), nuovaPosizione);
+                // Aggiorna l'oggetto articolo con la nuova posizione
+                articolo.setPosizione(nuovaPosizione);
+            });
+        }
 
         TableColumn<EntityArticolo, String> colTit = new TableColumn<>("Titolo");
         colTit.setCellValueFactory(data -> new ReadOnlyStringWrapper(data.getValue().getTitolo()));

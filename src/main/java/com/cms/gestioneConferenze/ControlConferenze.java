@@ -94,4 +94,8 @@ public class ControlConferenze {
             new PopupErrore("Articolo non presente").show();
         }
     }
+
+    public void aggiornaPosizioneArticolo(String idArticolo, Integer posizione) {
+        db.aggiornaPosizioneArticolo(idArticolo, posizione);
+    }
 }

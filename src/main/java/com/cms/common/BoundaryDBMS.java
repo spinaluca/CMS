@@ -1416,4 +1416,21 @@ public class BoundaryDBMS {
             throw new RuntimeException("Errore aggiornaPunteggioArticolo", e);
         }
     }
+
+    // Aggiorna la posizione di un articolo
+    public void aggiornaPosizioneArticolo(String idArticolo, Integer posizione) {
+        String sql = "UPDATE articoli SET posizione = ? WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            if (posizione != null) {
+                ps.setInt(1, posizione);
+            } else {
+                ps.setNull(1, Types.INTEGER);
+            }
+            ps.setString(2, idArticolo);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore aggiornaPosizioneArticolo", e);
+        }
+    }
 }
