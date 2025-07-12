@@ -33,24 +33,16 @@ public class ControlRevisioni {
     }
 
     /**
-     * Avvia l'assegnazione automatica degli articoli ai revisori.
-     * <p>
-     * La logica segue l'uso caso AUTOMATIC_PAPERS_ASSIGNMENT:
-     * 1. Viene chiamata idealmente ad intervalli regolari da un componente di scheduling (es. cron interno).
-     * 2. Se l'orario corrente è mezzanotte (00:00) allora:
-     *    a. Recupera tutte le conferenze che avevano scadenza sottomissione ieri e hanno modalitaDistribuzione AUTOMATICA.
-     *    b. Per ogni conferenza calcola le assegnazioni articolo → revisori sulla base della corrispondenza fra parole chiave
-     *       degli articoli e competenze dichiarate dai revisori, garantendo il rispetto del numero minimo di revisori per articolo.
-     *    c. Comunica al DBMS le assegnazioni effettuate.
+     * Avvia l'assegnazione automatica degli articoli ai revisori per una data specifica.
      */
-    public void avviaAssegnazioneAutomatica() {
+    public void avviaAssegnazioneAutomatica(LocalDate data) {
         // Passo 1: controlla che sia mezzanotte (tolleranza di 1 minuto)
         LocalTime now = LocalTime.now();
         if (now.getHour() != 0) {
             return; // Non è il momento previsto
         }
 
-        LocalDate ieri = LocalDate.now().minusDays(1);
+        LocalDate ieri = data;
 
         // Passo 3.1: Recupera conferenze interessate
         List<EntityConferenza> conferenze = db.getConferenzeAutomaticheConScadenza(ieri).stream()
@@ -167,7 +159,7 @@ public class ControlRevisioni {
         LocalDate oggi = LocalDate.now();
         LocalDate scadRev = db.getDataScadenzaRevisioni(confId);
 
-        if (oggi.isBefore(scadRev)) {
+        if (oggi.isBefore(scadRev) || oggi.isEqual(scadRev)) {
             // Recupera articoli e revisori
             List<EntityArticolo> articoli = db.getArticoliConferenza(confId);
             Map<String, String> revisoriStato = db.getRevisoriConStato(confId);
@@ -205,18 +197,45 @@ public class ControlRevisioni {
 
     // ==================== Graduatoria (UC 4.1.7.7) =====================
 
-    public void avviaGraduatoria() {
-        LocalTime now = LocalTime.now();
-        if (now.getHour() != 0) return;
-
-        LocalDate ieri = LocalDate.now().minusDays(1);
-        List<EntityConferenza> confs = db.getConferenzeConScadenzaRevisioni(ieri);
+    public void avviaGraduatoria(LocalDate data) {
+        List<EntityConferenza> confs = db.getConferenzeSenzaGraduatoria(data);
         for (EntityConferenza conf : confs) {
-            creaGraduatoriaConferenza(conf);
+            calcolaPunteggioArticoli(conf);
+            creaGraduatoria(conf);
         }
     }
 
-    private void creaGraduatoriaConferenza(EntityConferenza conf) {
+    private void calcolaPunteggioArticoli(EntityConferenza conf) {
+        String confId = conf.getId();
+        List<EntityArticolo> arts = db.getArticoliConferenza(confId);
+        for (EntityArticolo art : arts) {
+            double numeratore = 0.0;
+            double denominatore = 0.0;
+            Map<String, String> revisioni = db.getRevisioniArticolo(art.getId());
+            
+            for (Map.Entry<String, String> entry : revisioni.entrySet()) {
+                String descr = entry.getValue();
+                // Estrai voto ed expertise dalla descrizione
+                // Formato: "Revisore: email - Voto: X - Expertise: Y"
+                String[] parts = descr.split(" - ");
+                if (parts.length >= 3) {
+                    try {
+                        int voto = Integer.parseInt(parts[1].replace("Voto: ", ""));
+                        int expertise = Integer.parseInt(parts[2].replace("Expertise: ", ""));
+                        numeratore += voto * expertise;
+                        denominatore += expertise;
+                    } catch (NumberFormatException e) {
+                        // Ignora revisioni con valori non validi
+                    }
+                }
+            }
+            
+            Double punteggio = (denominatore != 0) ? (numeratore / denominatore) : null;
+            db.aggiornaPunteggioArticolo(art.getId(), punteggio);   
+        }
+    }
+
+    private void creaGraduatoria(EntityConferenza conf) {
         String confId = conf.getId();
         // Recupera articoli e calcola punteggio medio (stub)
         List<EntityArticolo> arts = db.getArticoliConferenza(confId);
@@ -309,7 +328,7 @@ public class ControlRevisioni {
         LocalDate oggi = LocalDate.now();
         LocalDate scadRev = db.getDataScadenzaRevisioni(confId);
 
-        if (oggi.isBefore(scadRev)) {
+        if (oggi.isBefore(scadRev) || oggi.isEqual(scadRev)) {
             if (db.isModalitaBroadcast(confId)) {
                 List<EntityArticolo> articoli = db.getArticoliDisponibili(confId, emailRevisore);
                 if (articoli.isEmpty()) {
@@ -343,7 +362,7 @@ public class ControlRevisioni {
     public void delegaSottoRevisore(String confId, String titoloArticolo, String emailRevisore) {
         LocalDate oggi = LocalDate.now();
         LocalDate scadRev = db.getDataScadenzaRevisioni(confId);
-        if (!oggi.isBefore(scadRev)) {
+        if (!oggi.isBefore(scadRev) || !oggi.isEqual(scadRev)) {
             new PopupAvviso("Scadenza per revisioni oltrepassata").show();
             return;
         }

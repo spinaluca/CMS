@@ -45,7 +45,7 @@ public class ControlSottomissioni {
         LocalDate oggi = LocalDate.now();
         LocalDate dataScadenza = db.getDataScadenzaSottomissione(getDatiArticolo(idArticolo).getConferenzaId());
 
-        if (oggi.isBefore(dataScadenza)) {
+        if (oggi.isBefore(dataScadenza) || oggi.isEqual(dataScadenza)) {
             boolean giaSottomesso = db.haArticoloSottomesso(idArticolo);
 
             if (!giaSottomesso) {

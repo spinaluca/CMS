@@ -1258,19 +1258,32 @@ public class BoundaryDBMS {
         return list;
     }
 
-    // Conferenze con scadenza revisioni
-    public List<EntityConferenza> getConferenzeConScadenzaRevisioni(LocalDate data) {
+    // Conferenze con scadenza revisioni il giorno specificato e nessun articolo con posizione
+    public List<EntityConferenza> getConferenzeSenzaGraduatoria(LocalDate data) {
         List<EntityConferenza> list = new ArrayList<>();
+        LocalDate giornoPrima = data.minusDays(1);
         String sql = "SELECT * FROM conferenze WHERE scad_revisioni = ?";
         try (Connection conn = DriverManager.getConnection(URL);
             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, data.toString());
+            ps.setString(1, giornoPrima.toString());
+            System.out.println("Data: " + giornoPrima.toString());
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                list.add(mapConf(rs));
+                EntityConferenza conf = mapConf(rs);
+                // Controllo che nessun articolo abbia posizione valorizzata
+                boolean nessunaPosizione = true;
+                for (EntityArticolo art : getArticoliConferenza(conf.getId())) {
+                    if (art.getPosizione() != null) {
+                        nessunaPosizione = false;
+                        break;
+                    }
+                }
+                if (nessunaPosizione) {
+                    list.add(conf);
+                }
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore getConferenzeConScadenzaRevisioni", e);
+            throw new RuntimeException("Errore getConferenzeSenzaGraduatoria", e);
         }
         return list;
     }
@@ -1385,5 +1398,22 @@ public class BoundaryDBMS {
             throw new RuntimeException("Errore getIdRevisione", e);
         }
         return Optional.empty();
+    }
+
+    // Aggiorna il punteggio di un articolo
+    public void aggiornaPunteggioArticolo(String idArticolo, Double punteggio) {
+        String sql = "UPDATE articoli SET punteggio = ? WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            if (punteggio != null) {
+                ps.setDouble(1, punteggio);
+            } else {
+                ps.setNull(1, Types.DOUBLE);
+            }
+            ps.setString(2, idArticolo);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore aggiornaPunteggioArticolo", e);
+        }
     }
 }
