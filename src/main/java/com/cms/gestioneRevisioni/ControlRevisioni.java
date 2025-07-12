@@ -36,16 +36,8 @@ public class ControlRevisioni {
      * Avvia l'assegnazione automatica degli articoli ai revisori per una data specifica.
      */
     public void avviaAssegnazioneAutomatica(LocalDate data) {
-        // Passo 1: controlla che sia mezzanotte (tolleranza di 1 minuto)
-        LocalTime now = LocalTime.now();
-        if (now.getHour() != 0) {
-            return; // Non è il momento previsto
-        }
-
-        LocalDate ieri = data;
-
         // Passo 3.1: Recupera conferenze interessate
-        List<EntityConferenza> conferenze = db.getConferenzeAutomaticheConScadenza(ieri).stream()
+        List<EntityConferenza> conferenze = db.getConferenzeAutomaticheConScadenzaSottomissione(data).stream()
                 .filter(conf -> conf.getModalitaDistribuzione() == Distribuzione.AUTOMATICA)
                 .collect(Collectors.toList());
 
@@ -58,38 +50,55 @@ public class ControlRevisioni {
         String confId = conf.getId();
         int minimoRevisori = conf.getNumeroMinimoRevisori();
 
-        List<EntityArticolo> articoli = db.getArticoliConferenza(confId);
+        List<EntityArticolo> articoli = db.getArticoliConferenza(confId).stream()
+                .filter(art -> art.getStato().equals("Sottomesso"))
+                .filter(art -> db.getRevisioniArticolo(art.getId()).isEmpty())
+                .collect(Collectors.toList());
         Map<String, List<String>> competenzeRevisori = db.getCompetenzeRevisori(confId);
 
-        // Pre-calcola lower-case keywords per articoli
         Map<String, Set<String>> paroleChiaveArticolo = articoli.stream()
                 .collect(Collectors.toMap(EntityArticolo::getId, a -> splitKeywords(a.getParoleChiave())));
 
-        // Assegnazioni finali articoloId -> lista emailRevisori
+        // Contatore globale per numero di articoli assegnati a ciascun revisore
+        Map<String, Integer> revisoreAssegnazioni = new HashMap<>();
+        competenzeRevisori.keySet().forEach(r -> revisoreAssegnazioni.put(r, 0));
+
         Map<String, List<String>> assegnazioni = new HashMap<>();
 
         for (EntityArticolo art : articoli) {
-            // Ordina revisori in base alla corrispondenza delle competenze
-            List<String> revisoriOrdinati = competenzeRevisori.entrySet().stream()
-                    .sorted((e1, e2) -> {
-                        int m1 = matchScore(paroleChiaveArticolo.get(art.getId()), e1.getValue());
-                        int m2 = matchScore(paroleChiaveArticolo.get(art.getId()), e2.getValue());
-                        return Integer.compare(m2, m1); // desc
-                    })
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toList());
+            Set<String> keywords = paroleChiaveArticolo.get(art.getId());
 
-            // Seleziona i primi N revisori con miglior match, scartando eventuali duplicati
+            List<String> revisoriOrdinati = competenzeRevisori.entrySet().stream()
+                .sorted((e1, e2) -> {
+                    int m1 = matchScore(keywords, e1.getValue());
+                    int m2 = matchScore(keywords, e2.getValue());
+
+                    if (m1 != m2) {
+                        return Integer.compare(m2, m1); // prima per match decrescente
+                    } else {
+                        // a parità di match, scegli chi ha meno articoli assegnati
+                        return Integer.compare(revisoreAssegnazioni.get(e1.getKey()), revisoreAssegnazioni.get(e2.getKey()));
+                    }
+                })
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+            // seleziona i primi N revisori
             List<String> selezionati = revisoriOrdinati.stream()
-                    .limit(minimoRevisori)
-                    .collect(Collectors.toList());
+                .limit(minimoRevisori)
+                .collect(Collectors.toList());
+
+            // aggiorna il carico
+            for (String revisore : selezionati) {
+                revisoreAssegnazioni.put(revisore, revisoreAssegnazioni.get(revisore) + 1);
+            }
 
             assegnazioni.put(art.getId(), selezionati);
         }
 
-        // Passo 3.3: comunica al DBMS
         db.comunicaAssegnazioni(confId, assegnazioni);
     }
+
 
     private Set<String> splitKeywords(String paroleChiave) {
         if (paroleChiave == null) return Collections.emptySet();
@@ -256,6 +265,10 @@ public class ControlRevisioni {
 
     public void aggiornaInvito(String confId, String emailRevisore, String stato) {
         db.aggiornaInvitoConferenza(confId, emailRevisore, stato);
+    }
+
+    public String getStatoInvitoRevisore(String confId, String emailRevisore) {
+        return db.getStatoInvitoRevisore(confId, emailRevisore);
     }
 
     // ==================== Conferenza Revisore (UC 4.1.7.10) =============

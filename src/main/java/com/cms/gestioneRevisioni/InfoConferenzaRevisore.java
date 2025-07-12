@@ -36,6 +36,10 @@ public class InfoConferenzaRevisore {
         EntityConferenza conf = ctrl.getConferenzaRevisore(confId, getEmailRevisore())
                 .orElseThrow(() -> new RuntimeException("Conferenza non trovata"));
 
+        // Verifica lo stato dell'invito del revisore
+        String statoInvito = ctrl.getStatoInvitoRevisore(confId, getEmailRevisore());
+        boolean invitoAccettato = "Accettato".equalsIgnoreCase(statoInvito);
+
         Label lbl = new Label("[" + conf.getAcronimo() + "] " + conf.getTitolo());
         lbl.setStyle("-fx-font-size: 24px; -fx-font-weight: 700; -fx-text-fill: #1e293b; -fx-padding: 0 0 8 0;");
 
@@ -190,7 +194,15 @@ public class InfoConferenzaRevisore {
         articoliBox.setPrefWidth(1000);
         articoliBox.setPadding(new Insets(10));
 
-        VBox layout = new VBox(lbl, infoSection, articoliBox);
+        VBox layout;
+        if (invitoAccettato) {
+            // Se l'invito è accettato, mostra tutto
+            layout = new VBox(lbl, infoSection, articoliBox);
+        } else {
+            // Se l'invito non è accettato, mostra solo le informazioni della conferenza
+            layout = new VBox(lbl, infoSection);
+        }
+
         layout.setPadding(new Insets(20));
         layout.setStyle("-fx-background-color: #f8fafc;");
 

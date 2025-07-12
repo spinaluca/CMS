@@ -969,7 +969,7 @@ public class BoundaryDBMS {
     public void aggiornaInvitoConferenza(String confId, String emailRevisore, String stato) {
         String sql = "UPDATE inviti_revisori SET stato = ? WHERE conferenza_id = ? AND revisore_id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
-            PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, stato);
             ps.setString(2, confId);
             ps.setString(3, emailRevisore);
@@ -977,6 +977,22 @@ public class BoundaryDBMS {
         } catch (SQLException e) {
             throw new RuntimeException("Errore aggiornaInvitoConferenza", e);
         }
+    }
+
+    public String getStatoInvitoRevisore(String confId, String emailRevisore) {
+        String sql = "SELECT stato FROM inviti_revisori WHERE conferenza_id = ? AND revisore_id = ?";
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, confId);
+            ps.setString(2, emailRevisore);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("stato");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore getStatoInvitoRevisore", e);
+        }
+        return null;
     }
 
     // Restituisce mappa articolo -> stato revisione
@@ -1242,18 +1258,19 @@ public class BoundaryDBMS {
 
 
     // Conferenze automatiche per graduatoria
-    public List<EntityConferenza> getConferenzeAutomaticheConScadenza(LocalDate data) {
+    public List<EntityConferenza> getConferenzeAutomaticheConScadenzaSottomissione(LocalDate data) {
         List<EntityConferenza> list = new ArrayList<>();
-        String sql = "SELECT * FROM conferenze WHERE data_graduatoria = ?";
+        LocalDate giornoPrima = data.minusDays(1);
+        String sql = "SELECT * FROM conferenze WHERE scad_sottomissione = ?";
         try (Connection conn = DriverManager.getConnection(URL);
             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, data.toString());
+            ps.setString(1, giornoPrima.toString());
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 list.add(mapConf(rs));
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore getConferenzeAutomaticheConScadenza", e);
+                throw new RuntimeException("Errore getConferenzeAutomaticheConScadenzaSottomissione", e);
         }
         return list;
     }
@@ -1266,7 +1283,6 @@ public class BoundaryDBMS {
         try (Connection conn = DriverManager.getConnection(URL);
             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, giornoPrima.toString());
-            System.out.println("Data: " + giornoPrima.toString());
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 EntityConferenza conf = mapConf(rs);
