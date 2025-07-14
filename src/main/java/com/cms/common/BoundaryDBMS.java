@@ -15,6 +15,7 @@ import java.nio.file.StandardCopyOption;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.UUID;
 
 public class BoundaryDBMS {
     private static final String URL;
@@ -1040,10 +1041,10 @@ public class BoundaryDBMS {
         throw new RuntimeException("Scadenza revisioni non trovata per conferenza " + confId);
     }
 
-    // Lista revisori di una conferenza
+    // Lista revisori di una conferenza (solo quelli accettati)
     public List<String> getRevisoriConferenza(String confId) {
         List<String> list = new ArrayList<>();
-        String sql = "SELECT revisore_id FROM inviti_revisori WHERE conferenza_id = ?";
+        String sql = "SELECT revisore_id FROM inviti_revisori WHERE conferenza_id = ? AND stato = 'Accettato'";
         try (Connection conn = DriverManager.getConnection(URL);
             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, confId);
@@ -1338,10 +1339,10 @@ public class BoundaryDBMS {
         return Optional.empty();
     }
 
-    // Restituisce le notifiche di un utente (come lista di mappe chiave-valore)
-    public List<Map<String, String>> getNotifiche(String email) {
+        // Restituisce le notifiche non lette di un utente (come lista di mappe chiave-valore)
+    public List<Map<String, String>> getNotificheNonLette(String email) {
         List<Map<String, String>> list = new ArrayList<>();
-        String sql = "SELECT id, messaggio, data_invio, letta FROM notifiche WHERE utente_id = ? ORDER BY data_invio DESC";
+        String sql = "SELECT id, messaggio, data_invio, letta FROM notifiche WHERE utente_id = ? AND letta = 'false' ORDER BY data_invio DESC";
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
@@ -1355,14 +1356,14 @@ public class BoundaryDBMS {
                 list.add(notifica);
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Errore getNotifiche", e);
+            throw new RuntimeException("Errore getNotificheNonLette", e);
         }
         return list;
     }
 
     // Cancella una notifica dato l'id
     public void cancellaNotifica(String idNotifica) {
-        String sql = "DELETE FROM notifiche WHERE id = ?";
+        String sql = "UPDATE notifiche SET letta = 'true' WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, idNotifica);
@@ -1448,5 +1449,158 @@ public class BoundaryDBMS {
         } catch (SQLException e) {
             throw new RuntimeException("Errore aggiornaPosizioneArticolo", e);
         }
+    }
+
+    // Ottiene tutte le conferenze per le notifiche automatiche
+    public List<EntityConferenza> getAllConferenze() {
+        List<EntityConferenza> list = new ArrayList<>();
+        String sql = "SELECT * FROM conferenze";
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                list.add(mapConf(rs));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore durante getAllConferenze", e);
+        }
+        return list;
+    }
+
+    // Ottiene gli autori di una conferenza
+    public List<String> getAutoriConferenza(String confId) {
+        List<String> autori = new ArrayList<>();
+        String sql = "SELECT DISTINCT autore_id FROM articoli WHERE conferenza_id = ?";
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, confId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                autori.add(rs.getString("autore_id"));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore durante getAutoriConferenza", e);
+        }
+        return autori;
+    }
+
+
+
+    // Ottiene l'editor di una conferenza
+    public Optional<String> getEditorConferenza(String confId) {
+        String sql = "SELECT editor_id FROM conferenze WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, confId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                String editorId = rs.getString("editor_id");
+                return editorId != null ? Optional.of(editorId) : Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore durante getEditorConferenza", e);
+        }
+        return Optional.empty();
+    }
+
+    // Ottiene il numero di revisioni mancanti per una conferenza
+    public int getNumeroRevisioniMancanti(String confId) {
+        try (Connection conn = DriverManager.getConnection(URL)) {
+            // Ottiene il numero di articoli e il numero minimo di revisori per la conferenza
+            String confSql = "SELECT num_min_revisori FROM conferenze WHERE id = ?";
+            int numMinRevisori = 0;
+            try (PreparedStatement confPs = conn.prepareStatement(confSql)) {
+                confPs.setString(1, confId);
+                ResultSet confRs = confPs.executeQuery();
+                if (confRs.next()) {
+                    numMinRevisori = confRs.getInt("num_min_revisori");
+                }
+            }
+            
+            // Ottiene il numero di articoli sottomessi per la conferenza
+            String artSql = "SELECT COUNT(*) FROM articoli WHERE conferenza_id = ? AND stato = 'Sottomesso'";
+            int numArticoli = 0;
+            try (PreparedStatement artPs = conn.prepareStatement(artSql)) {
+                artPs.setString(1, confId);
+                ResultSet artRs = artPs.executeQuery();
+                if (artRs.next()) {
+                    numArticoli = artRs.getInt(1);
+                }
+            }
+            
+            // Ottiene il numero di revisioni effettivamente completate per articoli sottomessi
+            String revSql = "SELECT COUNT(*) FROM revisioni r " +
+                           "JOIN articoli a ON r.articolo_id = a.id " +
+                           "WHERE a.conferenza_id = ? AND a.stato = 'Sottomesso'";
+            int numRevisioniCompletate = 0;
+            try (PreparedStatement revPs = conn.prepareStatement(revSql)) {
+                revPs.setString(1, confId);
+                ResultSet revRs = revPs.executeQuery();
+                if (revRs.next()) {
+                    numRevisioniCompletate = revRs.getInt(1);
+                }
+            }
+            
+            // Calcola le revisioni mancanti: (numero articoli × numero min revisori) - revisioni completate
+            int revisioniTotali = numArticoli * numMinRevisori;
+            return Math.max(0, revisioniTotali - numRevisioniCompletate);
+        
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore durante getNumeroRevisioniMancanti", e);
+        }
+    }
+
+    // Ottiene la graduatoria di una conferenza
+    public Map<String, Integer> getGraduatoriaConferenza(String confId) {
+        Map<String, Integer> graduatoria = new HashMap<>();
+        String sql = "SELECT id, posizione FROM articoli WHERE conferenza_id = ? AND posizione IS NOT NULL ORDER BY posizione";
+        try (Connection conn = DriverManager.getConnection(URL);
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, confId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                graduatoria.put(rs.getString("id"), rs.getInt("posizione"));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore durante getGraduatoriaConferenza", e);
+        }
+        return graduatoria;
+    }
+
+    // Inserisce una notifica nel database solo se non è già presente
+    public boolean inserisciNotifica(String utenteId, String messaggio) {
+        // Genera un ID univoco per la notifica usando UUID
+        String idNotifica = UUID.randomUUID().toString();
+        
+        // Controlla se la notifica è già presente
+        String checkSql = "SELECT COUNT(*) FROM notifiche WHERE utente_id = ? AND messaggio = ? AND data_invio = ?";
+        String insertSql = "INSERT INTO notifiche (id, utente_id, messaggio, data_invio, letta) VALUES (?, ?, ?, ?, 'false')";
+        
+        try (Connection conn = DriverManager.getConnection(URL)) {
+            // Controlla se la notifica esiste già
+            try (PreparedStatement checkPs = conn.prepareStatement(checkSql)) {
+                checkPs.setString(1, utenteId);
+                checkPs.setString(2, messaggio);
+                checkPs.setString(3, LocalDate.now().toString());
+                ResultSet rs = checkPs.executeQuery();
+                rs.next();
+                int count = rs.getInt(1);
+                
+                // Se la notifica non esiste, la inserisce
+                if (count == 0) {
+                    try (PreparedStatement insertPs = conn.prepareStatement(insertSql)) {
+                        insertPs.setString(1, idNotifica);
+                        insertPs.setString(2, utenteId);
+                        insertPs.setString(3, messaggio);
+                        insertPs.setString(4, LocalDate.now().toString());
+                        insertPs.executeUpdate();
+                    }
+                    return true;
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Errore durante inserisciNotifica", e);
+        }
+        return false;
     }
 }

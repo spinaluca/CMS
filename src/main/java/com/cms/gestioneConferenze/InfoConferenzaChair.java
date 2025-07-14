@@ -264,7 +264,7 @@ public class InfoConferenzaChair {
                 "-fx-effect: dropshadow(gaussian, rgba(245,158,11,0.3),4,0,0,2);");
 
         bInv.setOnAction(e -> new PopupInserimento()
-                .promptEmail("revisore")
+                .promptEmail("Invito Revisore")
                 .ifPresent(email -> {
                     ctrl.invitaRevisore(email, confId);
                     show();

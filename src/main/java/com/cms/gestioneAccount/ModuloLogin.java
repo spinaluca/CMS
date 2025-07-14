@@ -20,7 +20,7 @@ public class ModuloLogin {
 
     public void show() {
         Label emailLabel = new Label("Email:");
-        TextField emailField = new TextField("luca.spina@email.net");
+        TextField emailField = new TextField("luca.spina02@community.unipa.it");
         emailField.setPromptText("Inserisci il tuo indirizzo email");
         Label passwordLabel = new Label("Password:");
         PasswordField passwordField = new PasswordField();

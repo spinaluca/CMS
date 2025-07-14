@@ -328,7 +328,7 @@ public class PopupInserimento {
 
     private void stylePrimaryButton(Button button) {
         button.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; " +
-            "-fx-border-color: transparent; -fx-padding: 12 24 12 24; -fx-background-radius: 8; " +
+            "-fx-border-color: transparent; -fx-padding: 12 12 12 12; -fx-background-radius: 8; " +
             "-fx-font-weight: 600; -fx-font-size: 14px; " +
             "-fx-effect: dropshadow(gaussian, rgba(37, 99, 235, 0.3), 4, 0, 0, 2);");
         button.setOnMouseEntered(e -> {
@@ -343,7 +343,7 @@ public class PopupInserimento {
 
     private void styleSecondaryButton(Button button) {
         button.setStyle("-fx-background-color: #6b7280; -fx-text-fill: white; " +
-            "-fx-border-color: transparent; -fx-padding: 12 24 12 24; -fx-background-radius: 8; " +
+            "-fx-border-color: transparent; -fx-padding: 12 12 12 12; -fx-background-radius: 8; " +
             "-fx-font-weight: 600; -fx-font-size: 14px; " +
             "-fx-effect: dropshadow(gaussian, rgba(107,114,128,0.3),4,0,0,2);");
         button.setOnMouseEntered(e -> {
@@ -358,7 +358,7 @@ public class PopupInserimento {
 
     private void styleErrorButton(Button button) {
         button.setStyle("-fx-background-color: #dc2626; -fx-text-fill: white; " +
-                "-fx-border-color: transparent; -fx-padding: 12 24 12 24; -fx-background-radius: 8; " +
+                "-fx-border-color: transparent; -fx-padding: 12 12 12 12; -fx-background-radius: 8; " +
                 "-fx-font-weight: 600; -fx-font-size: 14px; " +
                 "-fx-effect: dropshadow(gaussian, rgba(220, 38, 38, 0.3), 4, 0, 0, 2);");
 

@@ -87,12 +87,17 @@ public class PannelloNotifiche {
         // Bottone chiudi ancorato a destra
         HBox chiudiBox = new HBox(btnChiudi);
         chiudiBox.setAlignment(Pos.CENTER_RIGHT);
-        VBox formContainer = new VBox(24, titleLabel, scrollPane, chiudiBox);
-        formContainer.setAlignment(Pos.CENTER);
+        
+        VBox formContainer = new VBox(24);
+        formContainer.setMinSize(410, 870);
+        formContainer.setAlignment(Pos.TOP_CENTER);
         formContainer.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; " +
                 "-fx-border-width: 1; -fx-border-radius: 12; -fx-background-radius: 12; " +
                 "-fx-padding: 32; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1),10,0,0,2); " +
                 "-fx-max-width: 400;");
+        
+        formContainer.getChildren().addAll(titleLabel, scrollPane, chiudiBox);
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
 
         VBox layout = new VBox(formContainer);
         layout.setAlignment(Pos.CENTER);

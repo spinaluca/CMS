@@ -10,6 +10,7 @@ import com.cms.gestioneRevisioni.InfoConferenzaRevisore;
 import com.cms.gestioneAccount.ControlAccount;
 import com.cms.utils.DownloadUtil;
 import com.cms.common.PopupErrore;
+import com.cms.utils.MailUtil;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -333,6 +334,17 @@ public class ControlRevisioni {
 
     public void caricaRevisione(String idArticolo, String emailRevisore, int voto, int expertise, File file) {
         db.caricaRevisione(emailRevisore, idArticolo, voto, expertise, file);
+        // Notifica e mail all'autore
+        Optional<EntityArticolo> artOpt = getArticoloById(idArticolo);
+        if (artOpt.isPresent()) {
+            EntityArticolo articolo = artOpt.get();
+            String emailAutore = articolo.getAutoreId();
+            String messaggio = "Gentile Autore,\n" +
+                    "È stata caricata una revisione per il tuo articolo '" + articolo.getTitolo() + "'.";
+            boolean notificaInserita = db.inserisciNotifica(emailAutore, messaggio);
+            // if (notificaInserita)
+            //     MailUtil.inviaMail(messaggio, emailAutore, "Revisione caricata - " + articolo.getTitolo());
+        }
     }
 
     // ==================== Aggiungi Articolo Revisore (UC 4.1.7.15) ======
@@ -355,6 +367,13 @@ public class ControlRevisioni {
                         .ifPresent(selezionati -> {
                             for (EntityArticolo art : selezionati) {
                                 db.assegnaArticoloRevisore(art.getId(), emailRevisore);
+                                // Notifica e mail all'autore
+                                String emailAutore = art.getAutoreId();
+                                String messaggio = "Gentile Autore,\n" +
+                                        "Il tuo articolo '" + art.getTitolo() + "' è stato assegnato a un revisore.";
+                                boolean notificaInserita = db.inserisciNotifica(emailAutore, messaggio);
+                                // if (notificaInserita)
+                                //     MailUtil.inviaMail(messaggio, emailAutore, "Nuova assegnazione revisore - " + art.getTitolo());
                             }
                             new PopupAvviso("Articolo assegnato con successo").show();
                         });
@@ -410,7 +429,15 @@ public class ControlRevisioni {
                     db.assegnaArticoloRevisore(idArticolo, emailSR);
                     // Elimina la revisione del revisore principale
                     db.getIdRevisione(idArticolo, emailRevisore).ifPresent(db::rimuoviAssegnazione);
-                    // Notifica (solo popup per ora)
+                    // Notifica e mail all'autore
+                    Optional<EntityArticolo> artOpt2 = getArticoloById(idArticolo);
+                    
+                    // Notifica e mail al sotto-revisore
+                    String messaggio = "Gentile Revisore,\n" +
+                            "Ti è stata delegata la revisione dell'articolo '" + titoloArticolo + "'.";
+                    boolean notificaInserita = db.inserisciNotifica(emailSR, messaggio);
+                    // if (notificaInserita)
+                    //     MailUtil.inviaMail(messaggio, emailSR, "Delegata revisione - " + titoloArticolo);
                     new PopupAvviso("Revisione delegata con successo a " + db.getNomeCompleto(emailSR).orElse(emailSR)).show();
                 });
     }

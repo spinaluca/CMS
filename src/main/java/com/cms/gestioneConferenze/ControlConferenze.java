@@ -7,6 +7,7 @@ import com.cms.entity.EntityArticolo;
 import com.cms.entity.EntityConferenza;
 import com.cms.entity.EntityUtente;
 import com.cms.utils.DownloadUtil;
+import com.cms.utils.MailUtil;
 
 import java.io.File;
 import java.time.LocalDate;
@@ -58,16 +59,46 @@ public class ControlConferenze {
         } else {
             db.queryInvitaRevisore(email, confId);
             new PopupAvviso("Invito inviato a " + email).show();
+            // Notifica al revisore invitato
+            Optional<EntityConferenza> conferenzaOpt = db.getConferenza(confId);
+            if (conferenzaOpt.isPresent()) {
+                EntityConferenza conferenza = conferenzaOpt.get();
+                String messaggio = "Gentile Revisore,\n" +
+                        "Sei stato invitato a partecipare come revisore alla conferenza '" + conferenza.getTitolo() + "'.";
+                boolean notificaInserita = db.inserisciNotifica(email, messaggio);
+                // if (notificaInserita)
+                    // MailUtil.inviaMail(messaggio, email, "Invito revisore - " + conferenza.getTitolo());
+            }
         }
     }
 
     public void rimuoviRevisore(String email, String confId) {
         db.queryRimuoviRevisore(email, confId);
+        // Notifica al revisore rimosso
+        Optional<EntityConferenza> conferenzaOpt = db.getConferenza(confId);
+        if (conferenzaOpt.isPresent()) {
+            EntityConferenza conferenza = conferenzaOpt.get();
+            String messaggio = "Gentile Revisore,\n" +
+                    "Sei stato rimosso come revisore dalla conferenza '" + conferenza.getTitolo() + "'.";
+            boolean notificaInserita = db.inserisciNotifica(email, messaggio);
+            // if (notificaInserita)
+                // MailUtil.inviaMail(messaggio, email, "Rimozione revisore - " + conferenza.getTitolo());
+        }
     }
 
     public void aggiungiEditor(String email, String confId) {
         db.queryAggiungiEditor(email, confId);
         new PopupAvviso("Editor aggiunto: " + email).show();
+        // Notifica all'editor aggiunto
+        Optional<EntityConferenza> conferenzaOpt = db.getConferenza(confId);
+        if (conferenzaOpt.isPresent()) {
+            EntityConferenza conferenza = conferenzaOpt.get();
+            String messaggio = "Gentile Editor,\n" +
+                    "Sei stato aggiunto come editor alla conferenza '" + conferenza.getTitolo() + "'.";
+            boolean notificaInserita = db.inserisciNotifica(email, messaggio);
+            // if (notificaInserita)
+                // MailUtil.inviaMail(messaggio, email, "Aggiunta editor - " + conferenza.getTitolo());
+        }
     }
 
     public List<EntityArticolo> getArticoliConferenza(String confId) {

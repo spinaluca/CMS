@@ -9,6 +9,7 @@ import com.cms.entity.EntityConferenza;
 import com.cms.entity.EntityUtente;
 import com.cms.gestioneAccount.ControlAccount;
 import com.cms.utils.DownloadUtil;
+import com.cms.utils.MailUtil;
 import javafx.stage.Stage;
 
 import java.io.File;
@@ -75,6 +76,17 @@ public class ControlEditings {
         if (fileOpt.isPresent()) {
             db.inviaFeedback(editor.getEmail(), fileOpt.get(), idArticolo);
             db.notificaAutore(idArticolo);
+            // Notifica e mail all'autore
+            Optional<EntityArticolo> artOpt = db.getDatiArticoloById(idArticolo);
+            if (artOpt.isPresent()) {
+                EntityArticolo articolo = artOpt.get();
+                String emailAutore = articolo.getAutoreId();
+                String messaggio = "Gentile Autore,\n" +
+                        "Hai ricevuto un feedback dall'editor per il tuo articolo '" + articolo.getTitolo() + "'.";
+                boolean notificaInserita = db.inserisciNotifica(emailAutore, messaggio);
+                // if (notificaInserita)
+                //     MailUtil.inviaMail(messaggio, emailAutore, "Feedback editor - " + articolo.getTitolo());
+            }
             new PopupAvviso("Feedback inviato con successo").show();
         }
     }
