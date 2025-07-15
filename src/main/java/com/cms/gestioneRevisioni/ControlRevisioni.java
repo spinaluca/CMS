@@ -276,39 +276,6 @@ public class ControlRevisioni {
         return db.getConferenzaRevisore(confId, email);
     }
 
-    // Visualizza la conferenza per un revisore
-    public void visualizzaConferenza(String idConferenza, String emailRevisore) {
-        Optional<EntityConferenza> conferenzaOpt = db.getConferenzaRevisore(idConferenza, emailRevisore);
-        if (conferenzaOpt.isPresent()) {
-            // Apri la finestra InfoConferenzaRevisore
-            Platform.runLater(() -> {
-                // Creiamo un nuovo stage per la finestra InfoConferenzaRevisore
-                Stage newStage = new Stage();
-                new PopupAvviso("Funzionalità in fase di aggiornamento").show();
-            });
-        }
-    }
-
-    // Visualizza la conferenza per un revisore (con ControlAccount)
-    public void visualizzaConferenza(String idConferenza, ControlAccount ctrlAccount) {
-        String emailRevisore = ctrlAccount.getUtenteCorrente().getEmail();
-        Optional<EntityConferenza> conferenzaOpt = db.getConferenzaRevisore(idConferenza, emailRevisore);
-        if (conferenzaOpt.isPresent()) {
-            // Apri la finestra InfoConferenzaRevisore
-            Platform.runLater(() -> {
-                // Creiamo un nuovo stage per la finestra InfoConferenzaRevisore
-                Stage newStage = new Stage();
-                InfoConferenzaRevisore infoConf = new InfoConferenzaRevisore(
-                    newStage, 
-                    this, 
-                    ctrlAccount, 
-                    idConferenza
-                );
-                infoConf.show();
-            });
-        }
-    }
-
     // Restituisce la lista degli articoli assegnati a un revisore
     public List<String> getArticoliRevisore(String confId, String email) {
         return db.getArticoliRevisore(confId, email);
