@@ -193,11 +193,11 @@ public class ModuloRegistrazione {
             }
 
             // Crea utente e registra
-            EntityUtente utente = new EntityUtente(email, nome, cognome, "---", null, nascita, password, false);
+            EntityUtente utente = new EntityUtente(email, nome, cognome, "----", null, nascita, password, false);
             if (ctrl.registraUtente(utente)) {
             ctrl.apriLogin();
             } else {
-                errorLabel.setText("Errore durante la registrazione. Email già esistente?");
+                errorLabel.setText("Email già esistente");
                 errorLabel.setVisible(true);
             }
         });

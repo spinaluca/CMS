@@ -168,4 +168,3 @@ public class EntityConferenza {
         return Optional.empty();
     }
 }
-
