@@ -31,7 +31,7 @@ public class Homepage {
 
     // Mostra la schermata principale della homepage
     public void show() {
-        // Create modern welcome section
+        // Crea sezione di benvenuto moderna
         Label welcomeLabel = new Label("Benvenuto nel CMS");
         welcomeLabel.setStyle("-fx-font-size: 32px; -fx-font-weight: 800; -fx-text-fill: #1e293b;");
         
@@ -41,7 +41,7 @@ public class Homepage {
         Label rolePromptLabel = new Label("Seleziona il tuo ruolo per accedere alle funzionalità:");
         rolePromptLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #374151; -fx-padding: 0 0 24 0;");
 
-        // Create role cards container
+        // Crea contenitore delle card dei ruoli
         TilePane roleContainer = new TilePane();
         roleContainer.setHgap(20);
         roleContainer.setVgap(20);
@@ -161,7 +161,7 @@ public class Homepage {
 
         card.getChildren().addAll(iconLabel, titleLabel, descLabel, actionButton);
 
-        // Add hover effect
+        // Effetto hover
         card.setOnMouseEntered(e -> {
             card.setStyle("-fx-background-color: #ffffff; -fx-border-color: " + accentColor + "; " +
                          "-fx-border-width: 2; -fx-border-radius: 16; -fx-background-radius: 16; " +
@@ -181,7 +181,6 @@ public class Homepage {
 
     // Converte un colore esadecimale in rgba
     private String hexToRgba(String hex, double alpha) {
-        // Simple conversion for common colors
         switch (hex) {
             case "#10b981": return "rgba(16, 185, 129, " + alpha + ")";
             case "#2563eb": return "rgba(37, 99, 235, " + alpha + ")";

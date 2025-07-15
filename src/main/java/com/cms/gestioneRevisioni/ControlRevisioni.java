@@ -21,10 +21,6 @@ import java.util.ArrayList;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
-/**
- * ControlRevisioni gestisce la logica relativa alle revisioni.
- * Per ora implementa l'uso caso 4.1.7.2 "Assegnazione Articoli Automatica".
- */
 public class ControlRevisioni {
 
     private final BoundaryDBMS db;
@@ -36,7 +32,6 @@ public class ControlRevisioni {
 
     // Avvia l'assegnazione automatica degli articoli ai revisori per una data specifica
     public void avviaAssegnazioneAutomatica(LocalDate data) {
-        // Passo 3.1: Recupera conferenze interessate
         List<EntityConferenza> conferenze = db.getConferenzeAutomaticheConScadenzaSottomissione(data).stream()
                 .filter(conf -> conf.getModalitaDistribuzione() == Distribuzione.AUTOMATICA)
                 .collect(Collectors.toList());
@@ -207,8 +202,6 @@ public class ControlRevisioni {
         }
     }
 
-    // ==================== Graduatoria (UC 4.1.7.7) =====================
-
     // Avvia la generazione della graduatoria per le conferenze senza graduatoria
     public void avviaGraduatoria(LocalDate data) {
         List<EntityConferenza> confs = db.getConferenzeSenzaGraduatoria(data);
@@ -263,8 +256,6 @@ public class ControlRevisioni {
         db.comunicaGraduatoria(confId, ranking);
     }
 
-    // ==================== Inviti Revisore (UC 4.1.7.8/9) =================
-
     // Restituisce la mappa degli inviti per un revisore
     public Map<EntityConferenza,String> getInvitiRevisore(String email) {
         return db.getConferenzeRevisore(email);
@@ -280,8 +271,6 @@ public class ControlRevisioni {
         return db.getStatoInvitoRevisore(confId, emailRevisore);
     }
 
-    // ==================== Conferenza Revisore (UC 4.1.7.10) =============
-
     // Restituisce la conferenza per un revisore
     public Optional<EntityConferenza> getConferenzaRevisore(String confId, String email) {
         return db.getConferenzaRevisore(confId, email);
@@ -295,8 +284,6 @@ public class ControlRevisioni {
             Platform.runLater(() -> {
                 // Creiamo un nuovo stage per la finestra InfoConferenzaRevisore
                 Stage newStage = new Stage();
-                // TODO: Questo metodo deve essere aggiornato per passare ControlAccount
-                // Per ora usiamo un approccio temporaneo
                 new PopupAvviso("Funzionalità in fase di aggiornamento").show();
             });
         }
@@ -327,8 +314,6 @@ public class ControlRevisioni {
         return db.getArticoliRevisore(confId, email);
     }
 
-    // ==================== Revisione Articolo (UC 4.1.7.11/12) ===========
-
     // Visualizza il file dell'articolo assegnato
     public void visualizzaArticolo(String idArticolo) {
         Optional<File> articolo = db.getArticolo(idArticolo);
@@ -354,8 +339,6 @@ public class ControlRevisioni {
             //     MailUtil.inviaMail(messaggio, emailAutore, "Revisione caricata - " + articolo.getTitolo());
         }
     }
-
-    // ==================== Aggiungi Articolo Revisore (UC 4.1.7.15) ======
 
     // Aggiunge un articolo da revisionare per un revisore
     public void aggiungiArticoloRevisore(String confId, String emailRevisore) {
@@ -399,7 +382,6 @@ public class ControlRevisioni {
         return db.getVotoRevisione(idArticolo, emailRevisore);
     }
 
-    // ==================== Delega sotto-revisore (UC DELEGATE_REVIEWER) ======
     // Delega la revisione a un sotto-revisore
     public void delegaSottoRevisore(String confId, String titoloArticolo, String emailRevisore) {
         LocalDate oggi = LocalDate.now();

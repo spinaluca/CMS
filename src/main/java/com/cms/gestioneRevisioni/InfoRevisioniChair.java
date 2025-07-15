@@ -18,9 +18,6 @@ import javafx.stage.Stage;
 
 import java.util.List;
 
-/**
- * Pagina che mostra lo stato delle revisioni (vista Chair) – Caso d'uso 4.1.7.3.
- */
 public class InfoRevisioniChair {
 
     private final Stage stage;
@@ -148,7 +145,7 @@ public class InfoRevisioniChair {
         return table;
     }
 
-    // Classe DTO per rappresentare una riga della tabella delle revisioni
+    // Classe per rappresentare una riga della tabella delle revisioni
     public static class RevisionRow {
         public final String idRevisione;
         public final String idReale;

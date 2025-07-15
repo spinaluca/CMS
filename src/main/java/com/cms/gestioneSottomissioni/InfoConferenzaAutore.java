@@ -36,7 +36,7 @@ public class InfoConferenzaAutore {
         EntityConferenza conf = ctrl.getConferenza(idConferenza)
                 .orElseThrow(() -> new RuntimeException("Conferenza non trovata: " + idConferenza));
 
-        // === BLOCCO SUPERIORE UGUALE A InfoConferenzaChair ===
+        // Blocco superiore
         VBox left = new VBox(8,
                 new Label("Luogo: " + conf.getLuogo()),
                 new Label("Distribuzione Revisioni: " + conf.getModalitaDistribuzione()),
@@ -97,7 +97,7 @@ public class InfoConferenzaAutore {
         layout.setPadding(new Insets(20));
         layout.setStyle("-fx-background-color: #f8fafc;");
 
-        // === BLOCCO INFERIORE: A SINISTRA info articolo, A DESTRA tabella revisioni ===
+        // Blocco inferiore: a sinistra info articolo, a destra tabella revisioni
         if (isIscritto) {
             String idArticolo = ctrl.getArticoloId(idConferenza, ctrl2.getUtenteCorrente().getEmail());
             EntityArticolo art = ctrl.getDatiArticolo(idArticolo);
@@ -117,7 +117,7 @@ public class InfoConferenzaAutore {
 
             // Label sopra il riquadro dati articolo
             Label datiArticoloLabel = new Label("Dati articolo:");
-            // === BLOCCO DATI ARTICOLO ===
+            // Blocco dati articolo
             VBox articoloBox = new VBox(8,
                 titoloArt, stato, posizione, punteggio, new Label("Parole Chiave:"), paroleChiave
             );
@@ -126,7 +126,7 @@ public class InfoConferenzaAutore {
                     "-fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 20;" +
                     "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1),8,0,0,2);");
 
-            // === TABELLA DELLE REVISIONI ===
+            // Tabella delle revisioni
             TableView<String[]> table = new TableView<>();
             table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
@@ -142,7 +142,7 @@ public class InfoConferenzaAutore {
 
             table.getColumns().setAll(colRevisore, colVoto, colExpertise);
 
-            // Popolamento tabella: uso ctrl.getRevisioniArticoloById(art.getId())
+            // Popolamento tabella
             Map<String, String> revisioni = ctrl.getRevisioniArticoloById(art.getId());
             if (revisioni != null) {
                 for (Map.Entry<String, String> entry : revisioni.entrySet()) {
@@ -168,13 +168,13 @@ public class InfoConferenzaAutore {
                     "-fx-border-width: 1; " +
                     "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 8, 0, 0, 2);");
 
-            // Label sopra la tabella revisioni
+            // Label sopra la tabella revisioni (revisioni ricevute)
             Label revisioniLabel = new Label("Revisioni ricevute:");
             VBox revisoriBox = new VBox(8, table);
             revisoriBox.setPrefWidth(600);
             revisoriBox.setStyle("");
 
-            // HBox con le due colonne
+            // HBox con le due colonne (dati articolo e revisioni ricevute)
             HBox listsBox = new HBox(15,
                 new VBox(4, datiArticoloLabel, articoloBox),
                 new VBox(4, revisioniLabel, revisoriBox)
@@ -182,7 +182,7 @@ public class InfoConferenzaAutore {
             listsBox.setPadding(new Insets(10));
             layout.getChildren().add(listsBox);
 
-            // Bottoni
+            // Bottoni (pulsanti di invio)
             Region spacer1 = new Region();
             HBox.setHgrow(spacer1, Priority.ALWAYS);
             

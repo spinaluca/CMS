@@ -37,7 +37,7 @@ public class InfoConferenzaEditor {
         this.confId = confId;
     }
     
-    // Helper method to add a detail row with label and value
+    // Mostra la schermata con i dettagli della conferenza selezionata
     public void show() {
         EntityConferenza conf = ctrl.getConferenza(confId)
                 .orElseThrow(() -> new RuntimeException("Conferenza non trovata: " + confId));
@@ -45,7 +45,7 @@ public class InfoConferenzaEditor {
         Label lbl = new Label("[" + conf.getAcronimo() + "] " + conf.getTitolo());
         lbl.setStyle("-fx-font-size: 24px; -fx-font-weight: 700; -fx-text-fill: #1e293b; -fx-padding: 0 0 8 0;");
 
-        // INFO CONFERENZA LEFT PANEL
+        // Informazioni conferenza left panel
         VBox left = new VBox(8,
                 new Label("Luogo: " + conf.getLuogo()),
                 new Label("Distribuzione Revisioni: " + conf.getModalitaDistribuzione()),
@@ -69,7 +69,7 @@ public class InfoConferenzaEditor {
         left.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-border-width: 0;" +
                 "-fx-padding: 0;");
 
-        // DESCRIZIONE SCROLL
+        // Descrizione scroll
         Label descrLabel = new Label(conf.getDescrizione());
         descrLabel.setWrapText(true);
         descrLabel.setStyle("-fx-text-fill: #1e293b; -fx-font-size: 14px;");
@@ -102,7 +102,7 @@ public class InfoConferenzaEditor {
         HBox infoSection = new HBox(20, infoPanel);
         infoSection.setPadding(new Insets(10));
 
-        // TABELLA CAMERA-READY
+        // Tabella camera-ready
         Label tableLabel = new Label("Versioni Camera-ready:");
         TableView<EntityArticolo> table = new TableView<>();
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -133,7 +133,7 @@ public class InfoConferenzaEditor {
                 .collect(Collectors.toList());
         table.getItems().addAll(articoli);
 
-        // BUTTONS
+        // Pulsanti
         Button btnVisualizza = new Button("Visualizza Versione Camera-ready");
         btnVisualizza.setStyle("-fx-background-color: #10b981; -fx-text-fill: white; -fx-border-color: transparent;" +
                 "-fx-padding: 10 20; -fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 13px;" +

@@ -58,7 +58,7 @@ public class HeaderBar extends HBox {
 
         this.getChildren().addAll(btnBack, spacer, btnModificaRuoli, btnModificaPw, btnLogout, btnNotifiche);
         
-        // Apply modern header bar styling
+        // Stile della barra di intestazione
         this.setStyle("-fx-background-color: linear-gradient(to right, #1e293b 0%, #334155 100%);" +
                       "-fx-padding: 16 24 16 24;" +
                       "-fx-spacing: 12;" +
@@ -66,7 +66,7 @@ public class HeaderBar extends HBox {
                       "-fx-border-width: 0 0 1 0;" +
                       "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 4, 0, 0, 2);");
         
-        // Apply modern button styles
+        // Stile dei pulsanti
         String headerButtonStyle = "-fx-background-color: rgba(255, 255, 255, 0.1);" +
                                    "-fx-text-fill: #ffffff;" +
                                    "-fx-border-color: rgba(255, 255, 255, 0.2);" +

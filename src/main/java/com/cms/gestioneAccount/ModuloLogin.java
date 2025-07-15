@@ -67,18 +67,18 @@ public class ModuloLogin {
         registerButton.setOnAction(e -> ctrl.apriRegistrazione());
         recoverButton.setOnAction(e -> ctrl.richiestaRecuperoPassword());
 
-        // Create modern form layout
+        // Crea titolo e sottotitolo
         Label titleLabel = new Label("Accedi al CMS");
         titleLabel.setStyle("-fx-font-size: 28px; -fx-font-weight: 800; -fx-text-fill: #1e293b;");
         
         Label subtitleLabel = new Label("Inserisci le tue credenziali per continuare");
         subtitleLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #64748b; -fx-padding: 0 0 24 0;");
         
-        // Style form labels
+        // Stile etichette del form
         emailLabel.setStyle("-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 14px;");
         passwordLabel.setStyle("-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 14px;");
         
-        // Style form inputs
+        // Stile campi del form
         emailField.setStyle("-fx-background-color: #ffffff; -fx-text-fill: #1e293b; " +
                            "-fx-border-color: #cbd5e1; -fx-border-width: 1; -fx-border-radius: 8; " +
                            "-fx-background-radius: 8; -fx-padding: 12 16 12 16; -fx-font-size: 14px;");
@@ -86,7 +86,7 @@ public class ModuloLogin {
                               "-fx-border-color: #cbd5e1; -fx-border-width: 1; -fx-border-radius: 8; " +
                               "-fx-background-radius: 8; -fx-padding: 12 16 12 16; -fx-font-size: 14px;");
         
-        // Style buttons
+        // Stile pulsanti
         loginButton.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; " +
                             "-fx-border-color: transparent; -fx-padding: 12 24 12 24; " +
                             "-fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 14px; " +
@@ -101,7 +101,7 @@ public class ModuloLogin {
                               "-fx-border-color: transparent; -fx-padding: 8 16 8 16; " +
                               "-fx-font-size: 13px; -fx-underline: true;");
         
-        // Create button container
+        // Crea contenitore dei pulsanti
         HBox buttonContainer = new HBox(12, loginButton, registerButton);
         buttonContainer.setAlignment(Pos.CENTER);
         

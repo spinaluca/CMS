@@ -21,7 +21,7 @@ public class ModuloRegistrazione {
 
     // Mostra la finestra di registrazione utente
     public void show() {
-        // Create form fields
+        // Titolo e sottotitolo
         Label emailLabel = new Label("Email:");
         TextField emailField = new TextField();
         emailField.setPromptText("Inserisci il tuo indirizzo email");
@@ -49,21 +49,21 @@ public class ModuloRegistrazione {
         Button registerButton = new Button("Registrati");
         Button backButton = new Button("Indietro");
         
-        // Create modern form layout
+        // Crea titolo e sottotitolo
         Label titleLabel = new Label("Registrati al CMS");
         titleLabel.setStyle("-fx-font-size: 28px; -fx-font-weight: 800; -fx-text-fill: #1e293b;");
         
         Label subtitleLabel = new Label("Crea il tuo account per accedere al sistema");
         subtitleLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #64748b; -fx-padding: 0 0 24 0;");
         
-        // Style form labels
+        // Stile etichette del form
         emailLabel.setStyle("-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 14px;");
         nomeLabel.setStyle("-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 14px;");
         cognomeLabel.setStyle("-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 14px;");
         nascitaLabel.setStyle("-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 14px;");
         passwordLabel.setStyle("-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 14px;");
         
-        // Style form inputs
+        // Stile campi del form
         String inputStyle = "-fx-background-color: #ffffff; -fx-text-fill: #1e293b; " +
                            "-fx-border-color: #cbd5e1; -fx-border-width: 1; -fx-border-radius: 8; " +
                            "-fx-background-radius: 8; -fx-padding: 12 16 12 16; -fx-font-size: 14px;";
@@ -73,7 +73,7 @@ public class ModuloRegistrazione {
         cognomeField.setStyle(inputStyle);
         passwordField.setStyle(inputStyle);
 
-        // Style DatePicker
+        // Stile DatePicker
         nascitaPicker.setStyle(
             "-fx-background-color: #ffffff;" +
             "-fx-text-fill: #1e293b;" +
@@ -117,7 +117,7 @@ public class ModuloRegistrazione {
         });
 
         
-        // Style buttons
+        // Stile pulsanti
         registerButton.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; " +
                                "-fx-border-color: transparent; -fx-padding: 12 24 12 24; " +
                                "-fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 14px; " +
@@ -128,11 +128,11 @@ public class ModuloRegistrazione {
                               "-fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 14px; " +
                            "-fx-effect: dropshadow(gaussian, rgba(107, 114, 128, 0.3), 4, 0, 0, 2);");
         
-        // Create button container
+        // Crea contenitore dei pulsanti
         HBox buttonContainer = new HBox(12, registerButton, backButton);
         buttonContainer.setAlignment(Pos.CENTER);
         
-        // Create form layout with proper spacing
+        // Crea contenitore del form con spaziatura corretta
         VBox formContainer = new VBox(16,
                 titleLabel, subtitleLabel,
                 emailLabel, emailField,
@@ -153,7 +153,7 @@ public class ModuloRegistrazione {
         layout.setAlignment(Pos.CENTER);
         layout.setStyle("-fx-background-color: #f8fafc; -fx-padding: 40;");
 
-        // Button actions
+        // Azioni dei pulsanti
         // Validazione live
         emailField.textProperty().addListener((obs, oldVal, newVal) -> validateForm(emailField, nomeField, cognomeField, passwordField, nascitaPicker, errorLabel, registerButton));
         nomeField.textProperty().addListener((obs, oldVal, newVal) -> validateForm(emailField, nomeField, cognomeField, passwordField, nascitaPicker, errorLabel, registerButton));
@@ -192,7 +192,7 @@ public class ModuloRegistrazione {
                 return;
             }
 
-            // Create user and register
+            // Crea utente e registra
             EntityUtente utente = new EntityUtente(email, nome, cognome, "---", null, nascita, password, false);
             if (ctrl.registraUtente(utente)) {
             ctrl.apriLogin();

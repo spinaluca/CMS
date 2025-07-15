@@ -55,7 +55,7 @@ public class InfoConferenzaChair {
         Label lbl = new Label("[" + conf.getAcronimo() + "] " + conf.getTitolo());
         lbl.setStyle("-fx-font-size: 24px; -fx-font-weight: 700; -fx-text-fill: #1e293b; -fx-padding: 0 0 8 0;");
 
-        // INFO CONFERENZA
+        // Informazioni conferenza
         VBox left = new VBox(8,
                 new Label("Luogo: " + conf.getLuogo()),
                 new Label("Distribuzione Revisioni: " + conf.getModalitaDistribuzione()),
@@ -79,7 +79,7 @@ public class InfoConferenzaChair {
         left.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-border-width: 0;" +
                 "-fx-padding: 0;");
 
-        // DESCRIZIONE
+        // Descrizione
         Label descrizione = new Label(conf.getDescrizione());
         descrizione.setWrapText(true);
         descrizione.setStyle("-fx-text-fill: #1e293b; -fx-font-size: 14px;");
@@ -97,7 +97,7 @@ public class InfoConferenzaChair {
                 node.setStyle("-fx-background-color: transparent;")
         );
 
-        // PULSANTE AGGIUNGI EDITOR
+        // Pulsante aggiungi editor
         Button bEd = new Button("Aggiungi Editor");
         bEd.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-border-color: transparent;" +
                 "-fx-padding: 10 20; -fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 13px;" +
@@ -106,7 +106,7 @@ public class InfoConferenzaChair {
         bEd.setOnAction(e -> new PopupInserimento()
                 .promptEmail("editor")
                 .ifPresent(email -> {
-                    // Controllo: il chair non può essere editor
+                    // Controllo: il chair non può essere anche editor
                     if (conf != null && email.equalsIgnoreCase(conf.getChairId())) {
                         new PopupErrore("Il chair non può essere anche editor della conferenza.").show();
                         return;
@@ -125,7 +125,7 @@ public class InfoConferenzaChair {
         right.setStyle("-fx-background-color: transparent; -fx-border-color: transparent; -fx-border-width: 0;" +
                 "-fx-padding: 0;");
 
-        // PANNELLO UNIFICATO CON INFO E DESCRIZIONE
+        // Pannello unificato con info e descrizione
         HBox infoPanel = new HBox(20, left, right);
         infoPanel.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; -fx-border-width: 1;" +
                 "-fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 20;" +
@@ -136,7 +136,7 @@ public class InfoConferenzaChair {
         HBox infoSection = new HBox(20, infoPanel);
         infoSection.setPadding(new Insets(10));
 
-        // ARTICOLI
+        // Articoli
         Label articoliLbl = new Label("Articoli:");
         TableView<EntityArticolo> tableArticoli = new TableView<>();
         tableArticoli.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -146,7 +146,7 @@ public class InfoConferenzaChair {
         TableColumn<EntityArticolo, Integer> colPos = new TableColumn<>("Pos.");
         colPos.setCellValueFactory(data -> new ReadOnlyObjectWrapper<>(data.getValue().getPosizione()));
         
-        // Verifica se la data odierna è prima della data graduatoria
+        // Verifica se la data odierna è prima della data graduatoria (editabile)
         LocalDate oggi = LocalDate.now();
         boolean editabile = oggi.isBefore(conf.getDataGraduatoria());
         
@@ -154,7 +154,7 @@ public class InfoConferenzaChair {
         if (editabile) {
             colPos.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
             
-            // Gestisci il commit dell'edit
+            // Gestisci il commit dell'edit (aggiorna la posizione dell'articolo)
             colPos.setOnEditCommit(event -> {
                 EntityArticolo articolo = event.getRowValue();
                 Integer nuovaPosizione = event.getNewValue();
@@ -197,7 +197,7 @@ public class InfoConferenzaChair {
                       "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 8, 0, 0, 2);");
         tableArticoli.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        // PULSANTI ARTICOLI
+        // Pulsanti articoli
         Button btnVisualizzaUltimaVersione = new Button("Visualizza Ultima Versione");
         btnVisualizzaUltimaVersione.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; -fx-border-color: transparent;" +
                 "-fx-padding: 10 20; -fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 13px;" +
@@ -208,7 +208,7 @@ public class InfoConferenzaChair {
                 "-fx-padding: 10 20; -fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 13px;" +
                 "-fx-effect: dropshadow(gaussian, rgba(139,92,246,0.3),4,0,0,2);");
 
-        // Nuovo pulsante Visualizza Stato Revisioni
+        // Pulsante Visualizza Stato Revisioni
         Button btnStatoRevisioni = new Button("Visualizza Stato Revisioni");
         btnStatoRevisioni.setStyle("-fx-background-color: #dc2626; -fx-text-fill: white; -fx-border-color: transparent;" +
                 "-fx-padding: 10 20; -fx-background-radius: 8; -fx-font-weight: 600; -fx-font-size: 13px;" +
@@ -250,7 +250,7 @@ public class InfoConferenzaChair {
         articoliBox.setPrefWidth(700);
         articoliBox.setStyle(left.getStyle());
 
-        // REVISORI
+        // Revisori
         Label revisoriLbl = new Label("Revisori:");
         ListView<String> lvRev = new ListView<>();
         ctrl.getRevisoriConStato(confId).forEach((email, stato) -> {
@@ -305,7 +305,7 @@ public class InfoConferenzaChair {
         HBox listsBox = new HBox(15, articoliBox, revisoriBox);
         listsBox.setPadding(new Insets(10));
 
-        // BOTTOM BUTTONS
+        // Layout
         VBox layout = new VBox(lbl, infoSection, listsBox);
         layout.setPadding(new Insets(20));
         layout.setStyle("-fx-background-color: #f8fafc;");

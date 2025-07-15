@@ -23,18 +23,18 @@ public class ModuloRuoliUtente {
     public void show() {
         EntityUtente utente = ctrl.getUtenteCorrente();
 
-        // Title and subtitle
+        // Titolo e sottotitolo
         Label titleLabel = new Label("Gestione Ruoli Utente");
         titleLabel.setStyle("-fx-font-size: 28px; -fx-font-weight: 800; -fx-text-fill: #1e293b;");
 
         Label subtitleLabel = new Label("Configura i tuoi ruoli nel sistema");
         subtitleLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #64748b; -fx-padding: 0 0 24 0;");
 
-        // Instructions label
+        // Etichetta istruzioni
         Label instructionsLabel = new Label("Seleziona i ruoli che ricopri:");
         instructionsLabel.setStyle("-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 14px;");
 
-        // Checkboxes
+        // Checkbox
         VBox checkboxContainer = new VBox(12);
         checkboxContainer.setAlignment(Pos.CENTER_LEFT);
 
@@ -51,7 +51,7 @@ public class ModuloRuoliUtente {
 
         checkboxContainer.getChildren().addAll(chairCheck, autoreCheck, revisoreCheck, editorCheck);
 
-        // Competence area section
+        // Sezione area di competenza
         VBox competenceContainer = new VBox(8);
         competenceContainer.setAlignment(Pos.CENTER_LEFT);
         competenceContainer.setVisible(false);
@@ -80,7 +80,7 @@ public class ModuloRuoliUtente {
 
         competenceContainer.getChildren().addAll(areaLabel, areeTextArea);
 
-        // Load current roles
+        // Carica ruoli attuali
         String ruolo = utente.getRuolo();
         if (ruolo.length() == 4) {
             chairCheck.setSelected(ruolo.charAt(0) == 'C');
@@ -106,7 +106,7 @@ public class ModuloRuoliUtente {
             }
         });
 
-        // Buttons
+        // Pulsanti
         Button saveButton = new Button("Salva Modifiche");
         saveButton.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; " +
                            "-fx-border-color: transparent; -fx-padding: 12 24 12 24; " +
@@ -122,7 +122,7 @@ public class ModuloRuoliUtente {
         HBox buttonContainer = new HBox(12, saveButton, cancelButton);
         buttonContainer.setAlignment(Pos.CENTER);
 
-        // Form container
+        // Contenitore del form
         VBox formContainer = new VBox(16,
                 titleLabel, subtitleLabel,
                 instructionsLabel, checkboxContainer,
@@ -139,7 +139,7 @@ public class ModuloRuoliUtente {
         layout.setAlignment(Pos.CENTER);
         layout.setStyle("-fx-background-color: #f8fafc; -fx-padding: 40;");
 
-        // Button actions
+        // Azioni dei pulsanti
         saveButton.setOnAction(e -> {
             StringBuilder ruoloBuilder = new StringBuilder();
             ruoloBuilder.append(chairCheck.isSelected() ? "C" : "-");

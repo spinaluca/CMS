@@ -40,49 +40,49 @@ public class ControlNotifiche {
         List<EntityConferenza> tutteConferenze = db.getAllConferenze();
         
         for (EntityConferenza conferenza : tutteConferenze) {
-            // 4.1. SE la data corrente corrisponde al giorno di pubblicazione della graduatoria
+            // SE la data corrente corrisponde al giorno di pubblicazione della graduatoria
             if (conferenza.getDataGraduatoria() != null && 
                 conferenza.getDataGraduatoria().equals(dataCorrente)) {
                 notificaGraduatoriaAutori(conferenza);
             }
             
-            // 4.2. SE la data corrente corrisponde a due giorni prima della scadenza delle revisioni
+            // SE la data corrente corrisponde a due giorni prima della scadenza delle revisioni
             if (conferenza.getScadenzaRevisioni() != null && 
                 conferenza.getScadenzaRevisioni().minusDays(2).equals(dataCorrente)) {
                 notificaRevisioniMancantiChair(conferenza);
             }
             
-            // 4.3. SE la data corrente corrisponde a sette giorni prima della scadenza delle revisioni
+            // SE la data corrente corrisponde a sette giorni prima della scadenza delle revisioni
             if (conferenza.getScadenzaRevisioni() != null && 
                 conferenza.getScadenzaRevisioni().minusDays(7).equals(dataCorrente)) {
                 notificaRevisoriScadenza(conferenza, 7);
             }
             
-            // 4.3. SE la data corrente corrisponde a due giorni prima della scadenza delle revisioni
+            // SE la data corrente corrisponde a due giorni prima della scadenza delle revisioni
             if (conferenza.getScadenzaRevisioni() != null && 
                 conferenza.getScadenzaRevisioni().minusDays(2).equals(dataCorrente)) {
                 notificaRevisoriScadenza(conferenza, 2);
             }
             
-            // 4.4. SE la data corrente corrisponde a due giorni prima della scadenza delle sottomissioni
+            // SE la data corrente corrisponde a due giorni prima della scadenza delle sottomissioni
             if (conferenza.getScadenzaSottomissione() != null && 
                 conferenza.getScadenzaSottomissione().minusDays(2).equals(dataCorrente)) {
                 notificaAutoriScadenzaSottomissione(conferenza);
             }
             
-            // 4.5. SE la data corrente corrisponde a due giorni prima della scadenza della consegna delle versioni camera-ready
+            // SE la data corrente corrisponde a due giorni prima della scadenza della consegna delle versioni camera-ready
             if (conferenza.getScadenzaCameraReady() != null && 
                 conferenza.getScadenzaCameraReady().minusDays(2).equals(dataCorrente)) {
                 notificaAutoriScadenzaCameraReady(conferenza);
             }
             
-            // 4.6. SE la data corrente corrisponde a due giorni prima della scadenza della consegna delle versioni finali
+            // SE la data corrente corrisponde a due giorni prima della scadenza della consegna delle versioni finali
             if (conferenza.getScadenzaVersioneFinale() != null && 
                 conferenza.getScadenzaVersioneFinale().minusDays(2).equals(dataCorrente)) {
                 notificaAutoriScadenzaVersioneFinale(conferenza);
             }
             
-            // 4.7. SE la data corrente corrisponde a due giorni prima della scadenza per l'invio del feedback Editor
+            // SE la data corrente corrisponde a due giorni prima della scadenza per l'invio del feedback Editor
             if (conferenza.getScadenzaFeedbackEditore() != null && 
                 conferenza.getScadenzaFeedbackEditore().minusDays(2).equals(dataCorrente)) {
                 notificaEditorScadenzaFeedback(conferenza);

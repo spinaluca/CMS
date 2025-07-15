@@ -25,19 +25,19 @@ public class ModuloPassword {
 
     // Mostra la finestra per il cambio o impostazione della password
     public void show() {
-        // Title and subtitle
+        // Titolo e sottotitolo
         Label titleLabel = new Label(temporanea ? "Imposta Nuova Password" : "Cambio Password");
         titleLabel.setStyle("-fx-font-size: 28px; -fx-font-weight: 800; -fx-text-fill: #1e293b;");
 
         Label subtitleLabel = new Label(temporanea ? "Configura la tua password permanente" : "Modifica la tua password di accesso");
         subtitleLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #64748b; -fx-padding: 0 0 24 0;");
 
-        // Style input
+        // Stile campi di input
         String inputStyle = "-fx-background-color: #ffffff; -fx-text-fill: #1e293b; " +
                             "-fx-border-color: #cbd5e1; -fx-border-width: 1; -fx-border-radius: 8; " +
                             "-fx-background-radius: 8; -fx-padding: 12 16 12 16; -fx-font-size: 14px;";
 
-        // Old password (if needed)
+        // Password attuale (se necessario)
         VBox oldPwContainer = new VBox(5);
         PasswordField oldPwField = null;
         if (!temporanea) {
@@ -49,32 +49,32 @@ public class ModuloPassword {
             oldPwContainer.getChildren().addAll(oldPwLabel, oldPwField);
         }
 
-        // New password
+        // Nuova password
         Label newPwLabel = new Label("Nuova Password:");
         newPwLabel.setStyle("-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 14px;");
         PasswordField newPwField = new PasswordField();
         newPwField.setStyle(inputStyle);
         newPwField.setPromptText("Inserisci la nuova password");
 
-        // Confirm password
+        // Conferma nuova password
         Label confirmPwLabel = new Label("Conferma Nuova Password:");
         confirmPwLabel.setStyle("-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 14px;");
         PasswordField confirmPwField = new PasswordField();
         confirmPwField.setStyle(inputStyle);
         confirmPwField.setPromptText("Conferma la nuova password");
 
-        // Requirements
+        // Requisiti password
         Label requirementsTitle = new Label("Requisiti password:");
         requirementsTitle.setStyle("-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 14px;");
         Label requirements = new Label("• Almeno 8 caratteri\n• Almeno una lettera maiuscola\n• Almeno una lettera minuscola\n• Almeno un numero");
         requirements.setStyle("-fx-text-fill: #64748b; -fx-font-size: 13px;");
 
-        // Error label unico sotto
+        // Etichetta di errore unica sotto
         Label errorLabel = new Label();
         errorLabel.setStyle("-fx-text-fill: red; -fx-font-size: 13px; -fx-max-width: 350px; -fx-wrap-text: true;");
         errorLabel.setVisible(false);
 
-        // Buttons
+        // Pulsanti
         Button confirmButton = new Button("Conferma");
         confirmButton.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; " +
                               "-fx-border-color: transparent; -fx-padding: 12 24 12 24; " +
@@ -90,7 +90,7 @@ public class ModuloPassword {
         HBox buttonContainer = new HBox(12, confirmButton, backButton);
         buttonContainer.setAlignment(Pos.CENTER);
 
-        // Form container
+        // Contenitore del form
         VBox formContainer = new VBox(16,
                 titleLabel, subtitleLabel
         );
@@ -113,7 +113,7 @@ public class ModuloPassword {
         layout.setAlignment(Pos.CENTER);
         layout.setStyle("-fx-background-color: #f8fafc; -fx-padding: 40;");
 
-        // Button actions
+        // Azioni dei pulsanti
         final PasswordField finalOldPwField = oldPwField;
         // Validazione live
         newPwField.textProperty().addListener((obs, oldVal, newVal) -> validateForm(newPwField, confirmPwField, finalOldPwField, errorLabel, confirmButton));
