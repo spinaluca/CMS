@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class RilevaDataAttuale {
+    // Costruttore della classe RilevaDataAttuale: avvia le operazioni automatiche giornaliere
     public RilevaDataAttuale() {
         LocalDate dataOggi = LocalDate.now();
 

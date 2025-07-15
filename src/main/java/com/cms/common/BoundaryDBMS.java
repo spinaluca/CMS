@@ -3,7 +3,6 @@ package com.cms.common;
 import com.cms.entity.EntityArticolo;
 import com.cms.entity.EntityConferenza;
 import com.cms.entity.EntityUtente;
-import com.cms.utils.MailUtil;
 
 import java.io.File;
 import java.io.InputStream;
@@ -28,6 +27,7 @@ public class BoundaryDBMS {
         URL = "jdbc:sqlite:" + dbPath;
     }
 
+    // Costruttore della classe BoundaryDBMS
     public BoundaryDBMS() {
         try {
             Class.forName("org.sqlite.JDBC");
@@ -36,6 +36,7 @@ public class BoundaryDBMS {
         }
     }
     
+    // Inizializza il percorso del database
     private static String initializeDatabasePath() {
         try {
             // Prova prima a usare il database dalla directory corrente (per compatibilità)
@@ -70,11 +71,7 @@ public class BoundaryDBMS {
         }
     }
 
-    // ... (tutti i metodi getConferenze, getConferenza, queryCreaConferenza,
-    //     queryRevisorePresente, queryInvitaRevisore, queryRimuoviRevisore,
-    //     queryAggiungiEditor, getUltimaVersione rimangono identici)
-    // Li riporto per completezza, ma li puoi copiare pari pari da prima:
-
+    // Restituisce la lista delle conferenze per un determinato chair
     public List<EntityConferenza> getConferenze(String currentChairId) {
         String sql = "SELECT * FROM conferenze WHERE chair_id = ?";
         List<EntityConferenza> list = new ArrayList<>();
@@ -91,6 +88,7 @@ public class BoundaryDBMS {
         return list;
     }
 
+    // Restituisce una conferenza dato il suo id
     public Optional<EntityConferenza> getConferenza(String id) {
         String sql = "SELECT * FROM conferenze WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -119,6 +117,7 @@ public class BoundaryDBMS {
     }
 
 
+    // Crea una nuova conferenza nel database
     public void queryCreaConferenza(EntityConferenza conf, String currentChairId) {
         String sql =
                 "INSERT INTO conferenze(" +
@@ -153,6 +152,7 @@ public class BoundaryDBMS {
         }
     }
 
+    // Verifica se un revisore è già presente nella conferenza
     public boolean queryRevisorePresente(String email, String confId) {
         String sql = "SELECT 1 FROM inviti_revisori WHERE conferenza_id = ? AND revisore_id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -165,6 +165,7 @@ public class BoundaryDBMS {
         }
     }
 
+    // Invita un revisore alla conferenza
     public void queryInvitaRevisore(String email, String confId) {
         String sql = "INSERT OR IGNORE INTO inviti_revisori(conferenza_id,revisore_id,stato) VALUES(?,?, 'In attesa')";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -177,6 +178,7 @@ public class BoundaryDBMS {
         }
     }
 
+    // Rimuove un revisore dalla conferenza
     public void queryRimuoviRevisore(String email, String confId) {
         String sql = "DELETE FROM inviti_revisori WHERE conferenza_id = ? AND revisore_id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -189,6 +191,7 @@ public class BoundaryDBMS {
         }
     }
 
+    // Aggiunge un editor alla conferenza
     public void queryAggiungiEditor(String email, String confId) {
         String sql = "UPDATE conferenze SET editor_id = ? WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -201,6 +204,7 @@ public class BoundaryDBMS {
         }
     }
 
+    // Restituisce la versione più recente di un articolo
     public Optional<String> getUltimaVersione(String idArticolo) {
         String sql =
                 "SELECT file_url FROM versioni " +
@@ -219,7 +223,7 @@ public class BoundaryDBMS {
         return Optional.empty();
     }
 
-    // helper per mappare ResultSet → EntityConferenza
+    // Mappa un ResultSet in un oggetto EntityConferenza
     private EntityConferenza mapConf(ResultSet rs) throws SQLException {
         String id    = rs.getString("id");
         String acr   = rs.getString("acronimo");
@@ -252,6 +256,7 @@ public class BoundaryDBMS {
         return c;
     }
 
+    // Restituisce la lista degli articoli di una conferenza
     public List<EntityArticolo> getArticoliConferenza(String confId) {
         String sql = "SELECT * FROM articoli WHERE conferenza_id = ?";
         List<EntityArticolo> list = new ArrayList<>();
@@ -278,6 +283,7 @@ public class BoundaryDBMS {
         return list;
     }
 
+    // Restituisce la mappa dei revisori e il loro stato per una conferenza
     public Map<String, String> getRevisoriConStato(String confId) {
         String sql = "SELECT revisore_id, stato FROM inviti_revisori WHERE conferenza_id = ?";
         Map<String, String> map = new HashMap<>();
@@ -294,6 +300,7 @@ public class BoundaryDBMS {
         return map;
     }
 
+    // Restituisce il nome completo di un utente dato l'email
     public Optional<String> getNomeCompleto(String email) {
         String sql = "SELECT nome, cognome FROM utenti WHERE email = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -311,6 +318,7 @@ public class BoundaryDBMS {
         return Optional.empty();
     }
 
+    // Mappa un ResultSet in un oggetto EntityUtente
     private EntityUtente mapUtente(ResultSet rs) throws SQLException {
         String email = rs.getString("email");
         String nome = rs.getString("nome");
@@ -344,7 +352,7 @@ public class BoundaryDBMS {
         );
     }
 
-    // Verifica login
+    // Verifica le credenziali di login
     public boolean queryLogin(String email, String password) {
         String sql = "SELECT 1 FROM utenti WHERE email = ? AND password = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -358,7 +366,7 @@ public class BoundaryDBMS {
         }
     }
 
-    // Inserimento nuovo utente
+    // Inserisce un nuovo utente nel database
     public boolean queryInsertUtente(EntityUtente utente) {
         String sql = "INSERT INTO utenti(email, password, nome, cognome, data_nascita, password_temporanea, ruolo) VALUES(?,?,?,?,?, false, ?)";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -379,7 +387,7 @@ public class BoundaryDBMS {
     }
 
 
-    // Recupera dati utente
+    // Restituisce i dati di un utente dato l'email
     public Optional<EntityUtente> getUtente(String email) {
         String sql = "SELECT * FROM utenti WHERE email = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -424,7 +432,7 @@ public class BoundaryDBMS {
         return Optional.empty();
     }
 
-    // Aggiorna password (temporanea o definitiva)
+    // Aggiorna la password di un utente
     public boolean queryUpdatePassword(String email, String nuovaPw, boolean temporanea) {
         String sql = "UPDATE utenti SET password = ?, password_temporanea = ? WHERE email = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -456,6 +464,7 @@ public class BoundaryDBMS {
         return false;
     }
 
+    // Aggiorna i ruoli di un utente
     public void queryAggiornaRuoliUtente(EntityUtente utente) {
         String sql = "UPDATE utenti SET ruolo = ?, aree_competenza = ? WHERE email = ?";
 
@@ -473,6 +482,7 @@ public class BoundaryDBMS {
         }
     }
 
+    // Aggiorna la password di un utente (versione alternativa)
     public boolean aggiornaPasswordUtente(String email, String nuovaPassword, boolean temporanea) {
         String sql = "UPDATE utenti SET password = ?, password_temporanea = ? WHERE email = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -489,6 +499,7 @@ public class BoundaryDBMS {
         }
     }
 
+    // Verifica se una email è già registrata
     public boolean esisteEmail(String email) {
         String sql = "SELECT 1 FROM utenti WHERE email = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -502,6 +513,7 @@ public class BoundaryDBMS {
         }
     }
 
+    // Restituisce la lista delle conferenze a cui è iscritto un autore
     public List<EntityConferenza> getConferenzeAutore(String emailAutore) {
         String sql = "SELECT DISTINCT c.* FROM conferenze c "
                 + "LEFT JOIN articoli a ON c.id = a.conferenza_id AND a.autore_id = ?";
@@ -519,6 +531,7 @@ public class BoundaryDBMS {
         return list;
     }
 
+    // Iscrive un autore a una conferenza
     public void iscrizioneConferenza(String idConferenza, String emailAutore) {
         String sql = "INSERT INTO articoli(id, conferenza_id, autore_id, stato) VALUES(?,?,?, 'In preparazione')";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -532,6 +545,7 @@ public class BoundaryDBMS {
         }
     }
 
+    // Invia un file articolo per una sottomissione
     public void inviaArticolo(String idArticolo, File file) {
         inserisciVersione(idArticolo, "articolo", file);
 
@@ -547,14 +561,17 @@ public class BoundaryDBMS {
         }
     }
 
+    // Invia la versione camera-ready di un articolo
     public void inviaCameraready(String idArticolo, File file) {
         inserisciVersione(idArticolo, "camera_ready", file);
     }
 
+    // Invia la versione finale di un articolo
     public void inviaVersioneFinale(String idArticolo, File file) {
         inserisciVersione(idArticolo, "versione_finale", file);
     }
 
+    // Inserisce una nuova versione di un file articolo
     private void inserisciVersione(String idArticolo, String tipo, File file) {
         String sql = "INSERT INTO versioni(articolo_id, tipo, file_url, data_caricamento) VALUES(?,?,?,?)";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -569,18 +586,22 @@ public class BoundaryDBMS {
         }
     }
 
+    // Restituisce il file dell'articolo
     public Optional<File> getArticolo(String idArticolo) {
         return getUltimaVersione(idArticolo, "articolo");
     }
 
+    // Restituisce il file camera-ready dell'articolo
     public Optional<File> getCameraready(String idArticolo) {
         return getUltimaVersione(idArticolo, "camera_ready");
     }
 
+    // Restituisce il file della versione finale dell'articolo
     public Optional<File> getVersioneFinale(String idArticolo) {
         return getUltimaVersione(idArticolo, "versione_finale");
     }
 
+    // Restituisce l'ultima versione di un file articolo di un certo tipo
     public Optional<File> getUltimaVersione(String idArticolo, String tipo) {
         String sql = "SELECT file_url FROM versioni WHERE articolo_id = ?";
         if (tipo != null) {
@@ -607,6 +628,7 @@ public class BoundaryDBMS {
         return Optional.empty();
     }
 
+    // Restituisce l'id dell'articolo dato conferenza ed email autore
     public String getArticoloId(String idConferenza, String emailAutore) {
         String sql = "SELECT id FROM articoli WHERE conferenza_id = ? AND autore_id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -624,6 +646,7 @@ public class BoundaryDBMS {
                 + " autore=" + emailAutore);
     }
 
+    // Restituisce il feedback dell'editor per un articolo
     public Optional<File> getFeedback(String idArticolo) {
         String sql = "SELECT file_url FROM feedback_editor WHERE articolo_id = ? ORDER BY data_invio DESC LIMIT 1";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -639,6 +662,7 @@ public class BoundaryDBMS {
         return Optional.empty();
     }
 
+    // Restituisce il file della revisione dato l'id della revisione
     public Optional<File> getRevisione(String idRevisione) {
         String sql = "SELECT file_url FROM revisioni WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -658,6 +682,7 @@ public class BoundaryDBMS {
         return Optional.empty();
     }
 
+    // Restituisce la conferenza per autore
     public Optional<EntityConferenza> getConferenzaAutore(String idConferenza) {
         String sql = "SELECT * FROM conferenze WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -673,6 +698,7 @@ public class BoundaryDBMS {
         return Optional.empty();
     }
 
+    // Verifica se l'autore è iscritto a una conferenza
     public boolean isAutoreIscritto(String idConferenza, String emailAutore) {
         String sql = "SELECT 1 FROM articoli WHERE conferenza_id = ? AND autore_id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -687,6 +713,7 @@ public class BoundaryDBMS {
     }
 
 
+    // Restituisce la mappa delle revisioni per un articolo
     public Map<String, String> getRevisioniArticolo(String idArticolo) {
         Map<String, String> map = new LinkedHashMap<>();
         String sql = "SELECT id, voto, expertise, revisore_id FROM revisioni WHERE articolo_id = ?";
@@ -717,6 +744,7 @@ public class BoundaryDBMS {
         return map;
     }
 
+    // Mappa un ResultSet in un oggetto EntityArticolo
     private EntityArticolo mapArticolo(ResultSet rs) throws SQLException {
         return new EntityArticolo(
                 rs.getString("id"),                 // id
@@ -731,6 +759,7 @@ public class BoundaryDBMS {
         );
     }
 
+    // Restituisce i dati di un articolo dato l'id
     public Optional<EntityArticolo> getDatiArticolo(String idArticolo) {
         String sql = "SELECT * FROM articoli WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -746,6 +775,7 @@ public class BoundaryDBMS {
         return Optional.empty();
     }
 
+    // Restituisce la data di scadenza delle sottomissioni per una conferenza
     public LocalDate getDataScadenzaSottomissione(String idConferenza) {
         String sql = "SELECT scad_sottomissione FROM conferenze WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -762,6 +792,7 @@ public class BoundaryDBMS {
     }
 
 
+    // Verifica se un articolo è stato sottomesso
     public boolean haArticoloSottomesso(String idArticolo) {
         String sql = "SELECT COUNT(*) as cnt FROM articoli WHERE id = ? AND stato = \"Sottomesso\"";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -777,6 +808,7 @@ public class BoundaryDBMS {
         return false;
     }
 
+    // Aggiorna i dettagli di un articolo
     public void inviaDettagliArticolo(String idArticolo, String titolo, String paroleChiave) {
         String sql = "UPDATE articoli SET titolo = ?, parole_chiave = ? " +
                 "WHERE id = ?";
@@ -795,6 +827,7 @@ public class BoundaryDBMS {
 
     // ======================  FUNZIONI EDITOR  =============================
 
+    // Restituisce la lista delle conferenze per un editor
     public List<EntityConferenza> getConferenzeEditor(String emailEditor) {
         String sql = "SELECT * FROM conferenze WHERE editor_id = ?";
         List<EntityConferenza> list = new ArrayList<>();
@@ -811,6 +844,7 @@ public class BoundaryDBMS {
         return list;
     }
 
+    // Restituisce la conferenza per un editor
     public Optional<EntityConferenza> getConferenzaEditor(String idConferenza, String emailEditor) {
         String sql = "SELECT * FROM conferenze WHERE id = ? AND editor_id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -827,10 +861,12 @@ public class BoundaryDBMS {
         return Optional.empty();
     }
 
+    // Restituisce la versione camera-ready di un articolo
     public Optional<File> getVersioneCameraready(String idArticolo) {
         return getUltimaVersione(idArticolo, "camera_ready");
     }
 
+    // Restituisce la data di scadenza del feedback editore
     public LocalDate getDataScadenzaFeedbackEditore(String idConferenza) {
         String sql = "SELECT scad_feedback_editore FROM conferenze WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -846,6 +882,7 @@ public class BoundaryDBMS {
         throw new RuntimeException("Conferenza non trovata " + idConferenza);
     }
 
+    // Verifica la presenza di un feedback per un articolo
     public boolean getPresenzaFeedback(String idArticolo) {
         String sql = "SELECT 1 FROM feedback_editor WHERE articolo_id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -857,6 +894,7 @@ public class BoundaryDBMS {
         }
     }
 
+    // Invia un feedback dell'editor per un articolo
     public void inviaFeedback(String emailEditor, File file, String idArticolo) {
         String sql = "INSERT INTO feedback_editor(articolo_id, editor_id, file_url, data_invio) VALUES(?,?,?,?)";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -871,24 +909,7 @@ public class BoundaryDBMS {
         }
     }
 
-    public void notificaAutore(String idArticolo) {
-        String sql = "SELECT a.autore_id, c.titolo FROM articoli a JOIN conferenze c ON a.conferenza_id = c.id WHERE a.id = ?";
-        try (Connection conn = DriverManager.getConnection(URL);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, idArticolo);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                String emailAutore = rs.getString("autore_id");
-                String titConf = rs.getString("titolo");
-                String subject = "Nuovo Feedback Editor";
-                String msg = "È disponibile un nuovo feedback per il tuo articolo nella conferenza " + titConf;
-                MailUtil.inviaMail(msg, emailAutore, subject);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Errore notificaAutore", e);
-        }
-    }
-
+    // Restituisce la lista degli articoli camera-ready per una conferenza
     public List<EntityArticolo> getCameraReadyArticoli(String confId) {
         String sql = "SELECT a.* FROM articoli a " +
                      "JOIN (SELECT articolo_id, MAX(id) AS max_id FROM versioni WHERE tipo = 'camera_ready' GROUP BY articolo_id) v " +
@@ -919,7 +940,7 @@ public class BoundaryDBMS {
 
     // ==================== METODI PER CONTROLREVISIONI ====================
 
-    // Recupera le competenze dei revisori di una conferenza
+    // Restituisce la mappa delle competenze dei revisori per una conferenza
     public Map<String, List<String>> getCompetenzeRevisori(String confId) {
         Map<String, List<String>> result = new HashMap<>();
         String sql = "SELECT DISTINCT u.email, u.aree_competenza FROM utenti u "
@@ -960,7 +981,7 @@ public class BoundaryDBMS {
         }
     }
 
-    // Aggiorna stato dell'invito del revisore
+    // Aggiorna lo stato dell'invito di un revisore
     public void aggiornaInvitoConferenza(String confId, String emailRevisore, String stato) {
         String sql = "UPDATE inviti_revisori SET stato = ? WHERE conferenza_id = ? AND revisore_id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -974,6 +995,7 @@ public class BoundaryDBMS {
         }
     }
 
+    // Restituisce lo stato dell'invito di un revisore
     public String getStatoInvitoRevisore(String confId, String emailRevisore) {
         String sql = "SELECT stato FROM inviti_revisori WHERE conferenza_id = ? AND revisore_id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -990,7 +1012,7 @@ public class BoundaryDBMS {
         return null;
     }
 
-    // Restituisce mappa articolo -> stato revisione
+    // Restituisce la mappa degli stati delle revisioni per una conferenza
     public Map<String, String> getStatoRevisioni(String confId) {
         Map<String, String> result = new HashMap<>();
         String sql = "SELECT a.id, a.stato FROM articoli a WHERE a.conferenza_id = ?";
@@ -1019,7 +1041,7 @@ public class BoundaryDBMS {
         }
     }
 
-    // Ottiene data scadenza revisioni
+    // Restituisce la data di scadenza delle revisioni per una conferenza
     public LocalDate getDataScadenzaRevisioni(String confId) {
         String sql = "SELECT scad_revisioni FROM conferenze WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -1035,7 +1057,7 @@ public class BoundaryDBMS {
         throw new RuntimeException("Scadenza revisioni non trovata per conferenza " + confId);
     }
 
-    // Lista revisori di una conferenza (solo quelli accettati)
+    // Restituisce la lista dei revisori accettati per una conferenza
     public List<String> getRevisoriConferenza(String confId) {
         List<String> list = new ArrayList<>();
         String sql = "SELECT revisore_id FROM inviti_revisori WHERE conferenza_id = ? AND stato = 'Accettato'";
@@ -1052,7 +1074,7 @@ public class BoundaryDBMS {
         return list;
     }
 
-    // Aggiunge assegnazione revisione
+    // Aggiunge una assegnazione di revisione
     public boolean aggiungiAssegnazione(String idArticolo, String emailRevisore) {
         String checkSql = "SELECT COUNT(*) FROM revisioni WHERE articolo_id = ? AND revisore_id = ?";
         String insertSql = "INSERT INTO revisioni(articolo_id, revisore_id) VALUES(?,?)";
@@ -1079,7 +1101,7 @@ public class BoundaryDBMS {
         }
     }
 
-    // Comunica graduatoria
+    // Comunica la graduatoria degli articoli
     public void comunicaGraduatoria(String confId, Map<String, Integer> graduatoria) {
         String sql = "UPDATE articoli SET posizione = ? WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(URL)) {
@@ -1095,7 +1117,7 @@ public class BoundaryDBMS {
         }
     }
 
-    // Conferenze revisore (con stato invito)
+    // Restituisce la mappa delle conferenze e stato invito per un revisore
     public Map<EntityConferenza, String> getConferenzeRevisore(String emailRevisore) {
         Map<EntityConferenza, String> result = new HashMap<>();
         String sql = "SELECT c.*, i.stato FROM conferenze c JOIN inviti_revisori i ON c.id = i.conferenza_id WHERE i.revisore_id = ?";
@@ -1114,7 +1136,7 @@ public class BoundaryDBMS {
         return result;
     }
 
-    // Conferenza specifica revisore
+    // Restituisce la conferenza per un revisore
     public Optional<EntityConferenza> getConferenzaRevisore(String confId, String emailRevisore) {
         String sql = "SELECT c.* FROM conferenze c JOIN inviti_revisori i ON c.id = i.conferenza_id WHERE c.id = ? AND i.revisore_id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -1131,7 +1153,7 @@ public class BoundaryDBMS {
         return Optional.empty();
     }
 
-    // Articoli assegnati a revisore → restituisce solo gli ID
+    // Restituisce la lista degli articoli assegnati a un revisore
     public List<String> getArticoliRevisore(String confId, String emailRevisore) {
         List<String> list = new ArrayList<>();
         String sql = "SELECT a.id FROM articoli a " +
@@ -1151,7 +1173,7 @@ public class BoundaryDBMS {
         return list;
     }
 
-    // Carica revisione
+    // Carica una revisione per un articolo
     public void caricaRevisione(String emailRevisore, String idArticolo, int voto, int expertise, File file) {
         String updateSql = "UPDATE revisioni SET voto = ?, expertise = ?, file_url = ? WHERE articolo_id = ? AND revisore_id = ?";
         try (Connection conn = DriverManager.getConnection(URL)) {
@@ -1168,7 +1190,7 @@ public class BoundaryDBMS {
         }
     }
 
-    // Controllo modalità broadcast
+    // Verifica se la conferenza è in modalità broadcast
     public boolean isModalitaBroadcast(String confId) {
         String sql = "SELECT modalita_distribuzione FROM conferenze WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -1184,7 +1206,7 @@ public class BoundaryDBMS {
         return false;
     }
 
-    // Articoli disponibili senza revisione
+    // Restituisce la lista degli articoli disponibili per un revisore
     public List<EntityArticolo> getArticoliDisponibili(String confId, String emailRevisore) {
         List<EntityArticolo> list = new ArrayList<>();
         String sql = "SELECT a.* FROM articoli a WHERE a.conferenza_id = ? AND a.id NOT IN (SELECT articolo_id FROM revisioni WHERE revisore_id = ?)";
@@ -1202,7 +1224,7 @@ public class BoundaryDBMS {
         return list;
     }
 
-        // Assegna articolo manuale a revisore
+    // Assegna manualmente un articolo a un revisore
     public void assegnaArticoloRevisore(String idArticolo, String emailRevisore) {
         String sql = "INSERT INTO revisioni(articolo_id, revisore_id) VALUES(?, ?)";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -1215,7 +1237,7 @@ public class BoundaryDBMS {
         }
     }
 
-    // Ottiene voto della revisione per articolo e revisore
+    // Restituisce il voto della revisione per articolo e revisore
     public Optional<Integer> getVotoRevisione(String idArticolo, String emailRevisore) {
         String sql = "SELECT voto FROM revisioni WHERE articolo_id = ? AND revisore_id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -1233,9 +1255,7 @@ public class BoundaryDBMS {
         return Optional.empty();
     }
 
-    /**
-     * Restituisce il numero di revisioni con voto ed expertise non nulli per un dato articolo.
-     */
+    // Restituisce il numero di revisioni complete per un articolo
     public int getNumRevisioni(String articoloId) {
         String sql = "SELECT COUNT(*) FROM revisioni WHERE articolo_id = ? AND voto IS NOT NULL AND expertise IS NOT NULL";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -1252,7 +1272,7 @@ public class BoundaryDBMS {
     }
 
 
-    // Conferenze automatiche per graduatoria
+    // Restituisce la lista delle conferenze con scadenza sottomissione automatica
     public List<EntityConferenza> getConferenzeAutomaticheConScadenzaSottomissione(LocalDate data) {
         List<EntityConferenza> list = new ArrayList<>();
         LocalDate giornoPrima = data.minusDays(1);
@@ -1270,7 +1290,7 @@ public class BoundaryDBMS {
         return list;
     }
 
-    // Conferenze con scadenza revisioni il giorno specificato e nessun articolo con posizione
+    // Restituisce la lista delle conferenze senza graduatoria
     public List<EntityConferenza> getConferenzeSenzaGraduatoria(LocalDate data) {
         List<EntityConferenza> list = new ArrayList<>();
         LocalDate giornoPrima = data.minusDays(1);
@@ -1299,7 +1319,7 @@ public class BoundaryDBMS {
         return list;
     }
 
-    // Ottiene i dati di un articolo tramite ID
+    // Restituisce i dati di un articolo dato l'id
     public Optional<com.cms.entity.EntityArticolo> getDatiArticoloById(String idArticolo) {
         String sql = "SELECT * FROM articoli WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -1315,7 +1335,7 @@ public class BoundaryDBMS {
         return Optional.empty();
     }
 
-    // Ottiene expertise della revisione per articolo e revisore
+    // Restituisce l'expertise della revisione per articolo e revisore
     public Optional<Integer> getExpertiseRevisione(String idArticolo, String emailRevisore) {
         String sql = "SELECT expertise FROM revisioni WHERE articolo_id = ? AND revisore_id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -1333,7 +1353,7 @@ public class BoundaryDBMS {
         return Optional.empty();
     }
 
-        // Restituisce le notifiche non lette di un utente (come lista di mappe chiave-valore)
+    // Restituisce la lista delle notifiche non lette per un utente
     public List<Map<String, String>> getNotificheNonLette(String email) {
         List<Map<String, String>> list = new ArrayList<>();
         String sql = "SELECT id, messaggio, data_invio, letta FROM notifiche WHERE utente_id = ? AND letta = 'false' ORDER BY data_invio DESC";
@@ -1445,7 +1465,7 @@ public class BoundaryDBMS {
         }
     }
 
-    // Ottiene tutte le conferenze per le notifiche automatiche
+    // Restituisce la lista di tutte le conferenze
     public List<EntityConferenza> getAllConferenze() {
         List<EntityConferenza> list = new ArrayList<>();
         String sql = "SELECT * FROM conferenze";
@@ -1461,7 +1481,7 @@ public class BoundaryDBMS {
         return list;
     }
 
-    // Ottiene gli autori di una conferenza
+    // Restituisce la lista degli autori di una conferenza
     public List<String> getAutoriConferenza(String confId) {
         List<String> autori = new ArrayList<>();
         String sql = "SELECT DISTINCT autore_id FROM articoli WHERE conferenza_id = ?";
@@ -1480,7 +1500,7 @@ public class BoundaryDBMS {
 
 
 
-    // Ottiene l'editor di una conferenza
+    // Restituisce l'editor di una conferenza
     public Optional<String> getEditorConferenza(String confId) {
         String sql = "SELECT editor_id FROM conferenze WHERE id = ?";
         try (Connection conn = DriverManager.getConnection(URL);
@@ -1497,7 +1517,7 @@ public class BoundaryDBMS {
         return Optional.empty();
     }
 
-    // Ottiene il numero di revisioni mancanti per una conferenza
+    // Restituisce il numero di revisioni mancanti per una conferenza
     public int getNumeroRevisioniMancanti(String confId) {
         try (Connection conn = DriverManager.getConnection(URL)) {
             // Ottiene il numero di articoli e il numero minimo di revisori per la conferenza
@@ -1544,7 +1564,7 @@ public class BoundaryDBMS {
         }
     }
 
-    // Ottiene la graduatoria di una conferenza
+    // Restituisce la graduatoria di una conferenza
     public Map<String, Integer> getGraduatoriaConferenza(String confId) {
         Map<String, Integer> graduatoria = new HashMap<>();
         String sql = "SELECT id, posizione FROM articoli WHERE conferenza_id = ? AND posizione IS NOT NULL ORDER BY posizione";
@@ -1613,6 +1633,7 @@ public class BoundaryDBMS {
         }
     }
 
+    // Elimina tutti gli articoli "In preparazione" delle conferenze scadute
     public void eliminaArticoliScaduti() {
         List<EntityConferenza> conferenze = getAllConferenze();
         LocalDate ieri = LocalDate.now().minusDays(1);
@@ -1625,6 +1646,7 @@ public class BoundaryDBMS {
         }
     }
 
+    // Elimina gli articoli "In preparazione" per una conferenza
     private void eliminaArticoliInPreparazione(String confId) {
         String sql = "DELETE FROM articoli WHERE conferenza_id = ? AND stato = 'In preparazione'";
         try (java.sql.Connection conn = java.sql.DriverManager.getConnection(URL);

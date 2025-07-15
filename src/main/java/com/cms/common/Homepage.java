@@ -22,12 +22,14 @@ public class Homepage {
     private final ControlAccount ctrl;
     private final EntityUtente utente;
 
+    // Costruttore della classe Homepage
     public Homepage(Stage stage, ControlAccount ctrl, EntityUtente utente) {
         this.stage = stage;
         this.ctrl = ctrl;
         this.utente = utente;
     }
 
+    // Mostra la schermata principale della homepage
     public void show() {
         // Create modern welcome section
         Label welcomeLabel = new Label("Benvenuto nel CMS");
@@ -130,6 +132,7 @@ public class Homepage {
         stage.show();
     }
 
+    // Crea una card per la selezione del ruolo
     private VBox createRoleCard(String title, String icon, String description, String accentColor, EventHandler<ActionEvent> action) {
         VBox card = new VBox(16);
         card.setAlignment(Pos.CENTER);
@@ -176,6 +179,7 @@ public class Homepage {
         return card;
     }
 
+    // Converte un colore esadecimale in rgba
     private String hexToRgba(String hex, double alpha) {
         // Simple conversion for common colors
         switch (hex) {

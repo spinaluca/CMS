@@ -40,6 +40,7 @@ public class InfoConferenzaChair {
     private final ControlAccount ctrl2;
     private final String confId;
 
+    // Costruttore della classe InfoConferenzaChair
     public InfoConferenzaChair(Stage stage, ControlConferenze ctrl, ControlAccount ctrl2, String confId) {
         this.stage = stage;
         this.ctrl = ctrl;
@@ -47,6 +48,7 @@ public class InfoConferenzaChair {
         this.confId = confId;
     }
 
+    // Mostra la schermata con i dettagli della conferenza selezionata
     public void show() {
         EntityConferenza conf = ctrl.getConferenza(confId)
                 .orElseThrow(() -> new RuntimeException("Conferenza non trovata: " + confId));

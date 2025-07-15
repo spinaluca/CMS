@@ -23,6 +23,7 @@ public class ControlEditings {
     private final ControlAccount ctrlAccount;
     private final Stage stage;
 
+    // Costruttore della classe ControlEditings
     public ControlEditings(BoundaryDBMS db, EntityUtente editor, ControlAccount ctrlAccount, Stage stage) {
         this.db = db;
         this.editor = editor;
@@ -30,20 +31,22 @@ public class ControlEditings {
         this.stage = stage;
     }
 
-    /* ---------------------- Conferenze ---------------------- */
+    // Restituisce la lista delle conferenze dell'editor
     public List<EntityConferenza> getConferenzeEditor() {
         return db.getConferenzeEditor(editor.getEmail());
     }
 
+    // Restituisce la conferenza dato l'id
     public Optional<EntityConferenza> getConferenza(String idConferenza) {
         return db.getConferenzaEditor(idConferenza, editor.getEmail());
     }
 
+    // Restituisce la lista degli articoli della conferenza
     public List<EntityArticolo> getArticoliConferenza(String idConferenza) {
         return db.getArticoliConferenza(idConferenza);
     }
 
-    /* ------------------ Versione Camera-ready ------------------ */
+    // Visualizza la versione camera-ready dell'articolo
     public void visualizzaVersioneCameraready(String idArticolo) {
         Optional<File> fileOpt = db.getVersioneCameraready(idArticolo);
         if (fileOpt.isPresent()) {
@@ -53,11 +56,12 @@ public class ControlEditings {
         }
     }
 
-    /* -------------------- Invio Feedback -------------------- */
+    // Verifica se è già presente un feedback per l'articolo
     public boolean hasFeedback(String idArticolo) {
         return db.getPresenzaFeedback(idArticolo);
     }
 
+    // Invia un feedback per un articolo
     public void inviaFeedback(String idConferenza, String idArticolo) {
         LocalDate oggi = LocalDate.now();
         LocalDate scadenza = db.getDataScadenzaFeedbackEditore(idConferenza);
@@ -75,7 +79,6 @@ public class ControlEditings {
         Optional<File> fileOpt = SelezioneFile.scegliFile(stage);
         if (fileOpt.isPresent()) {
             db.inviaFeedback(editor.getEmail(), fileOpt.get(), idArticolo);
-            db.notificaAutore(idArticolo);
             // Notifica e mail all'autore
             Optional<EntityArticolo> artOpt = db.getDatiArticoloById(idArticolo);
             if (artOpt.isPresent()) {
@@ -91,20 +94,22 @@ public class ControlEditings {
         }
     }
 
-    /* -------------------- Navigation helpers -------------------- */
+    // Restituisce il controller dell'account
     public ControlAccount getAccountController() {
         return ctrlAccount;
     }
 
+    // Apre la homepage dell'editor
     public void apriHomepageEditor() {
         new HomepageEditor(stage, this, ctrlAccount).show();
     }
 
-    /* --------- Articoli con camera-ready --------- */
+    // Restituisce la lista degli articoli camera-ready per una conferenza
     public List<EntityArticolo> getCameraReadyArticoli(String confId) {
         return db.getCameraReadyArticoli(confId);
     }
 
+    // Restituisce il nome e cognome dell'utente dato l'email
     public Optional<String> getLabelUtente(String email) {
         return db.getUtente(email).map(u -> u.getNome() + " " + u.getCognome());
     }

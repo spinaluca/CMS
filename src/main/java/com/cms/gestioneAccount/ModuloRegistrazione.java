@@ -13,11 +13,13 @@ public class ModuloRegistrazione {
     private final Stage stage;
     private final ControlAccount ctrl;
 
+    // Costruttore della classe ModuloRegistrazione
     public ModuloRegistrazione(Stage stage, ControlAccount ctrl) {
         this.stage = stage;
         this.ctrl = ctrl;
     }
 
+    // Mostra la finestra di registrazione utente
     public void show() {
         // Create form fields
         Label emailLabel = new Label("Email:");
@@ -209,10 +211,12 @@ public class ModuloRegistrazione {
         stage.show();
     }
     
+    // Verifica se l'email ha un formato valido
     private boolean isValidEmail(String email) {
         return email.contains("@") && email.contains(".") && email.indexOf("@") < email.lastIndexOf(".");
     }
 
+    // Verifica se la password rispetta i requisiti di sicurezza
     private boolean isPasswordValid(String password) {
         if (password.length() < 8) return false;
         boolean hasUpper = false, hasLower = false, hasDigit = false;
@@ -224,6 +228,7 @@ public class ModuloRegistrazione {
         return hasUpper && hasLower && hasDigit;
     }
 
+    // Valida i campi del form e aggiorna lo stato del bottone di registrazione
     private void validateForm(TextField emailField, TextField nomeField, TextField cognomeField, PasswordField passwordField, DatePicker nascitaPicker, Label errorLabel, Button registerButton) {
         String email = emailField.getText().trim();
         String nome = nomeField.getText().trim();

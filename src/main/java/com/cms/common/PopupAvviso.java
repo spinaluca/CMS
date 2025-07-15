@@ -8,10 +8,12 @@ import javafx.scene.control.DialogPane;
 public class PopupAvviso {
     private final String msg;
 
+    // Costruttore della classe PopupAvviso
     public PopupAvviso(String msg) {
         this.msg = msg;
     }
 
+    // Mostra il popup di avviso
     public void show() {
         Alert alert = new Alert(AlertType.INFORMATION);
         alert.setTitle("Avviso");
@@ -28,10 +30,12 @@ public class PopupAvviso {
         alert.showAndWait();
     }
 
+    // Applica lo stile al DialogPane
     private void styleDialogPane(DialogPane pane) {
         pane.setStyle("-fx-background-color: #ffffff;");
     }
 
+    // Applica lo stile al bottone principale
     private void stylePrimaryButton(Button button) {
         button.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; " +
                 "-fx-border-color: transparent; -fx-padding: 12 24 12 24; -fx-background-radius: 8; " +

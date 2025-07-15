@@ -15,12 +15,14 @@ public class PannelloNotifiche {
     private final ControlNotifiche ctrl;
     private List<Map<String, String>> notifiche;
 
+    // Costruttore della classe PannelloNotifiche
     public PannelloNotifiche(Stage stage, ControlNotifiche ctrl, List<Map<String, String>> notifiche) {
         this.ctrl = ctrl;
         this.stage = stage;
         this.notifiche = notifiche;
     }
 
+    // Mostra la finestra del pannello notifiche
     public void show() {
         // Recupera la lista aggiornata delle notifiche ogni volta
         // Titolo

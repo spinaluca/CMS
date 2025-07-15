@@ -3,9 +3,6 @@ package com.cms.entity;
 import java.time.LocalDate;
 import java.util.*;
 
-/**
- * Rappresenta una conferenza con tutti i suoi dati, inclusi chairId e modalità di distribuzione.
- */
 public class EntityConferenza {
     private final String id;
     private final String acronimo;
@@ -70,8 +67,6 @@ public class EntityConferenza {
         this.numeroVincitori = numeroVincitori;
         this.modalitaDistribuzione = modalitaDistribuzione;
     }
-
-    // --- getter per JDBC insertion -----------------------------------------
 
     public String getId() {
         return id;
@@ -141,12 +136,11 @@ public class EntityConferenza {
         return chairId;
     }
 
-    // setter per chairId (popolato da mapConf o da DAO)
     public void setChairId(String chairId) {
         this.chairId = chairId;
     }
 
-    // --- metodi per gestione revisori/editor post-creazione ---------------
+    // Metodi per gestione revisori/editor post-creazione
 
     public List<String> getRevisori() {
         return Collections.unmodifiableList(revisori);

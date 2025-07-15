@@ -25,12 +25,14 @@ public class HomepageEditor {
     private final ControlEditings ctrl;
     private final ControlAccount ctrlAccount;
 
+    // Costruttore della classe HomepageEditor
     public HomepageEditor(Stage stage, ControlEditings ctrl, ControlAccount ctrlAccount) {
         this.stage = stage;
         this.ctrl = ctrl;
         this.ctrlAccount = ctrlAccount;
     }
 
+    // Mostra la schermata principale per la gestione delle conferenze da parte dell'editor
     public void show() {
         TableView<EntityConferenza> table = new TableView<>();
         ObservableList<EntityConferenza> data =

@@ -6,6 +6,7 @@ import java.io.File;
 import java.util.Optional;
 
 public class SelezioneFile {
+    // Mostra un file chooser per selezionare un file PDF
     public static Optional<File> scegliFile(Stage stage) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Seleziona file PDF");

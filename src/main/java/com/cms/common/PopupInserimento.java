@@ -20,6 +20,7 @@ import javafx.util.StringConverter;
 
 public class PopupInserimento {
 
+    // Mostra un dialogo per inserire un'email
     public Optional<String> promptEmail(String role) {
         TextInputDialog dlg = new TextInputDialog();
         dlg.setTitle(role);
@@ -54,6 +55,7 @@ public class PopupInserimento {
         return dlg.showAndWait();
     }
 
+    // Mostra un dialogo per inserire titolo e parole chiave di un articolo
     public Optional<Map<String, String>> promptDatiArticolo() {
         Dialog<Map<String, String>> dialog = new Dialog<>();
         dialog.setTitle("Sottometti Articolo");
@@ -124,6 +126,7 @@ public class PopupInserimento {
         return dialog.showAndWait();
     }
 
+    // Mostra un dialogo per gestire l'invito a una conferenza
     public Optional<String> promptGestioneInvito(String conferenza) {
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Gestisci Invito");
@@ -157,6 +160,7 @@ public class PopupInserimento {
         return dialog.showAndWait();
     }
 
+    // Mostra un dialogo per selezionare articoli da revisionare
     public Optional<List<EntityArticolo>> promptSelezionaArticoli(List<EntityArticolo> articoli, ControlRevisioni ctrlRevisioni) {
         Dialog<List<EntityArticolo>> dialog = new Dialog<>();
         dialog.setTitle("Seleziona Articoli");
@@ -198,6 +202,7 @@ public class PopupInserimento {
         return dialog.showAndWait();
     }
 
+    // Mostra un dialogo per assegnare un articolo a un revisore
     public Optional<Map<String, String>> promptAssegnazione(List<EntityArticolo> articoli,
                                                             List<String> revisori) {
         Dialog<Map<String, String>> dialog = new Dialog<>();
@@ -270,6 +275,7 @@ public class PopupInserimento {
         return dialog.showAndWait();
     }
 
+    // Classe interna per rappresentare i dati di una revisione
     public static class RevisionData {
         public final int voto;
         public final int expertise;
@@ -279,6 +285,7 @@ public class PopupInserimento {
         }
     }
 
+    // Mostra un dialogo per inserire voto ed expertise
     public Optional<RevisionData> promptVotoExpertise() {
         Dialog<RevisionData> dialog = new Dialog<>();
         dialog.setTitle("Carica Revisione");
@@ -322,10 +329,12 @@ public class PopupInserimento {
         return dialog.showAndWait();
     }
 
+    // Applica lo stile al DialogPane
     private void styleDialogPane(DialogPane pane) {
         pane.setStyle("-fx-background-color: #ffffff;");
     }
 
+    // Applica lo stile al bottone principale
     private void stylePrimaryButton(Button button) {
         button.setStyle("-fx-background-color: #2563eb; -fx-text-fill: white; " +
             "-fx-border-color: transparent; -fx-padding: 12 12 12 12; -fx-background-radius: 8; " +
@@ -341,6 +350,7 @@ public class PopupInserimento {
         });
     }
 
+    // Applica lo stile al bottone secondario
     private void styleSecondaryButton(Button button) {
         button.setStyle("-fx-background-color: #6b7280; -fx-text-fill: white; " +
             "-fx-border-color: transparent; -fx-padding: 12 12 12 12; -fx-background-radius: 8; " +
@@ -356,6 +366,7 @@ public class PopupInserimento {
         });
     }
 
+    // Applica lo stile al bottone di errore
     private void styleErrorButton(Button button) {
         button.setStyle("-fx-background-color: #dc2626; -fx-text-fill: white; " +
                 "-fx-border-color: transparent; -fx-padding: 12 12 12 12; -fx-background-radius: 8; " +
@@ -372,10 +383,12 @@ public class PopupInserimento {
         });
     }
 
+    // Restituisce lo stile delle etichette
     private String getLabelStyle() {
         return "-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 14px;";
     }
 
+    // Restituisce lo stile degli input
     private String getInputStyle() {
         return "-fx-background-color: #ffffff; -fx-text-fill: #1e293b; " +
                 "-fx-border-color: #cbd5e1; -fx-border-width: 1; -fx-border-radius: 8; " +

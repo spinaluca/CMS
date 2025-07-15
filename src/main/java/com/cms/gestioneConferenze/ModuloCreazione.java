@@ -18,11 +18,13 @@ public class ModuloCreazione {
     private final ControlConferenze ctrl;
     private final ControlAccount ctrlAccount;
 
+    // Costruttore della classe ModuloCreazione
     public ModuloCreazione(ControlConferenze ctrl, ControlAccount ctrlAccount) {
         this.ctrl = ctrl;
         this.ctrlAccount = ctrlAccount;
     }
 
+    // Mostra la finestra per la creazione di una nuova conferenza
     public void show() {
         Stage stage = new Stage();
 
@@ -33,7 +35,7 @@ public class ModuloCreazione {
         Label subtitleLabel = new Label("Inserisci i dati per creare la conferenza");
         subtitleLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #64748b; -fx-padding: 0 0 24 0;");
 
-        // Stile labels e input
+        // Stile etichette e campi di input
         String labelStyle = "-fx-text-fill: #374151; -fx-font-weight: 600; -fx-font-size: 14px;";
         String inputStyle = "-fx-background-color: #ffffff; -fx-text-fill: #1e293b; " +
                 "-fx-border-color: #cbd5e1; -fx-border-width: 1; -fx-border-radius: 8; " +
@@ -406,7 +408,7 @@ public class ModuloCreazione {
         Label errorLabel = new Label();
         errorLabel.setStyle("-fx-text-fill: #dc2626; -fx-font-size: 14px;");
 
-        // HBox righe
+        // Riga HBox
         HBox row1 = new HBox(16,
             new VBox(8, new Label("Acronimo:"){{
                 setStyle(labelStyle);

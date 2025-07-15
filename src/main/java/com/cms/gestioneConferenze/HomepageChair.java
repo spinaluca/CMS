@@ -17,12 +17,14 @@ public class HomepageChair {
     private final ControlAccount ctrl2;
     private final Stage stage;
 
+    // Costruttore della classe HomepageChair
     public HomepageChair(Stage stage, ControlConferenze ctrl, ControlAccount ctrl2) {
         this.stage = stage;
         this.ctrl = ctrl;
         this.ctrl2 = ctrl2;
     }
 
+    // Mostra la schermata principale per la gestione delle conferenze da parte del chair
     public void show() {
         TableView<EntityConferenza> table = new TableView<>();
         ObservableList<EntityConferenza> data =
@@ -70,7 +72,7 @@ public class HomepageChair {
                 new InfoConferenzaChair(stage, ctrl, ctrl2, sel.getId()).show();
         });
 
-        // Create title and subtitle
+        // Crea titolo e sottotitolo
         Label titleLabel = new Label("Gestione Conferenze");
         titleLabel.setStyle("-fx-font-size: 28px; -fx-font-weight: 800; -fx-text-fill: #1e293b;");
         
@@ -83,7 +85,7 @@ public class HomepageChair {
         HBox buttonContainer = new HBox(12, spacer, btnCreate, btnDetail);
         buttonContainer.setPadding(new Insets(16, 0, 16, 0));
 
-        // Style the table
+        // Stile della tabella
         table.setStyle("-fx-background-color: #ffffff; -fx-border-color: #e2e8f0; " +
                       "-fx-border-width: 1; " +
                       "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 8, 0, 0, 2);");

@@ -12,12 +12,14 @@ public class ModuloRuoliUtente {
     private final ControlAccount ctrl;
     private final Runnable onCancel;
 
+    // Costruttore della classe ModuloRuoliUtente
     public ModuloRuoliUtente(Stage stage, ControlAccount ctrl, Runnable onCancel) {
         this.stage = stage;
         this.ctrl = ctrl;
         this.onCancel = onCancel;
     }
 
+    // Mostra la finestra per la gestione dei ruoli utente
     public void show() {
         EntityUtente utente = ctrl.getUtenteCorrente();
 

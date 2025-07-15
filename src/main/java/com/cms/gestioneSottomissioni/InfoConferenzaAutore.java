@@ -22,6 +22,7 @@ public class InfoConferenzaAutore {
     private final boolean isIscritto;
     private Label stato;
 
+    // Costruttore della classe InfoConferenzaAutore
     public InfoConferenzaAutore(Stage stage, ControlSottomissioni ctrl, ControlAccount ctrl2, String idConferenza, boolean isIscritto) {
         this.stage = stage;
         this.ctrl = ctrl;
@@ -30,6 +31,7 @@ public class InfoConferenzaAutore {
         this.isIscritto = isIscritto;
     }
 
+    // Mostra la schermata con i dettagli della conferenza selezionata per l'autore
     public void show() {
         EntityConferenza conf = ctrl.getConferenza(idConferenza)
                 .orElseThrow(() -> new RuntimeException("Conferenza non trovata: " + idConferenza));
@@ -295,6 +297,7 @@ public class InfoConferenzaAutore {
         stage.show();
     }
 
+    // Crea un pulsante con stile personalizzato
     private Button createButton(String text, String color) {
         Button button = new Button(text);
         button.setStyle("-fx-background-color: " + color + "; -fx-text-fill: white; -fx-border-color: transparent;" +

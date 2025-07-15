@@ -8,6 +8,7 @@ import java.nio.file.*;
 
 public class DownloadUtil {
 
+    // Salva un file nella cartella downloadsCMS sul Desktop
     public static void salvaInDownload(File sorgente, String nomeBase) {
         try {
             String home = System.getProperty("user.home");

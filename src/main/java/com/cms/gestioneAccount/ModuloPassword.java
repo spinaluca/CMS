@@ -14,6 +14,7 @@ public class ModuloPassword {
     private final String email;
     private final Runnable onCancel;
 
+    // Costruttore della classe ModuloPassword
     public ModuloPassword(Stage stage, ControlAccount ctrl, boolean temporanea, Runnable onCancel) {
         this.stage = stage;
         this.ctrl = ctrl;
@@ -22,6 +23,7 @@ public class ModuloPassword {
         this.onCancel = onCancel;
     }
 
+    // Mostra la finestra per il cambio o impostazione della password
     public void show() {
         // Title and subtitle
         Label titleLabel = new Label(temporanea ? "Imposta Nuova Password" : "Cambio Password");
@@ -167,11 +169,13 @@ public class ModuloPassword {
         stage.show();
     }
 
+    // Mostra un messaggio di errore
     private void showError(Label errorLabel, String message) {
         errorLabel.setText(message);
         errorLabel.setVisible(true);
     }
 
+    // Verifica se la password rispetta i requisiti di sicurezza
     private boolean isPasswordValid(String password) {
         if (password.length() < 8) return false;
         boolean hasUpper = false, hasLower = false, hasDigit = false;
@@ -183,6 +187,7 @@ public class ModuloPassword {
         return hasUpper && hasLower && hasDigit;
     }
 
+    // Valida i campi del form e aggiorna lo stato del bottone di conferma
     private void validateForm(PasswordField newPwField, PasswordField confirmPwField, PasswordField oldPwField, Label errorLabel, Button confirmButton) {
         String nuova = newPwField.getText();
         String conferma = confirmPwField.getText();

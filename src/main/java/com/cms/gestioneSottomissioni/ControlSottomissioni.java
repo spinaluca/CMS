@@ -24,6 +24,7 @@ public class ControlSottomissioni {
     private final ControlAccount ctrlAccount;
     private final Stage stage;
 
+    // Costruttore della classe ControlSottomissioni
     public ControlSottomissioni(BoundaryDBMS db, EntityUtente autore, ControlAccount ctrlAccount, Stage stage) {
         this.db = db;
         this.autore = autore;
@@ -31,16 +32,18 @@ public class ControlSottomissioni {
         this.stage = stage;
     }
 
-
+    // Restituisce la lista delle conferenze a cui l'autore può iscriversi o è iscritto
     public List<EntityConferenza> getConferenzeAutore() {
         return db.getConferenzeAutore(autore.getEmail());
     }
 
+    // Iscrive l'autore alla conferenza specificata
     public void iscrivitiConferenza(String idConferenza) {
         db.iscrizioneConferenza(idConferenza, autore.getEmail());
         new PopupAvviso("Iscrizione effettuata").show();
     }
 
+    // Permette di sottomettere o aggiornare un articolo
     public boolean sottomettiArticolo(String idArticolo) {
         LocalDate oggi = LocalDate.now();
         LocalDate dataScadenza = db.getDataScadenzaSottomissione(getDatiArticolo(idArticolo).getConferenzaId());
@@ -77,6 +80,7 @@ public class ControlSottomissioni {
         return false;
     }
 
+    // Permette di inviare la versione camera-ready dell'articolo
     public void inviaCameraready(String idArticolo) {
         EntityArticolo articolo = getDatiArticolo(idArticolo);
         String idConferenza = articolo.getConferenzaId();
@@ -109,6 +113,7 @@ public class ControlSottomissioni {
         }
     }
 
+    // Permette di inviare la versione finale dell'articolo
     public void inviaVersioneFinale(String idArticolo) {
         EntityArticolo articolo = getDatiArticolo(idArticolo);
         String idConferenza = articolo.getConferenzaId();
@@ -142,6 +147,7 @@ public class ControlSottomissioni {
         }
     }
 
+    // Visualizza il file dell'articolo caricato
     public void visualizzaArticolo(String idArticolo) {
         Optional<File> articolo = db.getArticolo(idArticolo);
         if (articolo.isPresent() && articolo != null) {
@@ -151,6 +157,7 @@ public class ControlSottomissioni {
         }
     }
 
+    // Visualizza la versione camera-ready dell'articolo
     public void visualizzaCameraready(String idArticolo) {
         Optional<File> file = db.getCameraready(idArticolo);
         if (file.isPresent() && file != null) {
@@ -160,6 +167,7 @@ public class ControlSottomissioni {
         }
     }
 
+    // Visualizza la versione finale dell'articolo
     public void visualizzaVersioneFinale(String idArticolo) {
         Optional<File> file = db.getVersioneFinale(idArticolo);
         if (file.isPresent() && file != null) {
@@ -169,6 +177,7 @@ public class ControlSottomissioni {
         }
     }
 
+    // Visualizza il feedback dell'editor per l'articolo
     public void visualizzaFeedback(String idArticolo) {
         Optional<File> file = db.getFeedback(idArticolo);
         if (file.isPresent()) {
@@ -178,6 +187,7 @@ public class ControlSottomissioni {
         }
     }
 
+    // Visualizza la revisione di un articolo per un determinato revisore
     public void visualizzaRevisione(String idArticolo, String emailRevisore) {
         Optional<String> idRevisioneOpt = db.getIdRevisione(idArticolo, emailRevisore);
         if (idRevisioneOpt.isPresent()) {
@@ -192,39 +202,48 @@ public class ControlSottomissioni {
         }
     }
 
+    // Restituisce la conferenza dato l'id
     public Optional<EntityConferenza> getConferenza(String idConferenza) {
         return db.getConferenzaAutore(idConferenza);
     }
 
+    // Restituisce la mappa delle revisioni per una conferenza
     public Map<String, String> getRevisioniArticolo(String idConferenza) {
         return db.getRevisioniArticolo(db.getArticoloId(idConferenza, autore.getEmail()));
     }
 
+    // Restituisce la mappa delle revisioni per un articolo
     public Map<String, String> getRevisioniArticoloById(String idArticolo) {
         return db.getRevisioniArticolo(idArticolo);
     }
 
+    // Restituisce il controller dell'account
     public ControlAccount getAccountController() {
         return ctrlAccount;
     }
 
+    // Torna alla homepage autore
     public void apriHomepageAutore() {
         new HomepageAutore(stage, this, ctrlAccount, autore).show();
     }
 
+    // Verifica se l'autore è iscritto a una conferenza
     public boolean isAutoreIscritto(String idConferenza) {
         return db.isAutoreIscritto(idConferenza, autore.getEmail());
     }
 
+    // Restituisce il nome completo dato l'email
     public Optional<String> getNomeCompleto(String email) {
         return db.getNomeCompleto(email);
     }
 
+    // Restituisce i dati di un articolo dato l'id
     public EntityArticolo getDatiArticolo(String idArticolo) {
         return db.getDatiArticolo(idArticolo)
                 .orElseThrow(() -> new RuntimeException("Articolo non trovato"));
     }
 
+    // Restituisce l'id dell'articolo dato conferenza ed email autore
     public String getArticoloId(String idConferenza, String emailAutore) {
         return db.getArticoloId(idConferenza, emailAutore);
     }

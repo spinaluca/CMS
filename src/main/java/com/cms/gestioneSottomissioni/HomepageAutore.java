@@ -19,6 +19,7 @@ public class HomepageAutore {
     private final ControlAccount ctrlAccount;
     private final EntityUtente autore;
 
+    // Costruttore della classe HomepageAutore
     public HomepageAutore(Stage stage, ControlSottomissioni ctrl, ControlAccount ctrlAccount, EntityUtente autore) {
         this.stage = stage;
         this.ctrl = ctrl;
@@ -26,6 +27,7 @@ public class HomepageAutore {
         this.autore = autore;
     }
 
+    // Mostra la schermata principale per la gestione delle conferenze da parte dell'autore
     public void show() {
         ObservableList<EntityConferenza> conferenzeIscritto = FXCollections.observableArrayList();
         ObservableList<EntityConferenza> conferenzeNonIscritto = FXCollections.observableArrayList();
@@ -71,6 +73,7 @@ public class HomepageAutore {
         stage.show();
     }
 
+    // Crea una sezione della tabella per le conferenze (iscritto o disponibili)
     private VBox creaSezione(String titolo, ObservableList<EntityConferenza> data, boolean isIscritto) {
         TableView<EntityConferenza> table = new TableView<>();
         table.setItems(data);

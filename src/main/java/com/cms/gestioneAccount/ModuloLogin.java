@@ -14,11 +14,13 @@ public class ModuloLogin {
     private final Stage stage;
     private final ControlAccount ctrl;
 
+    // Costruttore della classe ModuloLogin
     public ModuloLogin(Stage stage, ControlAccount ctrl) {
         this.stage = stage;
         this.ctrl = ctrl;
     }
 
+    // Mostra la finestra di login
     public void show() {
         Label emailLabel = new Label("Email:");
         TextField emailField = new TextField("luca.spina02@community.unipa.it");
@@ -34,7 +36,7 @@ public class ModuloLogin {
         Button registerButton = new Button("Registrati");
         Button recoverButton = new Button("Recupera Password");
 
-        //!!!!loginButton.setDisable(true); // disabilitato all'inizio
+        loginButton.setDisable(true); // disabilitato all'inizio
 
         // listener per abilitare login solo se input valido
         ChangeListener<String> listener = (ObservableValue<? extends String> obs, String oldVal, String newVal) -> {
@@ -42,12 +44,11 @@ public class ModuloLogin {
         };
 
         emailField.textProperty().addListener(listener);
-        //!!!!passwordField.textProperty().addListener(listener);
+        passwordField.textProperty().addListener(listener);
 
         loginButton.setOnAction(e -> {
             String email = emailField.getText().trim();
             String password = passwordField.getText();
-            //password = "hashedpass17";
             if (ctrl.verificaCredenziali(email, password)) {
                 ctrl.setUtenteCorrente(email);  // salva utente loggato
 
@@ -128,6 +129,7 @@ public class ModuloLogin {
         stage.show();
     }
 
+    // Aggiorna la validità dei campi e abilita/disabilita il bottone di login
     private void aggiornaValidita(TextField emailField, PasswordField passwordField, Button loginButton, Label errorLabel) {
         String email = emailField.getText().trim();
         String password = passwordField.getText();

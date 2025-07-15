@@ -29,6 +29,7 @@ public class InfoRevisioniChair {
     private final EntityConferenza conferenza;
     private final Runnable onReturn;
 
+    // Costruttore della classe InfoRevisioniChair
     public InfoRevisioniChair(Stage stage, ControlRevisioni ctrl, EntityConferenza conferenza, Runnable onReturn) {
         this.stage = stage;
         this.ctrl = ctrl;
@@ -37,6 +38,7 @@ public class InfoRevisioniChair {
         this.onReturn = onReturn;
     }
 
+    // Mostra la schermata con lo stato delle revisioni per la conferenza (vista Chair)
     public void show() {
         Label title = new Label("Stato Revisioni – " + conferenza.getAcronimo());
         title.setStyle("-fx-font-size: 24px; -fx-font-weight: 700; -fx-text-fill: #1e293b;");
@@ -99,6 +101,7 @@ public class InfoRevisioniChair {
         stage.show();
     }
 
+    // Crea la tabella delle revisioni
     private TableView<RevisionRow> creaTabella() {
         TableView<RevisionRow> table = new TableView<>();
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -145,7 +148,7 @@ public class InfoRevisioniChair {
         return table;
     }
 
-    // DTO semplice per la tabella
+    // Classe DTO per rappresentare una riga della tabella delle revisioni
     public static class RevisionRow {
         public final String idRevisione;
         public final String idReale;

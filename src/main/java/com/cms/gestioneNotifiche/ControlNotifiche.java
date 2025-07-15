@@ -14,16 +14,19 @@ public class ControlNotifiche {
     private final BoundaryDBMS db = new BoundaryDBMS();
     private final ControlAccount ctrlAccount;
 
+    // Costruttore della classe ControlNotifiche
     public ControlNotifiche(ControlAccount ctrlAccount) {
         this.ctrlAccount = ctrlAccount;
     }
     
+    // Mostra il pannello delle notifiche per l'utente corrente
     public void mostraPannelloNotifiche() {
         String email = ctrlAccount.getUtenteCorrente().getEmail();
         List<Map<String, String>> notifiche = db.getNotificheNonLette(email);
         new PannelloNotifiche(new Stage(), this, notifiche).show();
     }
 
+    // Cancella una notifica dato l'id e restituisce la lista aggiornata
     public List<Map<String, String>> cancellaNotifica(String idNotifica) {
         db.cancellaNotifica(idNotifica);
         String email = ctrlAccount.getUtenteCorrente().getEmail();
@@ -31,10 +34,7 @@ public class ControlNotifiche {
         return notifiche;
     }
 
-    /**
-     * Metodo che viene avviato da RilevaDataAttuale per gestire le notifiche automatiche
-     * basate sulle date delle conferenze
-     */
+    // Gestisce le notifiche automatiche basate sulle date delle conferenze
     public void gestisciNotificheAutomatiche() {
         LocalDate dataCorrente = LocalDate.now();
         List<EntityConferenza> tutteConferenze = db.getAllConferenze();
@@ -90,9 +90,7 @@ public class ControlNotifiche {
         }
     }
     
-    /**
-     * 4.1.1. Notifica agli autori la loro posizione nella graduatoria e invia la graduatoria via mail
-     */
+    // Notifica agli autori la loro posizione nella graduatoria
     private void notificaGraduatoriaAutori(EntityConferenza conferenza) {
         Map<String, Integer> graduatoria = db.getGraduatoriaConferenza(conferenza.getId());
         List<String> autori = db.getAutoriConferenza(conferenza.getId());
@@ -125,9 +123,7 @@ public class ControlNotifiche {
         }
     }
     
-    /**
-     * 4.2.1. Notifica al Chair il numero di revisioni mancanti
-     */
+    // Notifica al Chair il numero di revisioni mancanti
     private void notificaRevisioniMancantiChair(EntityConferenza conferenza) {
         int revisioniMancanti = db.getNumeroRevisioniMancanti(conferenza.getId());
         
@@ -143,9 +139,7 @@ public class ControlNotifiche {
             //                   "Revisioni mancanti - " + conferenza.getTitolo());
     }
     
-    /**
-     * 4.3.1. Notifica ai Revisori di ultimare le revisioni
-     */
+    // Notifica ai Revisori di ultimare le revisioni
     private void notificaRevisoriScadenza(EntityConferenza conferenza, int giorniRimanenti) {
         List<String> revisori = db.getRevisoriConferenza(conferenza.getId());
         
@@ -163,9 +157,7 @@ public class ControlNotifiche {
         }
     }
     
-    /**
-     * 4.4.1. Notifica agli Autori di sottomettere l'articolo
-     */
+    // Notifica agli Autori di sottomettere l'articolo
     private void notificaAutoriScadenzaSottomissione(EntityConferenza conferenza) {
         List<String> autori = db.getAutoriConferenza(conferenza.getId());
         
@@ -183,9 +175,7 @@ public class ControlNotifiche {
         }
     }
     
-    /**
-     * 4.5.1. Notifica agli Autori di inviare la versione camera-ready
-     */
+    // Notifica agli Autori di inviare la versione camera-ready
     private void notificaAutoriScadenzaCameraReady(EntityConferenza conferenza) {
         List<String> autori = db.getAutoriConferenza(conferenza.getId());
         
@@ -203,9 +193,7 @@ public class ControlNotifiche {
         }
     }
     
-    /**
-     * 4.6.1. Notifica agli Autori di inviare la versione finale
-     */
+    // Notifica agli Autori di inviare la versione finale
     private void notificaAutoriScadenzaVersioneFinale(EntityConferenza conferenza) {
         List<String> autori = db.getAutoriConferenza(conferenza.getId());
         
@@ -218,14 +206,12 @@ public class ControlNotifiche {
             // Inserisce notifica nel database
             boolean notificaInserita = db.inserisciNotifica(autore, messaggio);
             // if (notificaInserita)
-                //  MailUtil.inviaMail(messaggio, autore, 
+                // MailUtil.inviaMail(messaggio, autore, 
                 //                   "Scadenza versione finale tra 2 giorni - " + conferenza.getTitolo());
         }
     }
     
-    /**
-     * 4.7.1. Notifica all'Editor di inviare il feedback
-     */
+    // Notifica all'Editor di inviare il feedback
     private void notificaEditorScadenzaFeedback(EntityConferenza conferenza) {
         Optional<String> editor = db.getEditorConferenza(conferenza.getId());
         

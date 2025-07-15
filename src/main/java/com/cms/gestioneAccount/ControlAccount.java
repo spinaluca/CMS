@@ -32,41 +32,50 @@ public class ControlAccount {
     private static final String TUTTI = LETTERE_MAIUSCOLE + LETTERE_MINUSCOLE + NUMERI + SPECIALI;
     private final Stage stage;
 
+    // Costruttore della classe ControlAccount
     public ControlAccount(Stage stage, BoundaryDBMS db) {
         this.stage = stage;
         this.db = db;
     }
 
+    // Restituisce lo stage principale
     public Stage getStage() {
         return stage;
     }
 
+    // Imposta l'utente corrente dato l'email
     public void setUtenteCorrente(String email) {
         Optional<EntityUtente> opt = getDatiUtente(email);
         opt.ifPresent(utente -> this.utenteCorrente = utente);
     }
 
 
+    // Restituisce l'utente corrente
     public EntityUtente getUtenteCorrente() {
         return utenteCorrente;
     }
 
+    // Effettua il login verificando email e password
     public boolean login(String email, String password) {
         return db.queryLogin(email, password);
     }
 
+    // Verifica se la password dell'utente è temporanea
     public boolean isPasswordTemporanea(String email) {
         return db.queryIsPasswordTemporanea(email);
     }
 
+    // Registra un nuovo utente nel database
     public boolean registraUtente(EntityUtente utente) {
         return db.queryInsertUtente(utente);
     }
 
+    // Restituisce i dati dell'utente dato l'email
     public Optional<EntityUtente> getDatiUtente(String email) {
         return db.getUtente(email);
     }
 
+    // Gestisce la richiesta di modifica password
     public boolean richiestaModificaPassword(String email, String vecchiaPw, String nuovaPw) {
         if (login(email, vecchiaPw)) {
             System.out.println("Password vecchia corretta");
@@ -75,6 +84,7 @@ public class ControlAccount {
         return false;
     }
 
+    // Genera una password temporanea rispettando i criteri di sicurezza
     private String generaPasswordTemporanea(int length) {
         StringBuilder sb = new StringBuilder();
 
@@ -90,10 +100,12 @@ public class ControlAccount {
         return shuffleString(sb.toString());
     }
 
+    // Restituisce un carattere casuale dalla stringa fornita
     private char randomChar(String chars) {
         return chars.charAt(random.nextInt(chars.length()));
     }
 
+    // Mescola i caratteri di una stringa
     private String shuffleString(String input) {
         char[] arr = input.toCharArray();
         for (int i = arr.length - 1; i > 0; i--) {
@@ -105,14 +117,17 @@ public class ControlAccount {
         return new String(arr);
     }
 
+    // Apre la finestra di login
     public void apriLogin() {
         new ModuloLogin(stage, this).show();
     }
 
+    // Apre la finestra di registrazione
     public void apriRegistrazione() {
         new ModuloRegistrazione(stage, this).show();
     }
 
+    // Gestisce la richiesta di recupero password
     public void richiestaRecuperoPassword() {
         Optional<String> emailOpt = new PopupInserimento().promptEmail("Recupero password");
 
@@ -144,6 +159,7 @@ public class ControlAccount {
         });
     }
 
+    // Gestisce la richiesta di modifica dei ruoli utente
     public void richiestaModificaRuolo(String ruolo, String aree) {
         if (utenteCorrente == null) {
             new PopupErrore("Utente non autenticato").show();
@@ -161,26 +177,32 @@ public class ControlAccount {
         }
     }
 
+    // Apre la homepage per il ruolo Chair
     public void apriHomepageChair() {
         new HomepageChair(stage, new ControlConferenze(db), this).show();
     }
 
+    // Apre la homepage per il ruolo Revisore
     public void apriHomepageRevisore() {
         new HomepageRevisore(stage, new ControlRevisioni(db), this).show();
     }
 
+    // Apre la schermata info conferenza per Revisore
     public void apriInfoConferenzaRevisore(String confId) {
         new InfoConferenzaRevisore(stage, new ControlRevisioni(db), this, confId).show();
     }
 
+    // Apre la schermata info conferenza per Chair
     public void apriInfoConferenzaChair(String confId) {
         new InfoConferenzaChair(stage, new ControlConferenze(db), this, confId).show();
     }
 
+    // Apre la homepage generale dopo il login
     public void apriHomepageGenerale() {
         new Homepage(stage, this, this.getUtenteCorrente()).show();
     }
 
+    // Verifica le credenziali dell'utente e imposta l'utente corrente
     public boolean verificaCredenziali(String email, String password) {
         if (login(email, password)) {
             setUtenteCorrente(email); // Passa solo l'email
@@ -189,31 +211,37 @@ public class ControlAccount {
         return false;
     }
 
+    // Aggiorna la password temporanea dell'utente
     public void aggiornaPasswordTemporanea(String email, String nuovaPassword, boolean temporanea) {
         BoundaryDBMS db = new BoundaryDBMS();
         db.aggiornaPasswordUtente(email, nuovaPassword, temporanea);
     }
 
+    // Verifica se l'email è già registrata
     public boolean emailRegistrata(String email) {
         return new BoundaryDBMS().esisteEmail(email);
     }
 
+    // Apre la finestra per il cambio password
     public void apriCambioPassword() {
         ModuloPassword cambio = new ModuloPassword(stage, this, true, null);
         cambio.show();
     }
 
+    // Esegue il logout dell'utente corrente
     public void richiestaLogout() {
         utenteCorrente = null;
         apriLogin();
     }
 
+    // Apre la homepage per il ruolo Editor
     public void apriHomepageEditor() {
         BoundaryDBMS db = new BoundaryDBMS();
         ControlEditings ctrlEd = new ControlEditings(db, getUtenteCorrente(), this, stage);
         new HomepageEditor(stage, ctrlEd, this).show();
     }
 
+    // Restituisce il nome completo dell'utente dato l'email
     public Optional<String> getNomeCompleto(String email) {
         return db.getNomeCompleto(email);
     }

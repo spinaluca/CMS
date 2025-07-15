@@ -10,6 +10,7 @@ public class MailUtil {
 
     private static final String BASE_URL = "https://script.google.com/macros/s/AKfycbzjqjbtaAzXkAejx5265ow8IbhaOttcyrY7bdGfGzmzwZEpQfoZoIu5LpKQSuTrPA-caQ/exec";
 
+    // Invia una mail tramite Google Apps Script
     public static boolean inviaMail(String msg, String dest, String subject) {
         try {
             String encodedDest = URLEncoder.encode(dest, "UTF-8");

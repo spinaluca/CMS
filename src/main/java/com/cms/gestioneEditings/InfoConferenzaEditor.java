@@ -29,6 +29,7 @@ public class InfoConferenzaEditor {
     private final ControlAccount ctrlAccount;
     private final String confId;
 
+    // Costruttore della classe InfoConferenzaEditor
     public InfoConferenzaEditor(Stage stage, ControlEditings ctrl, ControlAccount ctrlAccount, String confId) {
         this.stage = stage;
         this.ctrl = ctrl;

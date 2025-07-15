@@ -29,13 +29,12 @@ public class ControlRevisioni {
 
     private final BoundaryDBMS db;
 
+    // Costruttore della classe ControlRevisioni
     public ControlRevisioni(BoundaryDBMS db) {
         this.db = db;
     }
 
-    /**
-     * Avvia l'assegnazione automatica degli articoli ai revisori per una data specifica.
-     */
+    // Avvia l'assegnazione automatica degli articoli ai revisori per una data specifica
     public void avviaAssegnazioneAutomatica(LocalDate data) {
         // Passo 3.1: Recupera conferenze interessate
         List<EntityConferenza> conferenze = db.getConferenzeAutomaticheConScadenzaSottomissione(data).stream()
@@ -47,8 +46,7 @@ public class ControlRevisioni {
         }
     }
 
-    // nome da sistemare
-
+    // Assegna gli articoli di una conferenza ai revisori
     private void assegnaArticoliConferenza(EntityConferenza conf) {
         String confId = conf.getId();
         int minimoRevisori = conf.getNumeroMinimoRevisori();
@@ -103,6 +101,7 @@ public class ControlRevisioni {
     }
 
 
+    // Divide le parole chiave in un set
     private Set<String> splitKeywords(String paroleChiave) {
         if (paroleChiave == null) return Collections.emptySet();
         return Arrays.stream(paroleChiave.split("[,;\\s]+"))
@@ -110,6 +109,7 @@ public class ControlRevisioni {
                 .collect(Collectors.toSet());
     }
 
+    // Calcola il punteggio di match tra parole chiave e competenze
     private int matchScore(Set<String> keywords, List<String> competenze) {
         if (keywords.isEmpty() || competenze == null) return 0;
         Set<String> compSet = competenze.stream().map(String::toLowerCase).collect(Collectors.toSet());
@@ -117,7 +117,7 @@ public class ControlRevisioni {
         return compSet.size();
     }
 
-    /** Restituisce lo stato delle revisioni per la conferenza. */
+    // Restituisce lo stato delle revisioni per la conferenza
     public List<InfoRevisioniChair.RevisionRow> getStatoRevisioni(String confId) {
         List<Map<String, String>> raw = db.getDatiRevisioni(confId);
         List<InfoRevisioniChair.RevisionRow> list = new ArrayList<>();
@@ -151,12 +151,12 @@ public class ControlRevisioni {
         return list;
     }
 
-    /** Rimuove l'assegnazione (caso d'uso 4.1.7.6). */
+    // Rimuove l'assegnazione di una revisione
     public void rimuoviAssegnazione(String idRevisione) {
         db.rimuoviAssegnazione(idRevisione);
     }
 
-    /** Visualizza revisione (download) (4.1.7.4). Ritorna Optional true se presente. */
+    // Visualizza la revisione (download)
     public void visualizzaRevisione(String idRevisione, String revisore) {
         Optional<File> revisione = db.getRevisione(idRevisione);
         if (revisione.isPresent() && revisione != null) {
@@ -166,7 +166,7 @@ public class ControlRevisioni {
         }
     }
 
-    /** Avvia procedura di aggiunta assegnazione (stub). */
+    // Avvia la procedura di aggiunta assegnazione
     public void avviaAggiungiAssegnazione(String confId, Runnable onRefresh) {
         LocalDate oggi = LocalDate.now();
         LocalDate scadRev = db.getDataScadenzaRevisioni(confId);
@@ -209,6 +209,7 @@ public class ControlRevisioni {
 
     // ==================== Graduatoria (UC 4.1.7.7) =====================
 
+    // Avvia la generazione della graduatoria per le conferenze senza graduatoria
     public void avviaGraduatoria(LocalDate data) {
         List<EntityConferenza> confs = db.getConferenzeSenzaGraduatoria(data);
         for (EntityConferenza conf : confs) {
@@ -217,6 +218,7 @@ public class ControlRevisioni {
         }
     }
 
+    // Calcola il punteggio degli articoli di una conferenza
     private void calcolaPunteggioArticoli(EntityConferenza conf) {
         String confId = conf.getId();
         List<EntityArticolo> arts = db.getArticoliConferenza(confId);
@@ -247,6 +249,7 @@ public class ControlRevisioni {
         }
     }
 
+    // Crea la graduatoria per una conferenza
     private void creaGraduatoria(EntityConferenza conf) {
         String confId = conf.getId();
         // Recupera articoli e calcola punteggio medio (stub)
@@ -262,27 +265,29 @@ public class ControlRevisioni {
 
     // ==================== Inviti Revisore (UC 4.1.7.8/9) =================
 
+    // Restituisce la mappa degli inviti per un revisore
     public Map<EntityConferenza,String> getInvitiRevisore(String email) {
         return db.getConferenzeRevisore(email);
     }
 
+    // Aggiorna lo stato di un invito revisore
     public void aggiornaInvito(String confId, String emailRevisore, String stato) {
         db.aggiornaInvitoConferenza(confId, emailRevisore, stato);
     }
 
+    // Restituisce lo stato dell'invito di un revisore
     public String getStatoInvitoRevisore(String confId, String emailRevisore) {
         return db.getStatoInvitoRevisore(confId, emailRevisore);
     }
 
     // ==================== Conferenza Revisore (UC 4.1.7.10) =============
 
+    // Restituisce la conferenza per un revisore
     public Optional<EntityConferenza> getConferenzaRevisore(String confId, String email) {
         return db.getConferenzaRevisore(confId, email);
     }
 
-    /**
-     * Visualizza i dettagli della conferenza per il revisore (UC 4.1.7.8)
-     */
+    // Visualizza la conferenza per un revisore
     public void visualizzaConferenza(String idConferenza, String emailRevisore) {
         Optional<EntityConferenza> conferenzaOpt = db.getConferenzaRevisore(idConferenza, emailRevisore);
         if (conferenzaOpt.isPresent()) {
@@ -297,9 +302,7 @@ public class ControlRevisioni {
         }
     }
 
-    /**
-     * Visualizza i dettagli della conferenza per il revisore con ControlAccount (UC 4.1.7.8)
-     */
+    // Visualizza la conferenza per un revisore (con ControlAccount)
     public void visualizzaConferenza(String idConferenza, ControlAccount ctrlAccount) {
         String emailRevisore = ctrlAccount.getUtenteCorrente().getEmail();
         Optional<EntityConferenza> conferenzaOpt = db.getConferenzaRevisore(idConferenza, emailRevisore);
@@ -319,12 +322,14 @@ public class ControlRevisioni {
         }
     }
 
+    // Restituisce la lista degli articoli assegnati a un revisore
     public List<String> getArticoliRevisore(String confId, String email) {
         return db.getArticoliRevisore(confId, email);
     }
 
     // ==================== Revisione Articolo (UC 4.1.7.11/12) ===========
 
+    // Visualizza il file dell'articolo assegnato
     public void visualizzaArticolo(String idArticolo) {
         Optional<File> articolo = db.getArticolo(idArticolo);
         if (articolo.isPresent() && articolo != null) {
@@ -334,6 +339,7 @@ public class ControlRevisioni {
         }
     }
 
+    // Carica una revisione per un articolo
     public void caricaRevisione(String idArticolo, String emailRevisore, int voto, int expertise, File file) {
         db.caricaRevisione(emailRevisore, idArticolo, voto, expertise, file);
         // Notifica e mail all'autore
@@ -351,6 +357,7 @@ public class ControlRevisioni {
 
     // ==================== Aggiungi Articolo Revisore (UC 4.1.7.15) ======
 
+    // Aggiunge un articolo da revisionare per un revisore
     public void aggiungiArticoloRevisore(String confId, String emailRevisore) {
         LocalDate oggi = LocalDate.now();
         LocalDate scadRev = db.getDataScadenzaRevisioni(confId);
@@ -387,12 +394,13 @@ public class ControlRevisioni {
         }
     }
 
-    // Ottiene voto della revisione per articolo e revisore
+    // Restituisce il voto della revisione per articolo e revisore
     public Optional<Integer> getVotoRevisione(String idArticolo, String emailRevisore) {
         return db.getVotoRevisione(idArticolo, emailRevisore);
     }
 
     // ==================== Delega sotto-revisore (UC DELEGATE_REVIEWER) ======
+    // Delega la revisione a un sotto-revisore
     public void delegaSottoRevisore(String confId, String titoloArticolo, String emailRevisore) {
         LocalDate oggi = LocalDate.now();
         LocalDate scadRev = db.getDataScadenzaRevisioni(confId);
@@ -444,14 +452,17 @@ public class ControlRevisioni {
                 });
     }
 
+    // Restituisce l'articolo dato l'id
     public Optional<EntityArticolo> getArticoloById(String idArticolo) {
         return db.getDatiArticoloById(idArticolo);
     }
 
+    // Restituisce l'expertise della revisione per articolo e revisore
     public Optional<Integer> getExpertiseRevisione(String idArticolo, String emailRevisore) {
         return db.getExpertiseRevisione(idArticolo, emailRevisore);
     }
 
+    // Restituisce il nome completo dell'autore dato l'email
     public String getNomeCompletoAutore(String email) {
         return db.getNomeCompleto(email).orElse(email);
     }

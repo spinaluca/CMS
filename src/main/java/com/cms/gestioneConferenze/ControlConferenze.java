@@ -15,14 +15,17 @@ import java.util.*;
 
 public class ControlConferenze {
     private final BoundaryDBMS db;
+    // Costruttore della classe ControlConferenze
     public ControlConferenze(BoundaryDBMS db) {
         this.db = db;
     }
 
+    // Restituisce la lista delle conferenze dell'utente corrente
     public List<EntityConferenza> getConferenze(EntityUtente utenteCorrente) {
         return db.getConferenze(utenteCorrente.getEmail());
     }
 
+    // Crea una nuova conferenza con i dati forniti
     public EntityConferenza creaConferenza(Map<String, String> map, EntityUtente utenteCorrente) {
         String id = UUID.randomUUID().toString();
 
@@ -49,10 +52,12 @@ public class ControlConferenze {
         return conf;
     }
 
+    // Restituisce una conferenza dato l'id
     public Optional<EntityConferenza> getConferenza(String id) {
         return db.getConferenza(id);
     }
 
+    // Invia un invito a un revisore per la conferenza
     public void invitaRevisore(String email, String confId) {
         if (db.queryRevisorePresente(email, confId)) {
             new PopupErrore("Revisore già invitato").show();
@@ -72,6 +77,7 @@ public class ControlConferenze {
         }
     }
 
+    // Rimuove un revisore dalla conferenza
     public void rimuoviRevisore(String email, String confId) {
         db.queryRimuoviRevisore(email, confId);
         // Notifica al revisore rimosso
@@ -86,6 +92,7 @@ public class ControlConferenze {
         }
     }
 
+    // Aggiunge un editor alla conferenza
     public void aggiungiEditor(String email, String confId) {
         db.queryAggiungiEditor(email, confId);
         new PopupAvviso("Editor aggiunto: " + email).show();
@@ -101,22 +108,27 @@ public class ControlConferenze {
         }
     }
 
+    // Restituisce la lista degli articoli della conferenza
     public List<EntityArticolo> getArticoliConferenza(String confId) {
         return db.getArticoliConferenza(confId);
     }
 
+    // Restituisce la mappa dei revisori e il loro stato per una conferenza
     public Map<String, String> getRevisoriConStato(String confId) {
         return db.getRevisoriConStato(confId); // email → stato
     }
 
+    // Restituisce il nome e cognome dell'utente dato l'email
     public Optional<String> getLabelUtente(String email) {
         return db.getUtente(email).map(u -> u.getNome() + " " + u.getCognome());
     }
 
+    // Restituisce il numero di revisioni per un articolo
     public int getNumRevisioni(String articoloId) {
         return db.getNumRevisioni(articoloId);
     }
 
+    // Visualizza l'ultima versione di un articolo
     public void visualizzaUltimaVersione(String idArticolo) {
         Optional<File> ultimaVersione = db.getUltimaVersione(idArticolo, null);
         if (ultimaVersione.isPresent() && ultimaVersione != null) {
@@ -126,10 +138,12 @@ public class ControlConferenze {
         }
     }
 
+    // Aggiorna la posizione di un articolo nella graduatoria
     public void aggiornaPosizioneArticolo(String idArticolo, Integer posizione) {
         db.aggiornaPosizioneArticolo(idArticolo, posizione);
     }
 
+    // Elimina gli articoli "In preparazione" delle conferenze scadute
     public void eliminaArticoliScaduti() {
         db.eliminaArticoliScaduti();
     }

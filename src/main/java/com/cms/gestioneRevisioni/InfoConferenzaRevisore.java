@@ -21,6 +21,7 @@ public class InfoConferenzaRevisore {
     private final ControlAccount ctrl2;
     private final String confId;
 
+    // Costruttore della classe InfoConferenzaRevisore
     public InfoConferenzaRevisore(Stage stage, ControlRevisioni ctrl, ControlAccount ctrl2, String confId) {
         this.stage = stage;
         this.ctrl = ctrl;
@@ -28,10 +29,12 @@ public class InfoConferenzaRevisore {
         this.confId = confId;
     }
 
+    // Restituisce l'email del revisore corrente
     private String getEmailRevisore() {
         return ctrl2.getUtenteCorrente().getEmail();
     }
 
+    // Mostra la schermata con i dettagli della conferenza selezionata per il revisore
     public void show() {
         EntityConferenza conf = ctrl.getConferenzaRevisore(confId, getEmailRevisore())
                 .orElseThrow(() -> new RuntimeException("Conferenza non trovata"));

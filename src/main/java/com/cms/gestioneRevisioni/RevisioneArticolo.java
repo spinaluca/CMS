@@ -26,6 +26,7 @@ public class RevisioneArticolo {
     private final String confId;
     private final boolean isChair;
     
+    // Costruttore della classe RevisioneArticolo
     public RevisioneArticolo(Stage stage, ControlRevisioni ctrl, ControlAccount ctrl2, String idArticolo, String confId, boolean isChair) {
         this.stage = stage;
         this.ctrl = ctrl;
@@ -35,6 +36,7 @@ public class RevisioneArticolo {
         this.isChair = isChair;
     }
 
+    // Mostra la schermata per la revisione di un articolo
     public void show() {
         Label title = new Label("Revisione Articolo");
         title.setStyle("-fx-font-size: 24px; -fx-font-weight: 700; -fx-text-fill: #1e293b;");
@@ -99,10 +101,12 @@ public class RevisioneArticolo {
         stage.show();
     }
 
+    // Visualizza il file dell'articolo da revisionare
     private void visualizzaArticolo() {
         ctrl.visualizzaArticolo(idArticolo);
     }
 
+    // Carica una revisione per l'articolo
     private void caricaRevisione() {
         Optional<PopupInserimento.RevisionData> result = new PopupInserimento().promptVotoExpertise();
         result.ifPresent(data -> {
@@ -120,6 +124,7 @@ public class RevisioneArticolo {
         });
     }
 
+    // Classe interna per rappresentare i dati della revisione
     private static class RevisionData {
         final int voto;
         final int expertise;

@@ -21,25 +21,28 @@ public class HomepageRevisore {
     private final ControlRevisioni ctrl;
     private final ControlAccount ctrl2;
 
+    // Costruttore della classe HomepageRevisore
     public HomepageRevisore(Stage stage, ControlRevisioni ctrl, ControlAccount ctrl2) {
         this.stage = stage;
         this.ctrl = ctrl;
         this.ctrl2 = ctrl2;
     }
 
+    // Restituisce l'email del revisore corrente
     private String getEmailRevisore() {
         return ctrl2.getUtenteCorrente().getEmail();
     }
 
+    // Mostra la schermata principale per la gestione delle revisioni da parte del revisore
     public void show() {
-        // Title and subtitle
+        // Titolo e sottotitolo
         Label titleLabel = new Label("Gestione Revisioni");
         titleLabel.setStyle("-fx-font-size: 28px; -fx-font-weight: 800; -fx-text-fill: #1e293b;");
 
         Label subtitleLabel = new Label("Gestisci le tue conferenze come Revisore");
         subtitleLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #64748b; -fx-padding: 0 0 20 0;");
 
-        // Table
+        // Tabella
         TableView<Row> table = new TableView<>();
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
@@ -67,14 +70,14 @@ public class HomepageRevisore {
                       "-fx-border-width: 1; " +
                       "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 8, 0, 0, 2);");
 
-        // Load data
+        // Carica i dati
         Map<EntityConferenza,String> inviti = ctrl.getInvitiRevisore(getEmailRevisore());
         ObservableList<Row> data = FXCollections.observableArrayList();
         inviti.forEach((conf, stato) -> data.add(new Row(conf, stato)));
         FXCollections.reverse(data);
         table.setItems(data);
 
-        // Buttons
+        // Pulsanti
         Button btnGestInvito = new Button("Accetta/Rifiuta invito");
         btnGestInvito.setStyle("-fx-background-color: #10b981; -fx-text-fill: white; " +
                               "-fx-border-color: transparent; -fx-padding: 12 24; " +
@@ -106,18 +109,18 @@ public class HomepageRevisore {
                 new InfoConferenzaRevisore(stage, ctrl, ctrl2, sel.conf.getId()).show();
         });
 
-        // Buttons aligned to right
+        // Pulsanti allineati a destra
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
         HBox buttonBox = new HBox(12, spacer, btnGestInvito, btnDettagli);
         buttonBox.setPadding(new Insets(16, 0, 16, 0));
 
-        // Main content container
+        // Contenitore principale del contenuto
         VBox contentContainer = new VBox(16, titleLabel, subtitleLabel, table, buttonBox);
         contentContainer.setPadding(new Insets(24));
         contentContainer.setStyle("-fx-background-color: #f8fafc;");
 
-        // Header
+        // Intestazione
         HeaderBar header = new HeaderBar(ctrl2, this::show);
         header.getBtnBack().setOnAction(e -> ctrl2.apriHomepageGenerale());
 
@@ -130,6 +133,7 @@ public class HomepageRevisore {
         stage.show();
     }
 
+    // Classe interna per rappresentare una riga della tabella
     private static class Row {
         final EntityConferenza conf;
         String stato;

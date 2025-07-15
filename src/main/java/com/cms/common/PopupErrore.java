@@ -8,10 +8,12 @@ import javafx.scene.control.DialogPane;
 public class PopupErrore {
     private final String msg;
 
+    // Costruttore della classe PopupErrore
     public PopupErrore(String msg) {
         this.msg = msg;
     }
 
+    // Mostra il popup di errore
     public void show() {
         Alert alert = new Alert(AlertType.ERROR);
         alert.setTitle("Errore");
@@ -28,10 +30,12 @@ public class PopupErrore {
         alert.showAndWait();
     }
 
+    // Applica lo stile al DialogPane
     private void styleDialogPane(DialogPane pane) {
         pane.setStyle("-fx-background-color: #ffffff;");
     }
 
+    // Applica lo stile al bottone di errore
     private void styleErrorButton(Button button) {
         button.setStyle("-fx-background-color: #dc2626; -fx-text-fill: white; " +
                 "-fx-border-color: transparent; -fx-padding: 12 24 12 24; -fx-background-radius: 8; " +

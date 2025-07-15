@@ -20,6 +20,7 @@ public class HeaderBar extends HBox {
     private final Button btnNotifiche;
     private final ControlNotifiche ctrlNotifiche;
 
+    // Costruttore della classe HeaderBar
     public HeaderBar(ControlAccount ctrl, Runnable onReturn) {
         super(10);
 
@@ -92,7 +93,7 @@ public class HeaderBar extends HBox {
         btnLogout.setStyle(logoutButtonStyle);
     }
 
-    // Getter per accesso ai pulsanti
+    // Restituisce il pulsante Indietro
     public Button getBtnBack() {
         return btnBack;
     }
