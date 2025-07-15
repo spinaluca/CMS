@@ -178,12 +178,17 @@ public class ControlSottomissioni {
         }
     }
 
-    public void visualizzaRevisione(String idRevisione) {
-        Optional<File> file = db.getRevisione(idRevisione);
-        if (file.isPresent()) {
-            DownloadUtil.salvaInDownload(file.get(), "Revisione");
+    public void visualizzaRevisione(String idArticolo, String emailRevisore) {
+        Optional<String> idRevisioneOpt = db.getIdRevisione(idArticolo, emailRevisore);
+        if (idRevisioneOpt.isPresent()) {
+            Optional<File> file = db.getRevisione(idRevisioneOpt.get());
+            if (file.isPresent()) {
+                DownloadUtil.salvaInDownload(file.get(), "Revisione");
+            } else {
+                new PopupErrore("Revisione non presente").show();
+            }
         } else {
-            new PopupErrore("Revisione non presente").show();
+            new PopupErrore("Revisione non trovata per questo revisore").show();
         }
     }
 

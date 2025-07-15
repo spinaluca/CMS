@@ -69,7 +69,7 @@ public class ModuloPassword {
 
         // Error label unico sotto
         Label errorLabel = new Label();
-        errorLabel.setStyle("-fx-text-fill: red;");
+        errorLabel.setStyle("-fx-text-fill: red; -fx-font-size: 13px; -fx-max-width: 350px; -fx-wrap-text: true;");
         errorLabel.setVisible(false);
 
         // Buttons
@@ -113,6 +113,14 @@ public class ModuloPassword {
 
         // Button actions
         final PasswordField finalOldPwField = oldPwField;
+        // Validazione live
+        newPwField.textProperty().addListener((obs, oldVal, newVal) -> validateForm(newPwField, confirmPwField, finalOldPwField, errorLabel, confirmButton));
+        confirmPwField.textProperty().addListener((obs, oldVal, newVal) -> validateForm(newPwField, confirmPwField, finalOldPwField, errorLabel, confirmButton));
+        if (finalOldPwField != null) {
+            finalOldPwField.textProperty().addListener((obs, oldVal, newVal) -> validateForm(newPwField, confirmPwField, finalOldPwField, errorLabel, confirmButton));
+        }
+        validateForm(newPwField, confirmPwField, finalOldPwField, errorLabel, confirmButton);
+
         confirmButton.setOnAction(e -> {
             String nuova = newPwField.getText();
             String conferma = confirmPwField.getText();
@@ -127,8 +135,8 @@ public class ModuloPassword {
                 showError(errorLabel, "Le nuove password non coincidono.");
                 return;
             }
-            if (nuova.length() < 8) {
-                showError(errorLabel, "La password deve contenere almeno 8 caratteri.");
+            if (!isPasswordValid(nuova)) {
+                showError(errorLabel, "La password deve contenere almeno 8 caratteri, una lettera maiuscola, una minuscola e un numero.");
                 return;
             }
 
@@ -137,7 +145,7 @@ public class ModuloPassword {
                 new PopupAvviso("Password aggiornata con successo.").show();
                 ctrl.apriLogin();
             } else {
-                boolean success = ctrl.richiestaModificaPassword(vecchia, nuova, conferma);
+                boolean success = ctrl.richiestaModificaPassword(email, vecchia, nuova);
                 if (success) {
                     new PopupAvviso("Password aggiornata con successo.").show();
                     onCancel.run();
@@ -162,5 +170,39 @@ public class ModuloPassword {
     private void showError(Label errorLabel, String message) {
         errorLabel.setText(message);
         errorLabel.setVisible(true);
+    }
+
+    private boolean isPasswordValid(String password) {
+        if (password.length() < 8) return false;
+        boolean hasUpper = false, hasLower = false, hasDigit = false;
+        for (char c : password.toCharArray()) {
+            if (Character.isUpperCase(c)) hasUpper = true;
+            else if (Character.isLowerCase(c)) hasLower = true;
+            else if (Character.isDigit(c)) hasDigit = true;
+        }
+        return hasUpper && hasLower && hasDigit;
+    }
+
+    private void validateForm(PasswordField newPwField, PasswordField confirmPwField, PasswordField oldPwField, Label errorLabel, Button confirmButton) {
+        String nuova = newPwField.getText();
+        String conferma = confirmPwField.getText();
+        String vecchia = oldPwField == null ? "" : oldPwField.getText();
+        String error = null;
+        if (nuova.isEmpty() || conferma.isEmpty() || (oldPwField != null && vecchia.isEmpty())) {
+            error = "Tutti i campi sono obbligatori.";
+        } else if (!nuova.equals(conferma)) {
+            error = "Le nuove password non coincidono.";
+        } else if (!isPasswordValid(nuova)) {
+            error = "La password deve contenere almeno 8 caratteri, una lettera maiuscola, una minuscola e un numero.";
+        }
+        if (error != null) {
+            errorLabel.setText(error);
+            errorLabel.setVisible(true);
+            confirmButton.setDisable(true);
+        } else {
+            errorLabel.setText("");
+            errorLabel.setVisible(false);
+            confirmButton.setDisable(false);
+        }
     }
 }

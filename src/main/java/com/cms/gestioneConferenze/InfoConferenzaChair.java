@@ -104,6 +104,11 @@ public class InfoConferenzaChair {
         bEd.setOnAction(e -> new PopupInserimento()
                 .promptEmail("editor")
                 .ifPresent(email -> {
+                    // Controllo: il chair non può essere editor
+                    if (conf != null && email.equalsIgnoreCase(conf.getChairId())) {
+                        new PopupErrore("Il chair non può essere anche editor della conferenza.").show();
+                        return;
+                    }
                     ctrl.aggiungiEditor(email, confId);
                     show();
                 }));
@@ -266,6 +271,11 @@ public class InfoConferenzaChair {
         bInv.setOnAction(e -> new PopupInserimento()
                 .promptEmail("Invito Revisore")
                 .ifPresent(email -> {
+                    // Controllo: il chair non può essere revisore
+                    if (conf != null && email.equalsIgnoreCase(conf.getChairId())) {
+                        new PopupErrore("Il chair non può essere anche revisore della conferenza.").show();
+                        return;
+                    }
                     ctrl.invitaRevisore(email, confId);
                     show();
                 }));

@@ -47,6 +47,8 @@ public class ControlRevisioni {
         }
     }
 
+    // nome da sistemare
+
     private void assegnaArticoliConferenza(EntityConferenza conf) {
         String confId = conf.getId();
         int minimoRevisori = conf.getNumeroMinimoRevisori();

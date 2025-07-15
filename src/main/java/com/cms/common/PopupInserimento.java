@@ -44,7 +44,7 @@ public class PopupInserimento {
         dlg.getDialogPane().getStylesheets().add(getClass().getResource("/styles.css").toExternalForm());
 
         inputField.textProperty().addListener((obs, oldVal, newVal) -> {
-            boolean valid = newVal.matches("^[\\w-.]+@[\\w-]+\\.[a-zA-Z]{2,}$");
+            boolean valid = newVal.matches("^[\\w.-]+@[\\w-]+(\\.[\\w-]+)+$");;
             warning.setVisible(!valid);
             okButton.setDisable(!valid);
         });

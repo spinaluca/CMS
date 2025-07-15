@@ -129,4 +129,8 @@ public class ControlConferenze {
     public void aggiornaPosizioneArticolo(String idArticolo, Integer posizione) {
         db.aggiornaPosizioneArticolo(idArticolo, posizione);
     }
+
+    public void eliminaArticoliScaduti() {
+        db.eliminaArticoliScaduti();
+    }
 }

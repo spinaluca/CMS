@@ -68,7 +68,8 @@ public class ControlAccount {
     }
 
     public boolean richiestaModificaPassword(String email, String vecchiaPw, String nuovaPw) {
-        if (db.queryCheckPassword(email, vecchiaPw)) {
+        if (login(email, vecchiaPw)) {
+            System.out.println("Password vecchia corretta");
             return db.queryUpdatePassword(email, nuovaPw, false);
         }
         return false;

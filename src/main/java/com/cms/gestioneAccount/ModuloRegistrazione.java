@@ -41,7 +41,8 @@ public class ModuloRegistrazione {
         passwordField.setPromptText("Inserisci una password sicura");
         
         Label errorLabel = new Label();
-        errorLabel.setStyle("-fx-text-fill: red");
+        errorLabel.setStyle("-fx-text-fill: red; -fx-font-size: 13px; -fx-max-width: 350px; -fx-wrap-text: true;");
+        errorLabel.setVisible(false);
 
         Button registerButton = new Button("Registrati");
         Button backButton = new Button("Indietro");
@@ -151,6 +152,14 @@ public class ModuloRegistrazione {
         layout.setStyle("-fx-background-color: #f8fafc; -fx-padding: 40;");
 
         // Button actions
+        // Validazione live
+        emailField.textProperty().addListener((obs, oldVal, newVal) -> validateForm(emailField, nomeField, cognomeField, passwordField, nascitaPicker, errorLabel, registerButton));
+        nomeField.textProperty().addListener((obs, oldVal, newVal) -> validateForm(emailField, nomeField, cognomeField, passwordField, nascitaPicker, errorLabel, registerButton));
+        cognomeField.textProperty().addListener((obs, oldVal, newVal) -> validateForm(emailField, nomeField, cognomeField, passwordField, nascitaPicker, errorLabel, registerButton));
+        passwordField.textProperty().addListener((obs, oldVal, newVal) -> validateForm(emailField, nomeField, cognomeField, passwordField, nascitaPicker, errorLabel, registerButton));
+        nascitaPicker.valueProperty().addListener((obs, oldVal, newVal) -> validateForm(emailField, nomeField, cognomeField, passwordField, nascitaPicker, errorLabel, registerButton));
+        validateForm(emailField, nomeField, cognomeField, passwordField, nascitaPicker, errorLabel, registerButton);
+
         registerButton.setOnAction(e -> {
             String email = emailField.getText().trim();
             String nome = nomeField.getText().trim();
@@ -158,19 +167,26 @@ public class ModuloRegistrazione {
             String password = passwordField.getText();
             LocalDate nascita = nascitaPicker.getValue();
 
+            errorLabel.setVisible(false);
             // Validation
             if (email.isEmpty() || nome.isEmpty() || cognome.isEmpty() || password.isEmpty() || nascita == null) {
                 errorLabel.setText("Tutti i campi sono obbligatori.");
+                errorLabel.setVisible(true);
                 return;
             }
-
             if (!isValidEmail(email)) {
                 errorLabel.setText("Formato email non valido.");
+                errorLabel.setVisible(true);
                 return;
             }
-            
-            if (password.length() < 8) {
-                errorLabel.setText("La password deve contenere almeno 8 caratteri.");
+            if (!isPasswordValid(password)) {
+                errorLabel.setText("La password deve contenere almeno 8 caratteri, una lettera maiuscola, una minuscola e un numero.");
+                errorLabel.setVisible(true);
+                return;
+            }
+            if (nascita.isAfter(java.time.LocalDate.now().minusDays(1))) {
+                errorLabel.setText("La data di nascita non può essere nel futuro.");
+                errorLabel.setVisible(true);
                 return;
             }
 
@@ -180,6 +196,7 @@ public class ModuloRegistrazione {
             ctrl.apriLogin();
             } else {
                 errorLabel.setText("Errore durante la registrazione. Email già esistente?");
+                errorLabel.setVisible(true);
             }
         });
 
@@ -194,5 +211,43 @@ public class ModuloRegistrazione {
     
     private boolean isValidEmail(String email) {
         return email.contains("@") && email.contains(".") && email.indexOf("@") < email.lastIndexOf(".");
+    }
+
+    private boolean isPasswordValid(String password) {
+        if (password.length() < 8) return false;
+        boolean hasUpper = false, hasLower = false, hasDigit = false;
+        for (char c : password.toCharArray()) {
+            if (Character.isUpperCase(c)) hasUpper = true;
+            else if (Character.isLowerCase(c)) hasLower = true;
+            else if (Character.isDigit(c)) hasDigit = true;
+        }
+        return hasUpper && hasLower && hasDigit;
+    }
+
+    private void validateForm(TextField emailField, TextField nomeField, TextField cognomeField, PasswordField passwordField, DatePicker nascitaPicker, Label errorLabel, Button registerButton) {
+        String email = emailField.getText().trim();
+        String nome = nomeField.getText().trim();
+        String cognome = cognomeField.getText().trim();
+        String password = passwordField.getText();
+        LocalDate nascita = nascitaPicker.getValue();
+        String error = null;
+        if (email.isEmpty() || nome.isEmpty() || cognome.isEmpty() || password.isEmpty() || nascita == null) {
+            error = "Tutti i campi sono obbligatori.";
+        } else if (!isValidEmail(email)) {
+            error = "Formato email non valido.";
+        } else if (!isPasswordValid(password)) {
+            error = "La password deve contenere almeno 8 caratteri, una lettera maiuscola, una minuscola e un numero.";
+        } else if (nascita.isAfter(java.time.LocalDate.now().minusDays(1))) {
+            error = "La data di nascita non può essere nel futuro.";
+        }
+        if (error != null) {
+            errorLabel.setText(error);
+            errorLabel.setVisible(true);
+            registerButton.setDisable(true);
+        } else {
+            errorLabel.setText("");
+            errorLabel.setVisible(false);
+            registerButton.setDisable(false);
+        }
     }
 }

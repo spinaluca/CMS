@@ -204,11 +204,43 @@ public class InfoConferenzaAutore {
                 show(); // Ricarica la pagina per aggiornare i dati
             });
             
+            Button btnVisualizzaRevisione = createButton("Visualizza Revisione", "#8b5cf6");
+            btnVisualizzaRevisione.setDisable(true);
+            table.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+                btnVisualizzaRevisione.setDisable(newSel == null || newSel[0].equals("<non assegnato>"));
+            });
+            btnVisualizzaRevisione.setOnAction(e -> {
+                String[] selected = table.getSelectionModel().getSelectedItem();
+                if (selected != null && !selected[0].equals("<non assegnato>")) {
+                    // Ricavo l'email del revisore dalla mappa revisioni
+                    String emailRevisore = null;
+                    if (revisioni != null) {
+                        for (Map.Entry<String, String> entry : revisioni.entrySet()) {
+                            String descrizioneRev = entry.getValue();
+                            int revIdx = descrizioneRev.indexOf("Revisore: ");
+                            int votoIdx = descrizioneRev.indexOf("- Voto: ");
+                            if (revIdx != -1 && votoIdx != -1) {
+                                String email = descrizioneRev.substring(revIdx + 10, votoIdx).trim();
+                                String nomeCompleto = ctrl.getNomeCompleto(email).orElse("<non assegnato>");
+                                if (nomeCompleto.equals(selected[0])) {
+                                    emailRevisore = email;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (emailRevisore != null) {
+                        ctrl.visualizzaRevisione(art.getId(), emailRevisore);
+                    }
+                }
+            });
+            
             HBox bottoniInvio = new HBox(10,
                 spacer1,
                 btnSottomettiArticolo,
                 btnInviaCameraReady,
-                btnInviaVersioneFinale
+                btnInviaVersioneFinale,
+                btnVisualizzaRevisione
             );
             bottoniInvio.setPadding(new Insets(0, 0, 0, 0));
 
@@ -238,10 +270,10 @@ public class InfoConferenzaAutore {
             
             HBox bottoniVisual = new HBox(10,
                 spacer2,
-                btnVisualizzaFeedbackEditor,
                 btnVisualizzaArticolo,
                 btnVisualizzaCameraReady,
-                btnVisualizzaVersioneFinale
+                btnVisualizzaVersioneFinale,
+                btnVisualizzaFeedbackEditor
             );
             bottoniVisual.setPadding(new Insets(0, 0, 0, 0));
 

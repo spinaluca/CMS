@@ -16,6 +16,8 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.UUID;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class BoundaryDBMS {
     private static final String URL;
@@ -348,23 +350,11 @@ public class BoundaryDBMS {
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
+            // password = hashPassword(password); // hash della password prima di confrontarla
             ps.setString(2, password);
             return ps.executeQuery().next();
         } catch (SQLException e) {
             throw new RuntimeException("Errore durante queryLogin", e);
-        }
-    }
-
-    // Controlla password attuale
-    public boolean queryCheckPassword(String email, String password) {
-        String sql = "SELECT 1 FROM utenti WHERE email = ? AND password = ?";
-        try (Connection conn = DriverManager.getConnection(URL);
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, email);
-            ps.setString(2, password);
-            return ps.executeQuery().next();
-        } catch (SQLException e) {
-            throw new RuntimeException("Errore durante queryCheckPassword", e);
         }
     }
 
@@ -374,7 +364,9 @@ public class BoundaryDBMS {
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, utente.getEmail());
-            ps.setString(2, utente.getPassword());
+            String password = utente.getPassword();
+            // password = hashPassword(password); // hash della password prima di salvarla
+            ps.setString(2, password);
             ps.setString(3, utente.getNome());
             ps.setString(4, utente.getCognome());
             ps.setString(5, utente.getDataNascita().toString()); // formato ISO yyyy-MM-dd
@@ -437,6 +429,7 @@ public class BoundaryDBMS {
         String sql = "UPDATE utenti SET password = ?, password_temporanea = ? WHERE email = ?";
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql)) {
+            // nuovaPw = hashPassword(nuovaPw); // hash della password prima di salvarla
             ps.setString(1, nuovaPw);
             ps.setBoolean(2, temporanea);
             ps.setString(3, email);
@@ -484,6 +477,7 @@ public class BoundaryDBMS {
         String sql = "UPDATE utenti SET password = ?, password_temporanea = ? WHERE email = ?";
         try (Connection conn = DriverManager.getConnection(URL);
              PreparedStatement ps = conn.prepareStatement(sql)) {
+            // nuovaPassword = hashPassword(nuovaPassword); // hash della password prima di salvarla
             ps.setString(1, nuovaPassword);
             ps.setBoolean(2, temporanea);
             ps.setString(3, email);
@@ -1602,5 +1596,43 @@ public class BoundaryDBMS {
             throw new RuntimeException("Errore durante inserisciNotifica", e);
         }
         return false;
+    }
+
+    public static String hashPassword(String password) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hashedBytes = md.digest(password.getBytes());
+            // Convertiamo i byte in una stringa esadecimale
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hashedBytes) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void eliminaArticoliScaduti() {
+        List<EntityConferenza> conferenze = getAllConferenze();
+        LocalDate ieri = LocalDate.now().minusDays(1);
+        for (EntityConferenza conf : conferenze) {
+            LocalDate scadSottomissione = conf.getScadenzaSottomissione();
+            if (scadSottomissione.isBefore(LocalDate.now()) || scadSottomissione.isEqual(ieri)) {
+                // Elimina articoli "In preparazione" per questa conferenza
+                eliminaArticoliInPreparazione(conf.getId());
+            }
+        }
+    }
+
+    private void eliminaArticoliInPreparazione(String confId) {
+        String sql = "DELETE FROM articoli WHERE conferenza_id = ? AND stato = 'In preparazione'";
+        try (java.sql.Connection conn = java.sql.DriverManager.getConnection(URL);
+             java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, confId);
+            ps.executeUpdate();
+        } catch (java.sql.SQLException e) {
+            throw new RuntimeException("Errore durante eliminaArticoliInPreparazione", e);
+        }
     }
 }

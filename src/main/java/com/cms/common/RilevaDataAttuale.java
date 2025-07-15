@@ -3,6 +3,7 @@ package com.cms.common;
 import com.cms.gestioneAccount.ControlAccount;
 import com.cms.gestioneNotifiche.ControlNotifiche;
 import com.cms.gestioneRevisioni.ControlRevisioni;
+import com.cms.gestioneConferenze.ControlConferenze;
 import javafx.stage.Stage;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -11,6 +12,10 @@ import java.time.format.DateTimeFormatter;
 public class RilevaDataAttuale {
     public RilevaDataAttuale() {
         LocalDate dataOggi = LocalDate.now();
+
+        ControlConferenze ctrlConferenze = new ControlConferenze(new BoundaryDBMS());
+        ctrlConferenze.eliminaArticoliScaduti();
+        
         ControlRevisioni ctrlRevisioni = new ControlRevisioni(new BoundaryDBMS());
         ctrlRevisioni.avviaGraduatoria(dataOggi);
         ctrlRevisioni.avviaAssegnazioneAutomatica(dataOggi);

@@ -186,11 +186,4 @@ public class Homepage {
             default: return "rgba(0, 0, 0, " + alpha + ")";
         }
     }
-
-    private void showAlert(String message, Alert.AlertType type) {
-        Alert alert = new Alert(type);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
 }

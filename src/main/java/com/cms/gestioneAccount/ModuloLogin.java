@@ -1,5 +1,6 @@
 package com.cms.gestioneAccount;
 
+import com.cms.common.PopupErrore;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
@@ -46,7 +47,7 @@ public class ModuloLogin {
         loginButton.setOnAction(e -> {
             String email = emailField.getText().trim();
             String password = passwordField.getText();
-            password = "hashedpass17";
+            //password = "hashedpass17";
             if (ctrl.verificaCredenziali(email, password)) {
                 ctrl.setUtenteCorrente(email);  // salva utente loggato
 
@@ -57,7 +58,7 @@ public class ModuloLogin {
                     ctrl.apriHomepageGenerale();   // login normale
                 }
             } else {
-                showAlert("Credenziali non valide");
+                new PopupErrore("Credenziali non valide").show();
             }
 
         });
@@ -141,12 +142,5 @@ public class ModuloLogin {
             errorLabel.setText("");
             loginButton.setDisable(false);
         }
-    }
-
-    private void showAlert(String msg) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setHeaderText(null);
-        alert.setContentText(msg);
-        alert.showAndWait();
     }
 }

@@ -31,6 +31,13 @@ public class HomepageAutore {
         ObservableList<EntityConferenza> conferenzeNonIscritto = FXCollections.observableArrayList();
 
         for (EntityConferenza conf : ctrl.getConferenzeAutore()) {
+            String autoreEmail = autore.getEmail();
+            String chairId = conf.getChairId();
+            String editorId = conf.getEditor().orElse(null);
+            if ((chairId != null && chairId.equalsIgnoreCase(autoreEmail)) ||
+                (editorId != null && editorId.equalsIgnoreCase(autoreEmail))) {
+                continue; // Salta conferenze dove l'autore è chair o editor
+            }
             if (ctrl.isAutoreIscritto(conf.getId())) {
                 conferenzeIscritto.add(conf);
             } else {
