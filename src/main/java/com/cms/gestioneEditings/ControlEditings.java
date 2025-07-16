@@ -87,8 +87,8 @@ public class ControlEditings {
                 String messaggio = "Gentile Autore,\n" +
                         "Hai ricevuto un feedback dall'editor per il tuo articolo '" + articolo.getTitolo() + "'.";
                 boolean notificaInserita = db.inserisciNotifica(emailAutore, messaggio);
-                // if (notificaInserita)
-                //     MailUtil.inviaMail(messaggio, emailAutore, "Feedback editor - " + articolo.getTitolo());
+                if (notificaInserita)
+                    MailUtil.inviaMail(messaggio, emailAutore, "Feedback editor - " + articolo.getTitolo());
             }
             new PopupAvviso("Feedback inviato con successo").show();
         }

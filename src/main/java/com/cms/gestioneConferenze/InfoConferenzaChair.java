@@ -231,7 +231,7 @@ public class InfoConferenzaChair {
             if (row != null) {
                 ctrl.visualizzaUltimaVersione(row.getId());
             } else {
-                new PopupAvviso("Seleziona una revisione").show();
+                new PopupAvviso("Seleziona un articolo").show();
             }
         });
 

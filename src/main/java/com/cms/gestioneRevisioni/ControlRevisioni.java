@@ -302,8 +302,8 @@ public class ControlRevisioni {
             String messaggio = "Gentile Autore,\n" +
                     "È stata caricata una revisione per il tuo articolo '" + articolo.getTitolo() + "'.";
             boolean notificaInserita = db.inserisciNotifica(emailAutore, messaggio);
-            // if (notificaInserita)
-            //     MailUtil.inviaMail(messaggio, emailAutore, "Revisione caricata - " + articolo.getTitolo());
+            if (notificaInserita)
+                MailUtil.inviaMail(messaggio, emailAutore, "Revisione caricata - " + articolo.getTitolo());
         }
     }
 
@@ -331,8 +331,8 @@ public class ControlRevisioni {
                                 String messaggio = "Gentile Autore,\n" +
                                         "Il tuo articolo '" + art.getTitolo() + "' è stato assegnato a un revisore.";
                                 boolean notificaInserita = db.inserisciNotifica(emailAutore, messaggio);
-                                // if (notificaInserita)
-                                //     MailUtil.inviaMail(messaggio, emailAutore, "Nuova assegnazione revisore - " + art.getTitolo());
+                                if (notificaInserita)
+                                    MailUtil.inviaMail(messaggio, emailAutore, "Nuova assegnazione revisore - " + art.getTitolo());
                             }
                             new PopupAvviso("Articolo assegnato con successo").show();
                         });
@@ -395,8 +395,8 @@ public class ControlRevisioni {
                     String messaggio = "Gentile Revisore,\n" +
                             "Ti è stata delegata la revisione dell'articolo '" + titoloArticolo + "'.";
                     boolean notificaInserita = db.inserisciNotifica(emailSR, messaggio);
-                    // if (notificaInserita)
-                    //     MailUtil.inviaMail(messaggio, emailSR, "Delegata revisione - " + titoloArticolo);
+                    if (notificaInserita)
+                        MailUtil.inviaMail(messaggio, emailSR, "Delegata revisione - " + titoloArticolo);
                     new PopupAvviso("Revisione delegata con successo a " + db.getNomeCompleto(emailSR).orElse(emailSR)).show();
                 });
     }

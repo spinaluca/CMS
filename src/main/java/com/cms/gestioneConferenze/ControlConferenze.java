@@ -71,8 +71,8 @@ public class ControlConferenze {
                 String messaggio = "Gentile Revisore,\n" +
                         "Sei stato invitato a partecipare come revisore alla conferenza '" + conferenza.getTitolo() + "'.";
                 boolean notificaInserita = db.inserisciNotifica(email, messaggio);
-                // if (notificaInserita)
-                    // MailUtil.inviaMail(messaggio, email, "Invito revisore - " + conferenza.getTitolo());
+                if (notificaInserita)
+                    MailUtil.inviaMail(messaggio, email, "Invito revisore - " + conferenza.getTitolo());
             }
         }
     }
@@ -87,8 +87,8 @@ public class ControlConferenze {
             String messaggio = "Gentile Revisore,\n" +
                     "Sei stato rimosso come revisore dalla conferenza '" + conferenza.getTitolo() + "'.";
             boolean notificaInserita = db.inserisciNotifica(email, messaggio);
-            // if (notificaInserita)
-                // MailUtil.inviaMail(messaggio, email, "Rimozione revisore - " + conferenza.getTitolo());
+            if (notificaInserita)
+                MailUtil.inviaMail(messaggio, email, "Rimozione revisore - " + conferenza.getTitolo());
         }
     }
 
@@ -103,8 +103,8 @@ public class ControlConferenze {
             String messaggio = "Gentile Editor,\n" +
                     "Sei stato aggiunto come editor alla conferenza '" + conferenza.getTitolo() + "'.";
             boolean notificaInserita = db.inserisciNotifica(email, messaggio);
-            // if (notificaInserita)
-                // MailUtil.inviaMail(messaggio, email, "Aggiunta editor - " + conferenza.getTitolo());
+            if (notificaInserita)
+                MailUtil.inviaMail(messaggio, email, "Aggiunta editor - " + conferenza.getTitolo());
         }
     }
 

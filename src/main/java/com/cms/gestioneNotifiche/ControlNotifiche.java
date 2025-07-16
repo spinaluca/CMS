@@ -118,8 +118,8 @@ public class ControlNotifiche {
             
             // Inserisce notifica nel database
             boolean notificaInserita = db.inserisciNotifica(autore, messaggio);
-            // if (notificaInserita)
-                // MailUtil.inviaMail(messaggio, autore, "Graduatoria pubblicata - " + conferenza.getTitolo());
+            if (notificaInserita)
+                MailUtil.inviaMail(messaggio, autore, "Graduatoria pubblicata - " + conferenza.getTitolo());
         }
     }
     
@@ -134,9 +134,9 @@ public class ControlNotifiche {
         
         // Inserisce notifica nel database
         boolean notificaInserita = db.inserisciNotifica(conferenza.getChairId(), messaggio);
-        // if (notificaInserita)
-            // MailUtil.inviaMail(messaggio, conferenza.getChairId(), 
-            //                   "Revisioni mancanti - " + conferenza.getTitolo());
+        if (notificaInserita)
+            MailUtil.inviaMail(messaggio, conferenza.getChairId(), 
+                              "Revisioni mancanti - " + conferenza.getTitolo());
     }
     
     // Notifica ai Revisori di ultimare le revisioni
@@ -151,9 +151,9 @@ public class ControlNotifiche {
         for (String revisore : revisori) {
             // Inserisce notifica nel database
             boolean notificaInserita = db.inserisciNotifica(revisore, messaggio);
-            // if (notificaInserita)
-                // MailUtil.inviaMail(messaggio, revisore, 
-                //                   "Scadenza revisioni tra " + giorniRimanenti + " giorni - " + conferenza.getTitolo());
+            if (notificaInserita)
+                MailUtil.inviaMail(messaggio, revisore, 
+                                  "Scadenza revisioni tra " + giorniRimanenti + " giorni - " + conferenza.getTitolo());
         }
     }
     
@@ -169,9 +169,9 @@ public class ControlNotifiche {
         for (String autore : autori) {
             // Inserisce notifica nel database
             boolean notificaInserita = db.inserisciNotifica(autore, messaggio);
-            // if (notificaInserita)
-                // MailUtil.inviaMail(messaggio, autore, 
-                //                   "Scadenza sottomissioni tra 2 giorni - " + conferenza.getTitolo());
+            if (notificaInserita)
+                MailUtil.inviaMail(messaggio, autore, 
+                                  "Scadenza sottomissioni tra 2 giorni - " + conferenza.getTitolo());
         }
     }
     
@@ -187,9 +187,9 @@ public class ControlNotifiche {
         for (String autore : autori) {
             // Inserisce notifica nel database
             boolean notificaInserita = db.inserisciNotifica(autore, messaggio);
-            // if (notificaInserita)
-                // MailUtil.inviaMail(messaggio, autore, 
-                //                   "Scadenza camera-ready tra 2 giorni - " + conferenza.getTitolo());
+            if (notificaInserita)
+                MailUtil.inviaMail(messaggio, autore, 
+                                  "Scadenza camera-ready tra 2 giorni - " + conferenza.getTitolo());
         }
     }
     
@@ -205,9 +205,9 @@ public class ControlNotifiche {
         for (String autore : autori) {
             // Inserisce notifica nel database
             boolean notificaInserita = db.inserisciNotifica(autore, messaggio);
-            // if (notificaInserita)
-                // MailUtil.inviaMail(messaggio, autore, 
-                //                   "Scadenza versione finale tra 2 giorni - " + conferenza.getTitolo());
+            if (notificaInserita)
+                MailUtil.inviaMail(messaggio, autore, 
+                                  "Scadenza versione finale tra 2 giorni - " + conferenza.getTitolo());
         }
     }
     
@@ -223,9 +223,9 @@ public class ControlNotifiche {
             
             // Inserisce notifica nel database
             boolean notificaInserita = db.inserisciNotifica(editor.get(), messaggio);
-            // if (notificaInserita)
-                // MailUtil.inviaMail(messaggio, editor.get(), 
-                //                   "Scadenza feedback tra 2 giorni - " + conferenza.getTitolo());
+            if (notificaInserita)
+                MailUtil.inviaMail(messaggio, editor.get(), 
+                                  "Scadenza feedback tra 2 giorni - " + conferenza.getTitolo());
         }
     }
 } 
